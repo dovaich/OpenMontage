@@ -1,0 +1,168 @@
+{
+ "title": "الشبشب — FINAL BOSS",
+ "logline": "Hamada (son of Om Hamada and Ibrahim) is gaming at 2 AM the night before his chemistry exam. Mom becomes the final boss, and her slipper is a homing weapon. He loses, and ends up on the balcony next to his dad.",
+ "voices": {
+  "mom": {
+   "voice": "ar-EG-SalmaNeural",
+   "rate": "+4%",
+   "pitch": "+0Hz"
+  },
+  "son": {
+   "voice": "ar-EG-ShakirNeural",
+   "rate": "+14%",
+   "pitch": "+28Hz"
+  },
+  "dad": {
+   "voice": "ar-EG-ShakirNeural",
+   "rate": "-8%",
+   "pitch": "-10Hz"
+  },
+  "anno": {
+   "voice": "en-US-GuyNeural",
+   "rate": "-12%",
+   "pitch": "-14Hz"
+  }
+ },
+ "lines": [
+  {
+   "id": "L01",
+   "s": "mom",
+   "gap_after": 0.35,
+   "ar": "حمااادة! إنت بتذاكر ولا بتلعب؟!",
+   "en": "HAMADAAA! Are you studying or gaming?!",
+   "rate": "+8%",
+   "pitch": "+6Hz",
+   "volume": "+20%",
+   "t0": 1.0,
+   "t1": 4.265
+  },
+  {
+   "id": "L02",
+   "s": "son",
+   "gap_after": 0.3,
+   "ar": "بذاكر يا ماما! ده فيلم وثائقي عن التاريخ!",
+   "en": "Studying, Mom! It's a history documentary!",
+   "rate": "+24%",
+   "t0": 4.615,
+   "t1": 8.056
+  },
+  {
+   "id": "L03",
+   "s": "mom",
+   "gap_after": 0.25,
+   "ar": "تاريخ إيه اللي فيه عربيات بتخبط في بعض؟! أنا جاية!",
+   "en": "What history has cars crashing into each other?! I'm coming!",
+   "rate": "+16%",
+   "pitch": "+4Hz",
+   "t0": 8.356,
+   "t1": 12.81
+  },
+  {
+   "id": "L04",
+   "s": "son",
+   "gap_after": 1.3,
+   "ar": "لا لا لا! سيف! سيف بسرعة!",
+   "en": "No no no! SAVE! Save, quick!",
+   "rate": "+22%",
+   "pitch": "+34Hz",
+   "t0": 13.06,
+   "t1": 16.919
+  },
+  {
+   "id": "L05",
+   "s": "mom",
+   "gap_after": 0.4,
+   "ar": "امتحان الكيميا الساعة تمانية الصبح، وإنت بتلعب للساعة اتنين بالليل؟",
+   "en": "Chemistry exam at 8 AM... and you're gaming at 2 AM?",
+   "rate": "+2%",
+   "pitch": "-4Hz",
+   "t0": 18.219,
+   "t1": 23.657
+  },
+  {
+   "id": "L06",
+   "s": "son",
+   "gap_after": 0.4,
+   "ar": "يا ماما والنبي، دي آخر مرحلة بس!",
+   "en": "Mom, please! It's just the last level!",
+   "rate": "+22%",
+   "t0": 24.057,
+   "t1": 26.919
+  },
+  {
+   "id": "L07",
+   "s": "mom",
+   "gap_after": 0.3,
+   "ar": "آخر مرحلة؟ ماشي.",
+   "en": "The last level? Fine.",
+   "rate": "-10%",
+   "pitch": "-6Hz",
+   "t0": 27.319,
+   "t1": 30.179
+  },
+  {
+   "id": "L08",
+   "s": "mom",
+   "gap_after": 3.0,
+   "ar": "خلي بالك من دي بقى!",
+   "en": "Then watch out for THIS!",
+   "rate": "+2%",
+   "pitch": "+2Hz",
+   "volume": "+15%",
+   "t0": 30.479,
+   "t1": 32.11
+  },
+  {
+   "id": "L09",
+   "s": "anno",
+   "gap_after": 0.35,
+   "en_tts": "K.O.! Hamada has been defeated.",
+   "ar": "",
+   "en": "K.O.! Hamada has been defeated.",
+   "rate": "-4%",
+   "t0": 35.11,
+   "t1": 38.322
+  },
+  {
+   "id": "L10",
+   "s": "anno",
+   "gap_after": 2.2,
+   "en_tts": "Continue?",
+   "ar": "",
+   "en": "Continue?",
+   "t0": 38.672,
+   "t1": 39.463
+  },
+  {
+   "id": "L11",
+   "s": "dad",
+   "gap_after": 0.3,
+   "ar": "أهلاً يا بطل.. نورت البلكونة.",
+   "en": "Welcome, Hamada... the balcony's honored, champ.",
+   "rate": "-4%",
+   "t0": 41.663,
+   "t1": 45.228
+  },
+  {
+   "id": "L12",
+   "s": "son",
+   "gap_after": 0.8,
+   "ar": "إنت هنا من إمتى يا بابا؟",
+   "en": "How long have you been out here, Dad?",
+   "rate": "+14%",
+   "pitch": "+22Hz",
+   "t0": 45.528,
+   "t1": 46.952
+  },
+  {
+   "id": "L13",
+   "s": "dad",
+   "gap_after": 1.5,
+   "ar": "من أيام غسالة المواعين النفاثة تلاتة آلاف.",
+   "en": "Since the Jet Dishwasher 3000.",
+   "rate": "-4%",
+   "t0": 47.752,
+   "t1": 51.087
+  }
+ ]
+}
