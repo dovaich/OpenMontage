@@ -23,3 +23,9 @@ ffmpeg -framerate 15 -i frames/f%05d.png -i final_mix.wav -filter_complex "[0:v]
 ```
 `voice.py` / `assemble.py` read `lines.json` from `$PROJ/artifacts/`, so copy it there first.
 Shot timings, poses and HUD timings all live in `scene.js` (`SON_KEYS`, `MOM_KEYS`, `DAD_KEYS`, `stateAt`, `cameraAt`).
+
+## Google AI Studio voice version (current)
+`lines_google.json` holds the 13 lines from your single-voice Google take. They were matched to the take by silence and pitch (mom is high, Hamada is mid, Ibrahim and the announcer are low).
+It also holds `warp_anchors_new_old`, a map from output time to scene time. Speech, the door kick, the slipper throw and the K.O. run 1:1,
+and only the dead air between lines is shortened, so the cut runs 45.9 s. `scene.js` reads the map from `window.WARP` in `lines.js`,
+and `sfx.py` reads it as its third argument (`python3 sfx.py dialogue.wav mix.wav lines_google.json`).

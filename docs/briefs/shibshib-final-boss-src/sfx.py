@@ -1,10 +1,16 @@
 # Synthesises the music bed + SFX for "الشبشب — FINAL BOSS" and mixes them under the dialogue.
-# usage: python3 sfx.py <dialogue.wav> <out_mix.wav>
+# usage: python3 sfx.py <dialogue.wav> <out_mix.wav> [lines_google.json]
+# Event times are written in scene time; with a lines file carrying warp_anchors_new_old they are mapped to output time.
 import sys, wave, json
 import numpy as np
 
 SR = 44100
-DUR = 52.59
+ANC = json.load(open(sys.argv[3]))["warp_anchors_new_old"] if len(sys.argv) > 3 else [[0, 0], [52.59, 52.59]]
+def W(o):  # scene (old) time -> output time
+    for (n0, o0), (n1, o1) in zip(ANC, ANC[1:]):
+        if o <= o1: return n0 + (o - o0) * (n1 - n0) / max(1e-6, o1 - o0)
+    return ANC[-1][0]
+DUR = ANC[-1][0]
 N = int(DUR * SR) + SR
 rs = np.random.RandomState(7)
 
@@ -22,8 +28,8 @@ def lp(x, a):  # one-pole lowpass, a in (0,1)
     for i in range(len(x)):
         acc += a * (x[i] - acc); y[i] = acc
     return y
-def put(buf, x, t0, g=1.0):
-    i = int(t0 * SR)
+def put(buf, x, t0, g=1.0, raw=False):
+    i = int((t0 if raw else W(t0)) * SR)
     if i >= len(buf): return
     x = x[: len(buf) - i]; buf[i:i + len(x)] += x * g
 def note(n): return 440.0 * 2 ** ((n - 69) / 12)
@@ -35,16 +41,16 @@ bpm = 150; step = 60 / bpm / 2
 mel = [76, 79, 81, 79, 76, 74, 72, 74, 76, 76, 79, 83, 81, 79, 76, 74]
 bass = [45, 45, 52, 52, 43, 43, 50, 50]
 t = 0.0; i = 0
-while t < 13.3:
+while t < W(13.3):
     m = mel[i % len(mel)]
-    put(music, sq(note(m), step * 0.9, 0.25) * env_adsr(int(step * 0.9 * SR), 0.003, 0.04), t, 0.05)
+    put(music, sq(note(m), step * 0.9, 0.25) * env_adsr(int(step * 0.9 * SR), 0.003, 0.04), t, 0.05, True)
     if i % 2 == 0:
         b = bass[(i // 2) % len(bass)]
-        put(music, tri(note(b), step * 1.8) * env_adsr(int(step * 1.8 * SR), 0.003, 0.05), t, 0.08)
-    if i % 4 == 2: put(music, noise(0.05) * np.linspace(1, 0, int(0.05 * SR)), t, 0.07)
+        put(music, tri(note(b), step * 1.8) * env_adsr(int(step * 1.8 * SR), 0.003, 0.05), t, 0.08, True)
+    if i % 4 == 2: put(music, noise(0.05) * np.linspace(1, 0, int(0.05 * SR)), t, 0.07, True)
     t += step; i += 1
 # engine buzz of the microbus game
-eng = sq(55, 13.3, 0.3) * 0.5 + sq(56.5, 13.3, 0.3) * 0.5
+eng = sq(55, W(13.3), 0.3) * 0.5 + sq(56.5, W(13.3), 0.3) * 0.5
 put(music, lp(eng, 0.08), 0, 0.03)
 # TV crash beep when mom yells
 put(sfx, sq(880, 0.08) * env_adsr(int(0.08 * SR)), 1.0, 0.0)
@@ -89,18 +95,18 @@ for j, n in enumerate([50, 51, 54]):  # D Eb F# brass stab
 hij = [38, 39, 42, 43, 45, 46, 48, 50]
 bpm = 96; beat = 60 / bpm
 ost = [0, 0, 1, 0, 2, 1, 0, 3]
-t = 18.22; i = 0
-while t < 32.1:
+t = W(18.22); i = 0
+while t < W(32.1):
     n = hij[ost[i % len(ost)]]
     dd = beat / 2 * 0.9
-    put(music, sq(note(n), dd, 0.5) * env_adsr(int(dd * SR), 0.005, 0.05), t, 0.085)
+    put(music, sq(note(n), dd, 0.5) * env_adsr(int(dd * SR), 0.005, 0.05), t, 0.085, True)
     if i % 4 == 0:  # timpani
-        put(music, np.sin(2 * np.pi * 65 * tt(0.5)) * np.exp(-tt(0.5) * 7) + lp(noise(0.5), 0.1) * np.exp(-tt(0.5) * 12) * 0.6, t, 0.3)
+        put(music, np.sin(2 * np.pi * 65 * tt(0.5)) * np.exp(-tt(0.5) * 7) + lp(noise(0.5), 0.1) * np.exp(-tt(0.5) * 12) * 0.6, t, 0.3, True)
     if i % 8 == 4:  # darbuka "tek"
-        put(music, lp(noise(0.05), 0.6) * np.exp(-tt(0.05) * 90), t, 0.12)
+        put(music, lp(noise(0.05), 0.6) * np.exp(-tt(0.05) * 90), t, 0.12, True)
     if i % 16 == 8:  # high Hijaz phrase
         for j, m in enumerate([62, 63, 66, 63, 62]):
-            put(music, sq(note(m), beat / 2 * 0.8, 0.25) * env_adsr(int(beat / 2 * 0.8 * SR)), t + j * beat / 2, 0.045)
+            put(music, sq(note(m), beat / 2 * 0.8, 0.25) * env_adsr(int(beat / 2 * 0.8 * SR)), t + j * beat / 2, 0.045, True)
     t += beat / 2; i += 1
 
 # ---------- item get jingle 30.6 ----------
@@ -146,11 +152,11 @@ for j, m in enumerate([79, 84]):
     put(sfx, sq(note(m), 0.08, 0.25) * env_adsr(int(0.08 * SR)), 40.55 + j * 0.08, 0.1)
 
 # ---------- balcony: crickets, distant horn, oud-ish plucks ----------
-tb = tt(DUR - 41.3)
+tb = tt(DUR - W(41.3))
 chirp = np.sin(2 * np.pi * 4300 * tb) * (np.sin(2 * np.pi * 30 * tb) > 0.3) * ((tb * 1.6) % 1 < 0.25)
 chirp2 = np.sin(2 * np.pi * 3900 * tb) * (np.sin(2 * np.pi * 26 * tb) > 0.4) * (((tb + 0.37) * 1.3) % 1 < 0.2)
 put(amb, (chirp + chirp2) * 0.5, 41.3, 0.035)
-put(amb, lp(noise(DUR - 41.3), 0.01), 41.3, 0.25)  # city hum
+put(amb, lp(noise(DUR - W(41.3)), 0.01), 41.3, 0.25)  # city hum
 d = 0.45; put(amb, lp(sq(415, d, 0.5) * 0.6 + sq(440, d, 0.5) * 0.4, 0.15) * env_adsr(int(d * SR), 0.02, 0.1), 44.1, 0.05)
 put(amb, lp(sq(415, d, 0.5) * 0.6 + sq(440, d, 0.5) * 0.4, 0.15) * env_adsr(int(d * SR), 0.02, 0.1), 44.65, 0.05)
 
@@ -162,12 +168,12 @@ def pluck(f, d, damp=0.996):
 melody = [(62, 0), (63, 0.5), (66, 1.0), (67, 1.5), (66, 2.25), (63, 2.75), (62, 3.5),
           (69, 4.5), (67, 5.0), (66, 5.5), (63, 6.0), (62, 7.0)]
 for m, off in melody:
-    put(music, pluck(note(m - 12), 1.2), 41.9 + off * 0.85, 0.16)
-for off in [0, 1.7, 3.4, 5.1, 6.8, 8.5]:
-    put(music, pluck(note(38), 1.6), 41.9 + off, 0.12)
+    put(music, pluck(note(m - 12), 1.2), W(41.9) + off * 0.85, 0.16, True)
+for off in [0, 1.7, 3.4, 5.1, 6.8]:
+    put(music, pluck(note(38), 1.6), W(41.9) + off, 0.12, True)
 # end jingle "to be continued"
 for j, m in enumerate([74, 75, 78, 79]):
-    put(sfx, pluck(note(m), 0.6), 51.25 + j * 0.16, 0.18)
+    put(sfx, pluck(note(m), 0.6), W(52.25) + j * 0.16, 0.18, True)
 
 # ---------- mix with ducking ----------
 w = wave.open(sys.argv[1]); dia = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float64) / 32768

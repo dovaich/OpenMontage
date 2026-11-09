@@ -11,7 +11,7 @@ page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') co
 page.on('pageerror', e => console.log('PAGEERR', e.message));
 await page.goto('http://127.0.0.1:8765/index.html');
 await page.waitForFunction(() => window.READY === true, null, { timeout: 60000 });
-const times = list ? list.split(',').map(Number) : Array.from({ length: Math.ceil(52.59 * fps) }, (_, i) => i / fps);
+const times = list ? list.split(',').map(Number) : Array.from({ length: Math.ceil(45.9 * fps) }, (_, i) => i / fps);
 let i = 0; const t0 = Date.now();
 for (const t of times) {
   const data = await page.evaluate((t) => { window.renderFrame(t); return window.frameData(); }, t);

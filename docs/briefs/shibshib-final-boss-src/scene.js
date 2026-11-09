@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 
 const W = 640, H = 480;
-const DUR = 52.59;
+const DUR = 45.9; // output length (scene time runs to 53.6 via window.WARP)
 const T_IMPACT = 34.3;
 
 // ---------- utils ----------
@@ -473,7 +473,7 @@ function emit(list, pool) {
 const LINES = window.LINES_DATA.lines;
 const SPEAK = LINES.map(l => [l.t0, l.t1, l.s]);
 function speakerAt(t) { for (const [a, b, s] of SPEAK) if (t >= a && t < b) return s; return null; }
-function envAt(t) { const e = window.ENV.env; const i = Math.floor(t * window.ENV.fps); return e[Math.min(e.length - 1, Math.max(0, i))] || 0; }
+function envAt(t) { const e = window.ENV.env; const i = Math.floor((window.TN ?? t) * window.ENV.fps); return e[Math.min(e.length - 1, Math.max(0, i))] || 0; }
 function talkMouth(t, who, big) {
   if (speakerAt(t) !== who) return null;
   const e = envAt(t);
@@ -530,7 +530,7 @@ const BSON_KEYS = [
   [0, { y: -0.62, lL: 1.45, lR: 1.45, aLx: 0.9, eL: 1.4, aRx: 0.9, eR: 1.4, aLz: -0.2, aRz: -0.2, bend: 0.25, hx: 0.2 }],
   [45.5, { y: -0.62, lL: 1.45, lR: 1.45, aLx: 0.9, eL: 1.4, aRx: 0.9, eR: 1.4, aLz: -0.2, aRz: -0.2, bend: 0.1, hy: -0.5, hx: 0.0 }],
   [47.75, { y: -0.62, lL: 1.45, lR: 1.45, aLx: 0.9, eL: 1.4, aRx: 0.9, eR: 1.4, aLz: -0.2, aRz: -0.2, bend: 0.25, hy: -0.4, hx: 0.25 }],
-  [51.1, { y: -0.62, lL: 1.45, lR: 1.45, aLx: 0.9, eL: 1.4, aRx: 0.9, eR: 1.4, aLz: -0.2, aRz: -0.2, bend: 0.3, hy: 0, hx: 0.45 }, 0.5],
+  [52.1, { y: -0.62, lL: 1.45, lR: 1.45, aLx: 0.9, eL: 1.4, aRx: 0.9, eR: 1.4, aLz: -0.2, aRz: -0.2, bend: 0.3, hy: 0, hx: 0.45 }, 0.5],
 ];
 const DAD_KEYS = [
   [0, { y: -0.7, lL: 1.45, lR: 1.45, aLz: 0.5, aLx: 0.3, eL: 0.5, aRz: 0.5, aRx: 0.3, eR: 0.5, bend: -0.15, hy: 0.5 }],
@@ -538,7 +538,7 @@ const DAD_KEYS = [
   [44.5, { y: -0.7, lL: 1.45, lR: 1.45, aLz: 0.5, aLx: 0.3, eL: 0.5, aRz: 0.5, aRx: 0.3, eR: 0.5, bend: -0.15, hy: 0.45 }],
   [47.75, { y: -0.7, lL: 1.45, lR: 1.45, aLz: 0.5, aLx: 0.3, eL: 0.5, aRz: 0.5, aRx: 0.3, eR: 0.5, bend: -0.2, hy: 0.15, hx: -0.25 }],
   [49.8, { y: -0.7, lL: 1.45, lR: 1.45, aLz: 0.5, aLx: 0.3, eL: 0.5, aRx: 1.2, aRz: 0.9, eR: 0.6, bend: -0.2, hy: 0.4, hx: -0.15 }],
-  [51.1, { y: -0.7, lL: 1.45, lR: 1.45, aLz: 0.5, aLx: 0.3, eL: 0.5, aRz: 0.5, aRx: 0.3, eR: 0.5, bend: -0.1, hy: 0.0, hx: 0.3 }, 0.5],
+  [52.1, { y: -0.7, lL: 1.45, lR: 1.45, aLz: 0.5, aLx: 0.3, eL: 0.5, aRz: 0.5, aRx: 0.3, eR: 0.5, bend: -0.1, hy: 0.0, hx: 0.3 }, 0.5],
 ];
 
 const SON_POS = V(-0.3, 0.0, -1.5);
@@ -720,7 +720,7 @@ function stateAt(t) {
   else if (t < 32.9) { se = 'wide'; sm = 'wobble'; if (t > 30.48) { se = 'pin'; sm = 'o'; } }
   else if (t < T_IMPACT) { se = 'wide'; sm = t < 33.75 ? 'scream' : 'grin'; }
   else if (t < 41.3) { se = 'dizzy'; sm = 'tongue'; if (t > 37.0) se = 'x'; }
-  else { se = 'tired'; sm = talkMouth(t, 'son') || 'frown'; if (t > 51.1) se = 'closed'; }
+  else { se = 'tired'; sm = talkMouth(t, 'son') || 'frown'; if (t > 52.1) se = 'closed'; }
   // Mom
   let me = 'normal', mm = 'closed', mopt = {};
   if (t < 13.06) { me = 'angry'; mm = 'clench'; }
@@ -733,7 +733,7 @@ function stateAt(t) {
   if (t > 19 && t < 24 && [20.2, 22.4].some(b => t >= b && t < b + 0.18)) me = 'closed';
   // Dad
   let de = 'tired', dm = 'closed', dopt = { stache: true };
-  if (balc) { dm = talkMouth(t, 'dad') || 'smile'; if (t > 47.75) de = 'sad'; if (t > 51.1) { de = 'closed'; dm = 'smile'; } if ([43.6, 46.2].some(b => t >= b && t < b + 0.18)) de = 'closed'; }
+  if (balc) { dm = talkMouth(t, 'dad') || 'smile'; if (t > 47.75) de = 'sad'; if (t > 52.1) { de = 'closed'; dm = 'smile'; } if ([43.6, 46.2].some(b => t >= b && t < b + 0.18)) de = 'closed'; }
   son.faceMat.map = faceTexture(se, sm, sopt); son.faceMat.needsUpdate = true;
   mom.faceMat.map = faceTexture(me, mm, mopt); mom.faceMat.needsUpdate = true;
   dad.faceMat.map = faceTexture(de, dm, dopt); dad.faceMat.needsUpdate = true;
@@ -786,10 +786,10 @@ function cameraAt(t) {
     const k = seg(t, 41.3, 45.5); cam(VL(V(-0.1, 1.15, 2.6), V(-0.15, 1.05, 2.2), k), V(-0.25, 0.75, -0.55), 50);
   } else if (t < 47.7) { // S12b Hamada CU
     const h2 = son.head.getWorldPosition(V(0, 0, 0)); cam(h2.clone().add(V(-0.25, 0.02, 1.05)), h2, 45);
-  } else if (t < 51.1) { // S12c Ibrahim CU
+  } else if (t < 52.1) { // S12c Ibrahim CU
     const h2 = dad.head.getWorldPosition(V(0, 0, 0)); cam(h2.clone().add(V(0.3, 0.05, 1.1)), h2, 45);
   } else { // S12d pull back, end card
-    const k = easeInOut(seg(t, 51.1, 52.59)); cam(VL(V(-0.15, 1.1, 2.3), V(-0.1, 1.8, 4.2), k), V(-0.25, 0.9, -0.5), 52);
+    const k = easeInOut(seg(t, 52.1, 53.6)); cam(VL(V(-0.15, 1.1, 2.3), V(-0.1, 1.8, 4.2), k), V(-0.25, 0.9, -0.5), 52);
   }
 }
 
@@ -1019,7 +1019,7 @@ function drawBalconyTitle(g, t) {
   g.globalAlpha = 1;
 }
 function drawEnd(g, t) {
-  const a = t - 51.25; if (a < 0) return;
+  const a = t - 52.25; if (a < 0) return;
   const k = easeOut(clamp(a / 0.4));
   g.fillStyle = `rgba(0,0,0,${0.55 * k})`; g.fillRect(0, 0, W, H);
   g.save(); g.translate(W / 2, 190); g.scale(k, k);
@@ -1031,7 +1031,9 @@ function drawEnd(g, t) {
 function vignette(g, amt) { const gr = g.createRadialGradient(W / 2, H / 2, 120, W / 2, H / 2, 420); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, `rgba(0,0,0,${amt})`); g.fillStyle = gr; g.fillRect(0, 0, W, H); }
 
 // =====================================================================
-window.renderFrame = function (t) {
+function warp(tn) { const A = window.WARP; for (let i = 1; i < A.length; i++) { const [n0, o0] = A[i - 1], [n1, o1] = A[i]; if (tn <= n1) return o0 + (tn - n0) * (o1 - o0) / Math.max(1e-6, n1 - n0); } return A[A.length - 1][1]; }
+window.renderFrame = function (tn) {
+  window.TN = tn; const t = warp(tn);
   // boss intro is a freeze frame
   const st = (t >= 17.25 && t < 18.219) ? 17.25 : t;
   stateAt(st); cameraAt(st);
