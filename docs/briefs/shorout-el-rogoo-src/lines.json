@@ -1,0 +1,173 @@
+{
+ "title": "شروط الرجوع",
+ "voice_source": "Google AI Studio single-voice take (user supplied); L12 filled with edge-tts because it was missing",
+ "dur": 41.3,
+ "lines": [
+  {
+   "id": "L01",
+   "s": "mom",
+   "t0": 0.8,
+   "t1": 3.34,
+   "src": [
+    0.08,
+    2.62
+   ],
+   "ar": "صباح الخير يا أبطال.. اتفضلوا ادخلوا.",
+   "en": "Good morning, heroes... come on in.",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L02",
+   "s": "son",
+   "t0": 3.74,
+   "t1": 4.46,
+   "src": [
+    3.57,
+    4.29
+   ],
+   "ar": "بجد يا ماما؟!",
+   "en": "Seriously, Mom?!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L03",
+   "s": "mom",
+   "t0": 4.96,
+   "t1": 10.7,
+   "src": [
+    5.24,
+    10.98
+   ],
+   "ar": "بس بشروط. أولاً: ممنوع الاختراعات. تانياً: ممنوع البلايستيشن بعد الساعة اتناشر.",
+   "en": "On conditions. One: no inventions. Two: no console after midnight.",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L04",
+   "s": "dad",
+   "t0": 11.1,
+   "t1": 12.4,
+   "src": [
+    11.86,
+    13.16
+   ],
+   "ar": "طب وتالتاً يا حبيبتي؟",
+   "en": "And... number three, dear?",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L05",
+   "s": "mom",
+   "t0": 12.8,
+   "t1": 16.83,
+   "src": [
+    14.21,
+    18.24
+   ],
+   "ar": "تالتاً.. أي حد يقرّب من المطبخ.. هيعيش في البلكونة للأبد.",
+   "en": "Three... anyone who goes near the kitchen... lives on the balcony FOREVER.",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L06",
+   "s": "anno",
+   "t0": 17.33,
+   "t1": 19.05,
+   "src": [
+    19.4,
+    21.12
+   ],
+   "ar": "",
+   "en": "Accept terms and conditions?",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L07",
+   "s": "son",
+   "t0": 19.25,
+   "t1": 20.94,
+   "src": [
+    21.79,
+    23.48
+   ],
+   "ar": "موافق، موافق، موافق!",
+   "en": "Accept, accept, ACCEPT!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L08",
+   "s": "dad",
+   "t0": 21.44,
+   "t1": 24.39,
+   "src": [
+    24.24,
+    27.19
+   ],
+   "ar": "أنا مقريتش ولا شرط.. إنت قريت؟",
+   "en": "I didn't read a single term... did you?",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L09",
+   "s": "son",
+   "t0": 24.59,
+   "t1": 26.04,
+   "src": [
+    27.8,
+    29.25
+   ],
+   "ar": "ولا أنا يا بابا.",
+   "en": "Me neither, Dad.",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L10",
+   "s": "mom",
+   "t0": 26.6,
+   "t1": 28.29,
+   "src": [
+    29.77,
+    31.46
+   ],
+   "ar": "الله! الكهربا رجعت!",
+   "en": "Oh! The power's back!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L11",
+   "s": "dad",
+   "t0": 28.6,
+   "t1": 31.3,
+   "src": [
+    32.38,
+    35.08
+   ],
+   "ar": "يا نهار أبيض.. الموتور كان لسه في الفيشة!",
+   "en": "Oh no... the engine was still plugged in!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L12",
+   "s": "anno",
+   "t0": 33.0,
+   "t1": 36.583,
+   "src": "edge-tts en-US-GuyNeural (missing from take)",
+   "ar": "",
+   "en": "Achievement unlocked: Balcony resident.",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L13",
+   "s": "mom",
+   "t0": 36.9,
+   "t1": 38.62,
+   "src": [
+    35.84,
+    37.56
+   ],
+   "ar": "على البلكونة.. الاتنين!",
+   "en": "To the balcony... BOTH of you!",
+   "gap_after": 0.4
+  }
+ ]
+}
