@@ -51,10 +51,18 @@
   - Uncle Sayed (old doorman): **Enceladus**
   - Ibrahim: **Orus**
   - Announcer: **Algenib**
-  - Om Hamada and Hamada have not been cast for this route yet. Pick female/young voices the first time they appear (for example Kore or Leda for the mom, Puck for Hamada).
+  - Om Hamada: **Kore**
+  - Shehata (market fruit seller): **Charon**
+  - Hamada has not been cast for this route yet. Try Puck the first time he appears.
 - Splitting the runs: segment on silence and assign speakers by pitch. Hoda's lines sit around 250–410 Hz, while Sayed and Ibrahim sit around 85–140 Hz.
 
 ## Characters so far
 - Main: Om Hamada, Ibrahim (the inventor), Hamada (16, gamer).
-- Recurring: Abu Samir (upstairs neighbour, Wi-Fi owner), Hoda (tuk-tuk driver), Uncle Sayed (doorman).
+- Recurring: Abu Samir (upstairs neighbour, Wi-Fi owner), Hoda (tuk-tuk driver, owns the flying Tuk-Tuk 3000), Uncle Sayed (doorman), Shehata (market fruit seller).
 - Running gags: the Jet Dishwasher 3000 tuk-tuk engine, the balcony as punishment, game-HUD overlays, and endings with an achievement or unlock screen.
+
+## Dialogue text must follow the voice (standing rule since "The Market Run")
+- For every line, measure the voiced segments inside its audio (`vox` in `lines.json`) and type the Arabic text against them.
+  Use phrase-per-segment when the counts match, and word-by-voiced-time otherwise. The reference is `revealCount()` and `drawDialogue()` in
+  `docs/briefs/mishwar-el-souq-src/ep7.js`. Don't go back to fixed-speed typing.
+- Check every speaker's level after assembling. Raise quiet takes (often the announcer) to match the dialogue before mixing.
