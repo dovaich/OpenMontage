@@ -53,7 +53,7 @@
   - Announcer: **Algenib**
   - Om Hamada: **Kore**
   - Shehata (market fruit seller): **Charon**
-  - Hamada has not been cast for this route yet. Try Puck the first time he appears.
+  - Hamada: **Puck**
 - Splitting the runs: segment on silence and assign speakers by pitch. Hoda's lines sit around 250–410 Hz, while Sayed and Ibrahim sit around 85–140 Hz.
 
 ## Characters so far
@@ -65,4 +65,6 @@
 - For every line, measure the voiced segments inside its audio (`vox` in `lines.json`) and type the Arabic text against them.
   Use phrase-per-segment when the counts match, and word-by-voiced-time otherwise. The reference is `revealCount()` and `drawDialogue()` in
   `docs/briefs/mishwar-el-souq-src/ep7.js`. Don't go back to fixed-speed typing.
-- Check every speaker's level after assembling. Raise quiet takes (often the announcer) to match the dialogue before mixing.
+- Normalise every line to the median voiced RMS when assembling the dialogue track, clamping the gain to 0.6–3.0 (see `docs/briefs/el-diouf-gayeen-src`).
+  The announcer takes from AI Studio usually come in quiet.
+- AI Studio downloads use their own file names (`Generated_Audio_<date>.wav`). Identify the runs by line count, pitch and the English announcer, not by name.
