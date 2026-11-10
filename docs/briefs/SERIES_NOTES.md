@@ -21,3 +21,18 @@
   Final picks: see the casting decision below once the user chooses.
 - **Quota:** the free tier allows only **10 requests per day per model** on 3.8 flash TTS. One call per line does not fit an episode (13+ lines)
   unless billing is enabled on the key.
+
+### Casting decision (final, picked by measured expressiveness; the user delegated the choice)
+| Character | Voice ID | Why |
+|---|---|---|
+| Om Hamada | `ar-eg-advisor-9` | Egyptian female; when shouting, f0 ≈ 312 Hz with a 218 Hz range (the other candidate's range was 113 Hz) |
+| Ibrahim | `ar-eg-advisor-7` | Egyptian male, low (≈117 Hz) and "witty"; range 204 Hz (the other candidate's was 67 Hz, which sounds flat) |
+| Hamada | `ar-eg-advisor-8` | Egyptian male, high (≈186 Hz, clearly above Ibrahim); range 157 Hz (the MSA alternative's was 49 Hz) |
+| Abu Samir | `ar-eg-assistant-3` | The only elderly Egyptian male (64, deep). Give him a shaky, raspy old-man style to separate him from Ibrahim |
+| Announcer | `algenib` | English, gravelly and low; range 304 Hz |
+
+### Free-tier workflow (user chose to stay free: 10 requests/day on 3.8)
+- Send several lines per request, never one request per line. 3.8 multi-speaker takes **2 speakers per request**, so group lines in script order into
+  about 3 requests (for example mom + Hamada, Ibrahim + Abu Samir, announcer alone). Use the audio-profile/transcript layout with one style note per
+  speaker. Leave a clear pause between lines, then split on silence and assign the pieces by order and pitch.
+- Count the lines in each result; if one is missing, regenerate only that line. Keep the remaining requests as retry budget.
