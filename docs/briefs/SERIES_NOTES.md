@@ -36,3 +36,25 @@
   about 3 requests (for example mom + Hamada, Ibrahim + Abu Samir, announcer alone). Use the audio-profile/transcript layout with one style note per
   speaker. Leave a clear pause between lines, then split on silence and assign the pieces by order and pitch.
 - Count the lines in each result; if one is missing, regenerate only that line. Keep the remaining requests as retry budget.
+
+## Recording in Google AI Studio through the Claude-in-Chrome extension (current route)
+- Claude writes the episode, then hands the user one copy-paste message for the extension. The extension records in AI Studio and downloads the WAVs,
+  the user uploads them to the session, and Claude builds the video.
+- What the free AI Studio account offers (checked by the extension):
+  - Gemini 3.8 Flash TTS is selectable.
+  - **No Egyptian/Arabic voices** are listed, and the language filter has no Arabic. Native `ar-eg-*` voices need a paid API key linked in AI Studio.
+  - The page uses **speech blocks**, each with its own Style. Speakers **alternate automatically** (1, 2, 1, 2...) and a block's speaker cannot be chosen.
+    So two consecutive lines by the same character must be merged into one block, with a long pause written between them.
+  - Two speakers per recording, so split scenes into runs of two speakers, plus a single-speaker run for the announcer.
+- Voices used for this route (standard Gemini voices; the style prefix asks for an Egyptian Cairene dialect):
+  - Hoda (young tuk-tuk driver): **Fenrir**
+  - Uncle Sayed (old doorman): **Enceladus**
+  - Ibrahim: **Orus**
+  - Announcer: **Algenib**
+  - Om Hamada and Hamada have not been cast for this route yet. Pick female/young voices the first time they appear (for example Kore or Leda for the mom, Puck for Hamada).
+- Splitting the runs: segment on silence and assign speakers by pitch. Hoda's lines sit around 250–410 Hz, while Sayed and Ibrahim sit around 85–140 Hz.
+
+## Characters so far
+- Main: Om Hamada, Ibrahim (the inventor), Hamada (16, gamer).
+- Recurring: Abu Samir (upstairs neighbour, Wi-Fi owner), Hoda (tuk-tuk driver), Uncle Sayed (doorman).
+- Running gags: the Jet Dishwasher 3000 tuk-tuk engine, the balcony as punishment, game-HUD overlays, and endings with an achievement or unlock screen.
