@@ -68,3 +68,10 @@
 - Normalise every line to the median voiced RMS when assembling the dialogue track, clamping the gain to 0.6–3.0 (see `docs/briefs/el-diouf-gayeen-src`).
   The announcer takes from AI Studio usually come in quiet.
 - AI Studio downloads use their own file names (`Generated_Audio_<date>.wav`). Identify the runs by line count, pitch and the English announcer, not by name.
+
+## Mapping takes to lines: use a transcript, not pitch
+- Pitch-based speaker guesses failed on the Lie Detector take: Kore read at about 125 Hz in places, and Orus and Puck overlap.
+  Transcribe each take first with `docs/briefs/tools/gemini_transcribe.py <wav> gemini-3.5-flash`. If that returns 503 (busy), use `gemini-3.5-flash-lite`.
+  This uses the same `generativelanguage.googleapis.com` secret, and these text models have their own free quota, separate from TTS.
+  Then snap the transcript's line boundaries to the measured silence gaps.
+- `gemini-2.5-flash` is no longer offered to new keys. `gemini-3.5-transcribe` rejects JSON mode. `gemini-3.8-flash` often returns 503.
