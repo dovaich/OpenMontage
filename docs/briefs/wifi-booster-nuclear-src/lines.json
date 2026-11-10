@@ -1,0 +1,190 @@
+{
+ "title": "مقوّي الواي فاي النووي",
+ "episode": 4,
+ "voice_source": "Google AI Studio single-voice take (user supplied); mapped by silence + pitch",
+ "dur": 47.6,
+ "lines": [
+  {
+   "id": "L01",
+   "s": "son",
+   "t0": 0.6,
+   "t1": 4.14,
+   "src": [
+    0.2,
+    3.74
+   ],
+   "ar": "بابا! النت فاصل، والامتحان الأونلاين بعد خمس دقايق!",
+   "en": "Dad! The internet's down, and my online exam is in 5 minutes!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L02",
+   "s": "dad",
+   "t0": 4.54,
+   "t1": 9.4,
+   "src": [
+    4.42,
+    9.28
+   ],
+   "ar": "ولا يهمك يا بطل.. أبوك عاملك اختراع: مقوّي الواي فاي النووي!",
+   "en": "Relax, champ... Dad built you the NUCLEAR WI-FI BOOSTER!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L03",
+   "s": "son",
+   "t0": 9.75,
+   "t1": 11.67,
+   "src": [
+    10.0,
+    11.92
+   ],
+   "ar": "ده دش وشماعة وطاسة يا بابا!",
+   "en": "That's a dish, a hanger and a frying pan, Dad!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L04",
+   "s": "dad",
+   "t0": 12.02,
+   "t1": 15.13,
+   "src": [
+    12.61,
+    15.72
+   ],
+   "ar": "دي طاسة تيفال أصلي.. بتلقط النت من إسكندرية.",
+   "en": "Genuine non-stick pan... picks up internet from Alexandria.",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L05",
+   "s": "mom",
+   "t0": 15.43,
+   "t1": 17.14,
+   "src": [
+    16.57,
+    18.28
+   ],
+   "ar": "إبراهيييم! فين طاسة المحشي؟!",
+   "en": "IBRAHIIIM! Where's my stuffed-veggies pan?!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L06",
+   "s": "dad",
+   "t0": 17.44,
+   "t1": 19.51,
+   "src": [
+    19.12,
+    21.19
+   ],
+   "ar": "معرفش يا حبيبتي! .. شغّل يا حمادة، بسرعة!",
+   "en": "No idea, dear! ...Hamada, switch it on, quick!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L07",
+   "s": "anno",
+   "t0": 20.0,
+   "t1": 20.75,
+   "src": [
+    21.93,
+    22.68
+   ],
+   "ar": "",
+   "en": "Connecting...",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L08",
+   "s": "son",
+   "t0": 22.3,
+   "t1": 26.7,
+   "src": [
+    23.43,
+    27.83
+   ],
+   "ar": "اتوصل! اتوصل يا بابا! الشبكة اسمها.. «أبو سمير — ممنوع السرقة»",
+   "en": "Connected! The network is called... 'Abu Samir - NO STEALING'",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L09",
+   "s": "samir",
+   "t0": 27.1,
+   "t1": 29.86,
+   "src": [
+    28.57,
+    31.33
+   ],
+   "ar": "مين اللي بيسرق الواي فاي بتاعي يا حرامية؟!",
+   "en": "Who's stealing my Wi-Fi, you thieves?!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L10",
+   "s": "dad",
+   "t0": 30.16,
+   "t1": 32.26,
+   "src": [
+    31.95,
+    34.05
+   ],
+   "ar": "اقفل، اقفل! اعمل نفسك نايم!",
+   "en": "Shut it, shut it! Play dead!",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L11",
+   "s": "mom",
+   "t0": 32.56,
+   "t1": 34.71,
+   "src": [
+    34.81,
+    36.96
+   ],
+   "ar": "إبراهيم.. هي الطاسة بتولّع ليه؟",
+   "en": "Ibrahim... why is the pan on fire?",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L12",
+   "s": "anno",
+   "t0": 37.6,
+   "t1": 40.27,
+   "src": [
+    37.69,
+    40.36
+   ],
+   "ar": "",
+   "en": "Connection lost. Game over.",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L13",
+   "s": "son",
+   "t0": 40.77,
+   "t1": 42.14,
+   "src": [
+    41.1,
+    42.47
+   ],
+   "ar": "بابا.. هو الامتحان اتلغى؟",
+   "en": "Dad... is the exam cancelled?",
+   "gap_after": 0.4
+  },
+  {
+   "id": "L14",
+   "s": "dad",
+   "t0": 42.49,
+   "t1": 45.52,
+   "src": [
+    43.22,
+    46.25
+   ],
+   "ar": "لا يا ابني.. النور هو اللي اتلغى، في المنطقة كلها.",
+   "en": "No, son... the electricity got cancelled. The whole district.",
+   "gap_after": 0.4
+  }
+ ]
+}
