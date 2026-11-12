@@ -47,12 +47,24 @@ EP = {
   ("dad", "r2", 19.75, 24.86, 0.4, "بالعكس... أنا خليت المحافظة كلها تشوف نتيجة حمادة.", "On the contrary... I let the whole governorate see Hamada's result."),
   ("anno", "r3", 21.28, 26.76, 0.5, "", "Server status: down. Hamada's score: fifty percent."),
  ]),
+ "abu-samir-car": ("عربية أبو سمير", 3.4, [
+  ("samir", "r1", 13.82, 17.56, 0.15, "تلاتة آلاف جنيه؟! ده أنا جايب العربية بألفين!", "Three thousand pounds?! I bought the car for two!"),
+  ("bastam", "r1", 0.15, 3.90, 1.25, "يا جزاااار! يا أصلييي! زبون!", "Gazzaaar! Asliii! Customer!"),
+  ("samir", "r1", 4.52, 9.53, 0.3, "العربية بتعمل صوت غريب... زي ما تكون بتعيّط.", "The car's making a strange noise... like it's crying."),
+  ("asly", "r2", 0.12, 3.13, 0.3, "مين اللي عمل التوصيلات دي بشريط لزق؟! أنا هضربه!", "Who did this wiring with duct tape?! I'll beat him up!"),
+  ("samir", "r1", 9.96, 13.43, 0.3, "أنا!... من سنة تمانين.", "Me!... back in 1980."),
+  ("gazzar", "r2", 3.78, 8.16, 0.4, "العربية مش عطلانة... العربية زعلانة.", "The car isn't broken... the car is sad."),
+  ("alamy", "r3", 1.13, 6.46, 0.4, "السيستم بيقول: العربية محتاجة حب... وتلات تلاف جنيه.", "The system says: the car needs love... and three thousand pounds."),
+  ("samir", "r1", 13.82, 17.56, 0.35, "تلاتة آلاف جنيه؟! ده أنا جايب العربية بألفين!", "Three thousand pounds?! I bought the car for two!"),
+  ("bastam", "r1", 17.96, 20.53, 0.35, "خلاص... خد العربية وسيبلنا الكلاكس.", "Fine... take the car and leave us the horn."),
+  ("anno", "r4", 0.0, 6.56, 0.5, "", "Car status: emotional. Bill: three thousand."),
+ ]),
 }
 P0 = "/home/user/OpenMontage/projects/"
 name = sys.argv[1]; title, tail, L = EP[name]; P = P0 + name
 def load(r):
     w = wave.open(f"{P}/assets/audio/google/{r}_44.wav"); return np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(float) / 32768
-REC = {r: load(r) for r in ["r1", "r2", "r3"]}
+REC = {r: load(r) for r in sorted(set(l[1] for l in L))}
 PAD = 0.04
 def rms(x): return np.sqrt(np.mean(x ** 2) + 1e-12)
 def voiced(x, minsil=0.12):
