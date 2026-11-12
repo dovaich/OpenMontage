@@ -17,7 +17,10 @@ Every ~30 minutes:
    - Notify the cloud session: SendMessage to `session_01AGkU7xrbvxEyJ1BmPLBUAN` "VOICES READY: <batch>" if it is reachable. Otherwise do nothing more: the cloud session checks the queue on its own.
 3. If there is nothing to record, end the iteration quietly.
 
-## Cloud session (this repo's builder)
-- **Daily writer:** a scheduled task writes the next pair of episodes and the brief, sets `queue/<next>.status` to `record`, and pushes.
-- **Checker:** after writing, it re-checks the queue hourly. On `recorded`, it maps the lines, builds, renders and sends both vertical episodes, their covers and the invention cards to the user, then sets the status to `done` and pushes.
-- **Posting:** two new episodes a day, at 7 PM and 12 AM Cairo time. The user posts them (posting can't be automated from here).
+## Cloud session (this repo's builder): ON DEMAND, no fixed schedule
+- The user writes in the cloud session, for example «اعملي حلقة عن كذا». The cloud session then:
+  1. Writes the episode(s) and `docs/briefs/<batch>/recording_message.md`, sets `queue/<batch>.status` to `record`, and pushes.
+  2. Schedules its own short follow-up checks with send_later (about every 15–20 min, limited to that batch) until the status turns `recorded`.
+  3. Builds the vertical episode(s), covers and invention cards, sends them to the user, sets the status to `done`, and pushes.
+- There are no daily scheduled tasks: episodes are made only when the user asks.
+- The user posts on TikTok (7 PM / 12 AM). Posting can't be automated from here.
