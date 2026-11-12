@@ -1,5 +1,5 @@
 # El-Alamy — current look (future episodes)
-The «مركز الصيانة» episode keeps its old look. Use this model from now on.
+«مركز الصيانة» uses this model too. Use it for every episode from now on.
 
 - Black moto leather jacket: stand-up band collar with one silver snap, quilted shoulders, open silver zip, worn open.
 - Black turtleneck underneath. Slim grey trousers, polished black shoes.

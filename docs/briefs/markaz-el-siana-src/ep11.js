@@ -63,29 +63,7 @@ const coverall = (c) => canvasTex(16, 16, (g) => { g.fillStyle = c; g.fillRect(0
 const bastam = makeChar({ seed: 61, skin: 0xb07a50, hipY: 0.84, legX: 0.11, legColor: 0x2f5fb0, shoe: 0x222222, hand: 0xb07a50,
   torsoGeo: cyl(0.24, 0.26, 0.64, 6), torsoTex: coverall('#2f5fb0'), torsoColor: 0xffffff, torsoY: 0.32, sleeve: true, sleeveColor: 0x2f5fb0, shoulderX: 0.3, shoulderY: 0.57, neckY: 0.64, headR: 0.27,
   build(head, torso, reg) { const cap = mesh(new THREE.SphereGeometry(0.28, 8, 4, 0, Math.PI * 2, 0, Math.PI * 0.42), reg(M(0xd8231b)), 0, 0.04, 0, head); mesh(box(0.3, 0.03, 0.2), reg(M(0xd8231b)), 0, 0.1, -0.3, head); mesh(box(0.12, 0.08, 0.02), reg(M(0xffffff)), 0.12, 0.45, 0.25, torso); return {}; } }, scene);
-const alamy = makeChar({ seed: 71, skin: 0xc8946a, hipY: 0.86, legX: 0.11, legColor: 0x262a36, shoe: 0x0c0c10, hand: 0xc8946a,
-  torsoGeo: cyl(0.25, 0.22, 0.64, 8), torsoTex: null, torsoColor: 0x2a1f19, torsoY: 0.32, sleeve: true, sleeveColor: 0x2a1f19, shoulderX: 0.31, shoulderY: 0.57, neckY: 0.64, headR: 0.27,
-  build(head, torso, reg) {
-    // styled hair: short fade on the sides, volume swept up at the front
-    const hair = reg(M(0x15100b));
-    mesh(new THREE.SphereGeometry(0.285, 8, 4, 0, Math.PI * 2, 0, Math.PI * 0.38), hair, 0, 0.02, -0.02, head);
-    const quiff = mesh(box(0.24, 0.07, 0.12), hair, 0.03, 0.255, 0.13, head); quiff.rotation.x = -0.3;
-    for (const sx of [-1, 1]) mesh(box(0.04, 0.12, 0.3), reg(M(0x3a2a20)), sx * 0.26, 0.06, -0.06, head);
-    // cool leather jacket, open over a plain white tee
-    mesh(box(0.17, 0.46, 0.02), reg(M(0xf2f2ee)), 0, 0.4, 0.236, torso);
-    mesh(box(0.12, 0.025, 0.025), reg(M(0xf2f2ee)), 0, 0.64, 0.23, torso);
-    for (const sx of [-1, 1]) {
-      const z = mesh(box(0.018, 0.5, 0.03), reg(M(0xb9bcc4)), sx * 0.095, 0.36, 0.248, torso); // open zipper edge
-      const col = mesh(box(0.13, 0.17, 0.03), reg(M(0x17110d)), sx * 0.13, 0.6, 0.24, torso); col.rotation.z = sx * 0.5; // wide leather collar
-      mesh(box(0.08, 0.012, 0.012), reg(M(0xb9bcc4)), sx * 0.16, 0.3, 0.25, torso); // chest pocket zip
-      mesh(box(0.02, 0.02, 0.01), reg(M(0xb9bcc4)), sx * 0.21, 0.55, 0.25, torso); // collar snap
-    }
-    mesh(box(0.5, 0.07, 0.03), reg(M(0x17110d)), 0, 0.04, 0.215, torso); // waistband
-    return {};
-  } }, scene);
-// gold watch on the left wrist, polished shoes
-mesh(box(0.13, 0.05, 0.13), P(0xd4a62a, { shininess: 120, specular: 0xffffff }), 0, -0.27, 0, alamy.arms[0].el);
-alamy.legs.forEach(l => { l.userData.shoe.material = P(0x0c0c10, { shininess: 140, specular: 0xffffff }); });
+const alamy = makeAlamy(scene); // current look: see alamy.js
 const asly = makeChar({ seed: 81, skin: 0xa86a40, hipY: 0.86, legX: 0.16, legColor: 0x6a6a6a, shoe: 0x222222, hand: 0xa86a40,
   torsoGeo: cyl(0.4, 0.54, 0.72, 8), torsoTex: coverall('#6a6a6a'), torsoColor: 0xffffff, torsoY: 0.34, sleeve: true, sleeveColor: 0x6a6a6a, shoulderX: 0.44, shoulderY: 0.62, neckY: 0.7, headR: 0.32,
   build(head, torso, reg) { mesh(box(0.08, 0.14, 0.26), reg(M(0x2a1a10)), 0.31, 0.0, -0.04, head); mesh(box(0.08, 0.14, 0.26), reg(M(0x2a1a10)), -0.31, 0.0, -0.04, head); mesh(cyl(0.3, 0.3, 0.06, 8), reg(M(0xffd400)), 0, -0.05, 0.52, torso).rotation.x = Math.PI / 2; return {}; } }, scene);
@@ -207,7 +185,7 @@ function stateAt(t) {
   let de = 'smug', dm = talkMouth(t, 'dad') || 'grin';
   if (t >= 13.15 && t < 15.6) de = 'side'; if (t >= 21.4 && t < 28.5) { de = 'pin'; if (dm === 'grin') dm = 'o'; } if (t >= 37.25 && t < 39.3) { de = 'side'; } if (t >= 44.6) { de = 'pin'; if (dm === 'grin') dm = 'wobble'; } if (t >= T_LAUNCH) { de = 'sparkle'; dm = 'grin'; }
   bastam.faceMat.map = faceTexture(be, bm, { fuzz: true }); bastam.faceMat.needsUpdate = true;
-  alamy.faceMat.map = faceTexture(ae, am, { fuzz: true }); alamy.faceMat.needsUpdate = true;
+  alamy.faceMat.map = faceTexture(ae, am, ALAMY_FACE); alamy.faceMat.needsUpdate = true;
   asly.faceMat.map = faceTexture(se, sm, { stache: true, red: t >= 44.6 && t < 57 }); asly.faceMat.needsUpdate = true;
   gazzar.faceMat.map = faceTexture(ge, gm, { fuzz: true }); gazzar.faceMat.needsUpdate = true;
   dad.faceMat.map = faceTexture(de, dm, { stache: true }); dad.faceMat.needsUpdate = true;
@@ -223,9 +201,9 @@ function cameraAt(t) {
   else if (t < 19.6) { faceCam(bastam, 1.6, 0.4, 0.05, 50, 0.1); }
   else if (t < 21.4) { faceCam(dad, 1.4, 0.2, 0.05, 46, 0.1); }
   else if (t < T_LAPTOP) { faceCam(alamy, 2.6, 0.5, 0.2, 54, 0.45); }
-  else if (t < 28.55) { const hd = alamy.head.getWorldPosition(V(0, 0, 0)); const f = alamy.root.getWorldDirection(V(0, 0, 0)); f.y = 0; f.normalize(); const rt = V(f.z, 0, -f.x); cam(hd.clone().add(f.clone().multiplyScalar(-0.3)).add(rt.multiplyScalar(0.55)).add(V(0, 0.25, 0)), laptop.position.clone().add(V(0, 0.12, 0)), 46); }
+  else if (t < 28.55) { const hd = alamy.head.getWorldPosition(V(0, 0, 0)); const f = alamy.root.getWorldDirection(V(0, 0, 0)); f.y = 0; f.normalize(); const rt = V(f.z, 0, -f.x); cam(hd.clone().add(f.clone().multiplyScalar(-0.3)).add(rt.multiplyScalar(-0.55)).add(V(0, 0.25, 0)), laptop.position.clone().add(V(0, 0.12, 0)), 46); }
   else if (t < 32.3) { faceCam(dad, 1.3, -0.75, 0.1, 50, 0.12); }
-  else if (t < 37.25) { const k = seg(t, 32.3, 37.25); if (k < 0.5) { const hd = alamy.head.getWorldPosition(V(0, 0, 0)); const f = alamy.root.getWorldDirection(V(0, 0, 0)); f.y = 0; f.normalize(); const rt = V(f.z, 0, -f.x); cam(hd.clone().add(f.clone().multiplyScalar(-0.3)).add(rt.multiplyScalar(0.55)).add(V(0, 0.25, 0)), laptop.position.clone().add(V(0, 0.12, 0)), 44); } else faceCam(alamy, 1.3, 0.3, 0.05, 46, 0.1); }
+  else if (t < 37.25) { const k = seg(t, 32.3, 37.25); if (k < 0.5) { const hd = alamy.head.getWorldPosition(V(0, 0, 0)); const f = alamy.root.getWorldDirection(V(0, 0, 0)); f.y = 0; f.normalize(); const rt = V(f.z, 0, -f.x); cam(hd.clone().add(f.clone().multiplyScalar(-0.3)).add(rt.multiplyScalar(-0.55)).add(V(0, 0.25, 0)), laptop.position.clone().add(V(0, 0.12, 0)), 44); } else faceCam(alamy, 1.3, 0.3, 0.05, 46, 0.1); }
   else if (t < 39.6) { faceCam(dad, 1.3, -0.75, 0.1, 48, 0.1); }
   else if (t < 41.3) { faceCam(alamy, 1.2, -0.2, 0.05, 44, 0.08); }
   else if (t < 44.6) { faceCam(dad, 1.3, -0.75, 0.1, 48, 0.1); }
@@ -244,16 +222,16 @@ function portrait(g, x, y, who, t) {
   g.fillStyle = '#123'; g.fillRect(x, y, 64, 64); g.strokeStyle = '#fff'; g.lineWidth = 2; g.strokeRect(x, y, 64, 64);
   g.save(); g.beginPath(); g.rect(x + 2, y + 2, 60, 60); g.clip();
   const skin = { bastam: '#b07a50', alamy: '#c08a60', asly: '#a86a40', gazzar: '#a87048', dad: '#b27448' }[who];
-  const shirt = { bastam: '#2f5fb0', alamy: '#2a1f19', asly: '#6a6a6a', gazzar: '#4a4a38', dad: '#f3f0e3' }[who];
+  const shirt = { bastam: '#2f5fb0', alamy: '#151518', asly: '#6a6a6a', gazzar: '#4a4a38', dad: '#f3f0e3' }[who];
   g.fillStyle = shirt; g.fillRect(x + 8, y + 54, 48, 10); g.fillStyle = skin; g.beginPath(); g.arc(x + 32, y + 36, who === 'asly' ? 23 : 20, 0, 7); g.fill();
   if (who === 'bastam') { g.fillStyle = '#d8231b'; g.beginPath(); g.arc(x + 32, y + 26, 21, Math.PI, 0); g.fill(); }
-  if (who === 'alamy') { g.fillStyle = '#f2f2ee'; g.fillRect(x + 26, y + 54, 12, 10); g.fillStyle = '#b9bcc4'; g.fillRect(x + 24, y + 56, 2, 8); g.fillRect(x + 38, y + 56, 2, 8); g.fillStyle = '#17110d'; g.fillRect(x + 16, y + 52, 9, 6); g.fillRect(x + 39, y + 52, 9, 6); g.fillStyle = '#15100b'; g.fillRect(x + 12, y + 14, 40, 7); g.fillRect(x + 22, y + 9, 22, 7); }
+  if (who === 'alamy') { g.fillStyle = '#101013'; g.fillRect(x + 24, y + 50, 16, 14); g.fillStyle = '#b9bcc4'; g.fillRect(x + 23, y + 54, 2, 10); g.fillRect(x + 39, y + 54, 2, 10); g.fillStyle = '#0c0a09'; g.beginPath(); g.arc(x + 32, y + 29, 20.5, Math.PI, 0); g.fill(); g.beginPath(); g.ellipse(x + 34, y + 12, 15, 5, -0.1, 0, 7); g.fill(); g.fillRect(x + 11, y + 28, 4, 9); g.fillRect(x + 49, y + 28, 4, 9); }
   if (who === 'gazzar') { g.fillStyle = '#120c08'; for (let i = 0; i < 6; i++) { g.beginPath(); g.arc(x + 14 + i * 7, y + 18 + (i % 2) * 3, 8, 0, 7); g.fill(); } g.fillStyle = '#d8231b'; g.fillRect(x + 10, y + 22, 44, 4); }
   if (who === 'dad') { g.fillStyle = '#1b1410'; g.fillRect(x + 10, y + 30, 5, 12); g.fillRect(x + 49, y + 30, 5, 12); g.fillStyle = '#c9a227'; g.fillRect(x + 14, y + 16, 36, 5); }
   const fc = document.createElement('canvas'); fc.width = 32; fc.height = 32; const fg = fc.getContext('2d');
   const e = envAt(t); const mouth = speakerAt(t) === who ? (e < 0.1 ? 'closed' : e < 0.4 ? 'talk1' : 'talk2') : 'closed';
   const eyes = { bastam: 'wide', alamy: 'smug', asly: 'angry', gazzar: 'tired', dad: 'smug' }[who];
-  drawFace(fg, 32, eyes, mouth, { stache: who === 'dad' || who === 'asly', fuzz: who === 'bastam' || who === 'gazzar' || who === 'alamy' });
+  drawFace(fg, 32, eyes, mouth, { stache: who === 'dad' || who === 'asly', fuzz: who === 'bastam' || who === 'gazzar' });
   g.imageSmoothingEnabled = false; g.drawImage(fc, x + 14, y + 20, 36, 36); g.restore();
 }
 const INTROS = [
