@@ -93,3 +93,10 @@ He is a genius: confident, calm, smart eyes (not the tired face). Drop the `glas
 | El-Gazzar (الجزار) | 30 | Brilliant mechanic, always "spaced out". Keep it implicit: no drug imagery, for platform safety | Umbriel |
 - Running gag: Ibrahim calls himself "the world-famous inventor" (المخترع العالمي), which clashes with El-Alamy's name.
 - More characters will be added later. Record each new one here with their voice.
+
+## News cast (introduced in «عاجل!»)
+| Character | Traits | AI Studio voice |
+|---|---|---|
+| Nashwa (نشوى) | News anchor of the local channel «عاجل جدًا». Calm and formal, but loses it with every story. Red blazer, white blouse, dark bob | Despina |
+- The channel «عاجل جدًا» can come back: field reporter interviews, archive recaps, the weather map, NO SIGNAL gags.
+
