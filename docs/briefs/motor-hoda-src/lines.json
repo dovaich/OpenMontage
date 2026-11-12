@@ -1,0 +1,189 @@
+{
+ "title": "موتور حودة",
+ "voice_source": "Google AI Studio via Claude-in-Chrome, 3 multi-speaker runs (Fenrir=Hoda, Enceladus=Sayed, Orus=Ibrahim, Algenib=announcer)",
+ "dur": 54.5,
+ "lines": [
+  {
+   "id": "L01",
+   "s": "hoda",
+   "t0": 0.9,
+   "t1": 4.86,
+   "src": [
+    "run1",
+    0.12,
+    4.08
+   ],
+   "ar": "يا ناس! يا هوه! حد شاف موتور توكتوك تايه؟!",
+   "en": "Hey people! Anyone seen a lost tuk-tuk engine?!",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L02",
+   "s": "sayed",
+   "t0": 5.25,
+   "t1": 10.24,
+   "src": [
+    "run1",
+    5.1,
+    10.09
+   ],
+   "ar": "موتور؟... لونه أحمر؟ وعليه عين زرقا؟",
+   "en": "An engine?... Red? With a blue evil eye on it?",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L03",
+   "s": "hoda",
+   "t0": 10.6,
+   "t1": 13.07,
+   "src": [
+    "run1",
+    10.84,
+    13.31
+   ],
+   "ar": "أيوه هو! شفته فين يا عم سيد؟!",
+   "en": "Yes, that's it! Where'd you see it, Uncle Sayed?!",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L04",
+   "s": "sayed",
+   "t0": 13.4,
+   "t1": 16.22,
+   "src": [
+    "run1",
+    13.91,
+    16.73
+   ],
+   "ar": "الذاكرة تعبانة شوية... الشاي بيفكّرني.",
+   "en": "My memory's a bit tired... tea helps me remember.",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L05",
+   "s": "hoda",
+   "t0": 16.55,
+   "t1": 22.25,
+   "src": [
+    "run1",
+    17.46,
+    23.16
+   ],
+   "ar": "خد يا عم سيد... اتنين شاي وخلّصني!",
+   "en": "Here, Uncle Sayed... two teas, now spill it!",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L06",
+   "s": "sayed",
+   "t0": 22.6,
+   "t1": 24.63,
+   "src": [
+    "run1",
+    23.91,
+    25.94
+   ],
+   "ar": "الدور التالت... البلكونة اللي عليها غسيل.",
+   "en": "Third floor... the balcony with the laundry.",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L09",
+   "s": "hoda",
+   "t0": 25.1,
+   "t1": 27.75,
+   "src": [
+    "run2",
+    0.24,
+    2.89
+   ],
+   "ar": "يا أستاذ إبراهيييم! الموتور بتاعي عندك؟!",
+   "en": "Mr. Ibrahiiim! Is my engine up there?!",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L10",
+   "s": "dad",
+   "t0": 28.1,
+   "t1": 31.71,
+   "src": [
+    "run2",
+    3.55,
+    7.16
+   ],
+   "ar": "موتور إيه يا ابني؟ ده بقى غسالة المواعين النفاثة!",
+   "en": "What engine, son? It's the JET DISHWASHER now!",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L11",
+   "s": "hoda",
+   "t0": 32.05,
+   "t1": 34.69,
+   "src": [
+    "run2",
+    7.64,
+    10.28
+   ],
+   "ar": "غسالة؟! ده أنا عيالي بياكلوا من الموتور ده!",
+   "en": "A dishwasher?! My kids eat off that engine!",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L12",
+   "s": "dad",
+   "t0": 35.0,
+   "t1": 39.32,
+   "src": [
+    "run2",
+    10.87,
+    15.19
+   ],
+   "ar": "ولا يهمك... هرجّعهولك، ومعاه هدية: مقوّي نووي!",
+   "en": "No worries... I'll return it, with a gift: a NUCLEAR BOOSTER!",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L07",
+   "s": "sayed",
+   "t0": 41.2,
+   "t1": 43.02,
+   "src": [
+    "run1",
+    26.74,
+    28.56
+   ],
+   "ar": "أنا لو منك يا حودة... أبعد.",
+   "en": "If I were you, Hoda... I'd step back.",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L08",
+   "s": "hoda",
+   "t0": 44.4,
+   "t1": 46.74,
+   "src": [
+    "run1",
+    29.26,
+    31.6
+   ],
+   "ar": "يا عم سيييييد!",
+   "en": "UNCLE SAYEEEED!",
+   "gap_after": 0.35
+  },
+  {
+   "id": "L13",
+   "s": "anno",
+   "t0": 47.1,
+   "t1": 52.26,
+   "src": [
+    "run3",
+    0.27,
+    5.43
+   ],
+   "ar": "",
+   "en": "New vehicle unlocked: Tuk-Tuk 3000.",
+   "gap_after": 0.35
+  }
+ ]
+}
