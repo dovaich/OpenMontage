@@ -14,19 +14,24 @@ const lateDraw = []; // textures that need the Arabic font, drawn once fonts are
 // ---------- the microphone (a reporter's arm comes in from frame left) ----------
 function makeMic() {
   const g = new THREE.Group(); scene.add(g);
-  mesh(cyl(0.022, 0.018, 0.24, 6), P(0x111111), 0, -0.12, 0, g);
-  mesh(new THREE.IcosahedronGeometry(0.05, 0), P(0x9a9aa2, { shininess: 90 }), 0, 0.02, 0, g);
+  mesh(cyl(0.02, 0.017, 0.22, 6), P(0x111111), 0, 0.11, 0, g);
+  mesh(new THREE.IcosahedronGeometry(0.05, 0), P(0x9a9aa2, { shininess: 90 }), 0, 0.25, 0, g);
   const flagT = txtTex(32, 32, '#d8231b'); lateDraw.push(() => { const c = flagT.userData.g; c.fillStyle = '#d8231b'; c.fillRect(0, 0, 32, 32); arC(c, 'عاجل', 16, 17, 13, '#fff'); flagT.needsUpdate = true; });
-  mesh(box(0.08, 0.07, 0.08), M(0xffffff, { map: flagT }), 0, -0.06, 0, g);
-  mesh(box(0.08, 0.08, 0.7), M(0x1f2f5a), 0, -0.24, -0.38, g).rotation.x = 0.0; // sleeve
-  mesh(new THREE.IcosahedronGeometry(0.055, 0), M(0xc8946a), 0, -0.2, -0.02, g);
+  mesh(box(0.08, 0.07, 0.08), M(0xffffff, { map: flagT }), 0, 0.17, 0, g);
+  mesh(new THREE.IcosahedronGeometry(0.055, 0), M(0xc8946a), 0, 0.03, 0, g); // reporter's hand
   g.visible = false; return g;
 }
 const mic = makeMic();
+const micArm = mesh(box(0.09, 0.09, 1), M(0x1f2f5a), 0, 0, 0, scene); micArm.visible = false;
+// mic held 0.5 m in front of the mouth; the reporter's arm runs out to the camera's left edge, never through anyone
 function placeMic(c, side = 1) {
   const h = headOf(c); const f = c.head.getWorldDirection(V(0, 0, 0)); f.y = 0; f.normalize(); const r = V(f.z, 0, -f.x);
-  mic.visible = true; mic.position.copy(h.clone().add(f.clone().multiplyScalar(0.36)).add(r.clone().multiplyScalar(side * 0.2)).add(V(0, -0.12, 0)));
-  mic.lookAt(h.clone().add(V(0, -0.08, 0))); mic.rotateX(-Math.PI / 2 + 0.3);
+  const top = h.clone().add(f.clone().multiplyScalar(0.52)).add(r.clone().multiplyScalar(side * 0.12)).add(V(0, -0.14, 0));
+  const grip = top.clone().add(f.clone().multiplyScalar(0.12)).add(V(0, -0.2, 0));
+  mic.visible = true; mic.position.copy(grip); mic.quaternion.setFromUnitVectors(V(0, 1, 0), top.clone().sub(grip).normalize());
+  const left = V(-1, 0, 0).applyQuaternion(camera.quaternion); left.y = 0; left.normalize();
+  const end = grip.clone().add(left.multiplyScalar(1.6)).add(V(0, -0.6, 0)).add(camera.position.clone().sub(grip).normalize().multiplyScalar(0.4));
+  micArm.visible = true; micArm.position.copy(grip.clone().add(end).multiplyScalar(0.5)); micArm.scale.set(1, 1, grip.distanceTo(end)); micArm.lookAt(end);
 }
 
 // =====================================================================
@@ -74,7 +79,7 @@ function drawWall(t) {
   if (mode === 'power') { head(t < 37.6 ? 'انقطاع الكهربا' : 'توكتوك طاير'); if (t < 37.6) { g.fillStyle = '#ffe14a'; g.beginPath(); g.arc(96, 58, 20, 0, 7); g.fill(); g.fillRect(88, 76, 16, 10); g.strokeStyle = '#d8231b'; g.lineWidth = 6; g.beginPath(); g.moveTo(66, 30); g.lineTo(126, 96); g.stroke(); } else { g.fillStyle = '#d8231b'; g.fillRect(70, 48, 50, 26); g.fillStyle = '#111'; g.fillRect(74, 74, 10, 10); g.fillRect(108, 74, 10, 10); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(80, 48); g.lineTo(60, 34); g.lineTo(100, 46); g.fill(); } }
   if (mode === 'guest') { head('ضيف الحلقة'); g.fillStyle = '#b27448'; g.beginPath(); g.arc(96, 58, 22, 0, 7); g.fill(); g.fillStyle = '#c9a227'; g.fillRect(76, 40, 40, 6); g.fillStyle = '#111'; g.fillRect(84, 66, 24, 4); arC(g, 'المخترع العالمي', 96, 96, 14, '#ffe14a'); }
   if (mode === 'call') { head('على التليفون'); const k = Math.floor(t * 3) % 2; g.fillStyle = k ? '#3df05a' : '#2fb84a'; g.fillRect(84, 34, 26, 46); g.fillStyle = '#04102e'; g.fillRect(88, 40, 18, 30); arC(g, 'العالمي', 96, 94, 15, '#fff'); }
-  if (mode === 'sky') { head('مباشر من السما'); g.fillStyle = '#8ec8ff'; g.fillRect(20, 24, 152, 76); for (let i = 0; i < 4; i++) { g.fillStyle = '#fff'; g.beginPath(); g.arc(40 + i * 40 + Math.sin(t + i) * 6, 50 + (i % 2) * 22, 12, 0, 7); g.fill(); } const bx = 96 + Math.sin(t * 2) * 30, by = 60 + Math.cos(t * 3) * 10; g.fillStyle = '#b07a50'; g.beginPath(); g.arc(bx, by, 9, 0, 7); g.fill(); g.fillStyle = '#d8231b'; g.fillRect(bx - 9, by - 10, 18, 5); g.fillStyle = '#2f5fb0'; g.fillRect(bx - 6, by + 8, 12, 12); }
+  if (mode === 'sky') { head('مباشر من السما'); g.fillStyle = '#8ec8ff'; g.fillRect(20, 24, 152, 76); for (let i = 0; i < 4; i++) { g.fillStyle = '#fff'; g.beginPath(); g.arc(40 + i * 40 + Math.sin(t + i) * 6, 50 + (i % 2) * 22, 12, 0, 7); g.fill(); } const bx = 96 + Math.sin(t * 2) * 30, by = 60 + Math.cos(t * 3) * 10; g.fillStyle = '#b07a50'; g.beginPath(); g.arc(bx, by, 9, 0, 7); g.fill(); g.fillStyle = '#d8231b'; g.fillRect(bx - 9, by - 10, 18, 5); g.fillStyle = '#d8231b'; g.fillRect(bx - 14, by + 6, 28, 14); g.fillStyle = '#111'; g.fillRect(bx - 12, by + 19, 5, 5); g.fillRect(bx + 7, by + 19, 5, 5); }
   if (mode === 'static') { for (let i = 0; i < 300; i++) { const v = (hash(i + Math.floor(t * 30) * 7) * 255) | 0; g.fillStyle = `rgb(${v},${v},${v})`; g.fillRect((hash(i * 3 + Math.floor(t * 30)) * w) | 0, (hash(i * 5 + 1 + Math.floor(t * 30)) * h) | 0, 12, 6); } }
   wallTex.needsUpdate = true;
 }
@@ -263,6 +268,7 @@ const SKX = 2000, BP = V(SKX, 130, 0);
 }
 const clouds = []; for (let i = 0; i < 18; i++) { const c = mesh(new THREE.IcosahedronGeometry(2 + hash(i) * 2.5, 0), new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.88, flatShading: true }), BP.x + (hash(i + 1) - .5) * 70, BP.y - 8 + hash(i + 2) * 14, (hash(i + 3) - .5) * 70, scene); c.scale.y = 0.5; clouds.push(c); }
 ${BASTAM}
+const tuk2 = tuk.clone(true); scene.add(tuk2); tuk2.add(bastam.root);
 const phoneB = new THREE.Group(); bastam.arms[1].hand.add(phoneB); mesh(box(0.1, 0.19, 0.015), P(0x222222), 0, 0.02, 0.07, phoneB);
 
 // =====================================================================
@@ -357,10 +363,14 @@ function stateAt(t) {
   setFace(alamy, inT(t, 78.2, 81.6) ? 'smug' : 'smug', talkMouth(t, 'alamy') || (t > 78.2 ? 'smile' : 'flat'), ALAMY_FACE);
   // ----- Bastam in the sky -----
   { const bob = V(Math.sin(t * 0.7) * 0.6, Math.sin(t * 1.3) * 0.4, Math.cos(t * 0.5) * 0.5);
-    bastam.root.position.copy(BP).add(bob); bastam.root.rotation.set(Math.sin(t * 1.1) * 0.25, t * 0.35 + (t > 95 ? 2.6 : 0), Math.sin(t * 1.7) * 0.3);
+    const yawTo = (p) => { const d = p.clone().sub(BP); return Math.atan2(d.z, -d.x); };
+    const yP = yawTo(V(SKX - 80, 0, -90)), yA = yawTo(V(SKX + 45, 0, 10));
+    let yaw = t * 0.3; if (t >= 95) yaw = t < 96.9 ? yP : lerp(yP, yA, easeInOut(seg(t, 96.9, 97.9)));
+    tuk2.position.copy(BP).add(bob); tuk2.rotation.set(Math.sin(t * 1.1) * 0.08, yaw, (t >= 95 && t < 99 ? 0.18 : 0) + Math.sin(t * 1.7) * 0.06);
+    bastam.root.position.set(-0.3, 0.42, 0); bastam.root.rotation.set(0, -Math.PI / 2, 0);
     const w = Math.sin(t * 9);
-    const bp = { ...POSE0, aLz: 2.2 + w * 0.5, eL: 0.4, aRx: 0.4, aRz: 0.6, eR: 2.3, lL: 0.6 + w * 0.5, lR: -0.4 - w * 0.5 };
-    if (inT(t, 99.0, 100.9)) { bp.aLz = 2.6 + w * 0.3; bp.aRz = 2.6 - w * 0.3; bp.aRx = 0; bp.eR = 0.3; }
+    const bp = { ...POSE0, y: -0.4, lL: 1.4, lR: 1.4, aLz: 2.3 + w * 0.4, eL: 0.3, aRx: 0.4, aRz: 0.6, eR: 2.3, hy: Math.sin(t * 3) * 0.2 };
+    if (inT(t, 99.0, 100.9)) { bp.aLz = 2.6 + w * 0.3; bp.aRz = 2.6 - w * 0.3; bp.aRx = 0; bp.eR = 0.3; bp.eL = 0.2; }
     applyPose(bastam, bp); phoneB.visible = !inT(t, 99.0, 100.9);
     setFace(bastam, 'wide', talkMouth(t, 'bastam', 'scream') || 'o', { fuzz: true }); }
   clouds.forEach((c, i) => { c.position.y = BP.y - 8 + hash(i + 2) * 14 + ((t * 2.5 + i * 7) % 30) - 15; });
@@ -371,7 +381,7 @@ function stateAt(t) {
     applyPose(mom, p);
     setFace(mom, t >= 118.9 ? 'angry' : inT(t, 116.9, 118.9) ? 'side' : 'flat', talkMouth(t, 'mom', 'scream') || (t >= 119.8 ? 'clench' : 'flat'), {}); }
   dad.afro.visible = false;
-  mic.visible = false;
+  mic.visible = false; micArm.visible = false;
 }
 
 // ---------- lighting per set ----------
@@ -419,12 +429,13 @@ function shotAt(t) {
   if (t < 85.7) return { set: 'studio', f: () => faceCam(nashwa, 2.3, 0.5, 0.05, 40, 0.25) };
   if (t < 95.0) return { split: true, labels: ['الاستوديو', 'مباشر من السما'],
     a: () => { look('studio', t); faceCam(nashwa, 2.1, 0.25, 0.05, 50, 0.25); },
-    b: () => { look('sky', t); camera.far = 900; const h = headOf(bastam); cam(h.clone().add(V(0.5, 0.3, 3.2)).add(shake(t, 0.06)), h.clone().add(V(0, -0.5, 0)), 56); } };
+    b: () => { look('sky', t); camera.far = 900; const h = headOf(bastam); const tp = tuk2.position; cam(tp.clone().add(V(Math.sin(t * 0.3 + 1.2) * 4.2, 1.6, Math.cos(t * 0.3 + 1.2) * 4.2)).add(shake(t, 0.05)), h.clone().add(V(0, -0.6, 0)), 56); } };
   if (t < 100.9) return { set: 'sky', f: () => {
-    const h = headOf(bastam);
-    if (t < 96.9) { const tgt = V(SKX - 80, 0, -90); const d = tgt.clone().sub(h).normalize(); cam(h.clone().add(V(1.6, 2.6, 3.4)), h.clone().add(d.multiplyScalar(10)), 60); }
-    else if (t < 99.0) { const k = easeInOut(seg(t, 96.9, 97.9)); const tgt = VL(V(SKX - 80, 0, -90), V(SKX + 45, 0, 10), k); const d = tgt.clone().sub(h).normalize(); cam(h.clone().add(V(1.6, 2.6, 3.4)), h.clone().add(d.multiplyScalar(10)), 60); }
-    else faceCam(bastam, 1.4, 0.3, 0.1, 50, 0.1); } };
+    const h = headOf(bastam); tuk2.updateMatrixWorld(true);
+    const fw = V(-1, 0, 0).applyQuaternion(tuk2.getWorldQuaternion(new THREE.Quaternion())); fw.y = 0; fw.normalize(); const sd = V(fw.z, 0, -fw.x);
+    if (t < 99.0) { const tgt = t < 96.9 ? V(SKX - 80, 0, -90) : VL(V(SKX - 80, 0, -90), V(SKX + 45, 0, 10), easeInOut(seg(t, 96.9, 97.9)));
+      cam(h.clone().sub(fw.clone().multiplyScalar(1.6)).add(sd.multiplyScalar(4.2)).add(V(0, 1.4, 0)), h.clone().add(tgt.clone().sub(h).normalize().multiplyScalar(5.0)), 66); }
+    else cam(h.clone().add(fw.clone().multiplyScalar(2.3)).add(V(0, 0.05, 0)).add(shake(t, 0.05)), h.clone().add(V(0, -0.15, 0)), 50); } };
   if (t < 107.1) return { twoD: 'weather' };
   if (t < 111.0) return { set: 'studio', f: () => { cam(V(S + 0.5, 1.75, 3.6).add(shake(t, t < T_POP + 0.3 ? 0.06 : 0)), V(S + 0.6, 1.4, -0.8), 46); } };
   if (t < 112.4) return { set: 'studio', f: () => faceCam(nashwa, 1.8, 0.3, 0.05, 40, 0.2) };
@@ -501,7 +512,7 @@ function drawWeather(g, t) {
   // Bastam's flight path over Greater Cairo
   const k = clamp((t - 101.5) / 4.5); const path = (u) => [300 + u * 90 + Math.sin(u * 9) * 18, 70 + u * 80 + Math.cos(u * 7) * 14];
   g.strokeStyle = 'rgba(255,255,255,0.8)'; g.setLineDash([6, 6]); g.lineWidth = 2; g.beginPath(); for (let u = 0; u <= k; u += 0.02) { const [x, y] = path(u); u ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); g.setLineDash([]);
-  const [bx, by] = path(k); g.fillStyle = '#b07a50'; g.beginPath(); g.arc(bx, by, 11, 0, 7); g.fill(); g.fillStyle = '#d8231b'; g.beginPath(); g.arc(bx, by - 3, 11, Math.PI, 0); g.fill(); g.fillStyle = '#111'; g.fillRect(bx - 5, by + 1, 3, 3); g.fillRect(bx + 2, by + 1, 3, 3);
+  const [bx, by] = path(k); g.fillStyle = '#d8231b'; g.fillRect(bx - 16, by + 4, 32, 14); g.fillStyle = '#111'; g.fillRect(bx - 13, by + 17, 6, 6); g.fillRect(bx + 7, by + 17, 6, 6); g.fillStyle = '#b07a50'; g.beginPath(); g.arc(bx, by, 11, 0, 7); g.fill(); g.fillStyle = '#d8231b'; g.beginPath(); g.arc(bx, by - 3, 11, Math.PI, 0); g.fill(); g.fillStyle = '#111'; g.fillRect(bx - 5, by + 1, 3, 3); g.fillRect(bx + 2, by + 1, 3, 3);
   if (t > 103.9) { const a = easeBack(seg(t, 103.9, 104.3)); g.save(); g.translate(452, 150); g.scale(a, a); g.fillStyle = '#d8231b'; g.fillRect(-92, -26, 184, 54); g.strokeStyle = '#fff'; g.lineWidth = 2; g.strokeRect(-92, -26, 184, 54); arText(g, 'احتمال سقوط بستم', 82, -24, 18, '#fff'); pxText(g, '90%', 0, 6, 14, '#ffe14a', 'center'); g.restore(); }
   g.fillStyle = '#d8231b'; g.fillRect(0, 0, W, 56); arText(g, 'النشرة الجوية', W - 20, 6, 32, '#fff'); pxText(g, 'WEATHER', 20, 22, 12, '#ffe14a', 'left');
 }
@@ -570,6 +581,8 @@ function particles(t) {
   { const a = t - T_EXPLODE; if (a > 0 && a < 2.3) { for (let i = 0; i < 14; i++) { const k = Math.min(1, a * (0.8 + hash(i) * 0.6)); puffs.push({ pos: V(K + 1.6 + (hash(i + 1) - .5) * 3 * k, 0.8 + k * 1.6 * hash(i + 2), -1.6 + (hash(i + 3) - .2) * 2 * k), size: 0.5 + k * 1.4, op: 1 - a / 2.3, color: i % 3 ? 0x555555 : 0xff8a30 }); }
       for (let i = 0; i < 10; i++) { const k = a * 3; stars.push({ pos: V(K + 1.6 + Math.cos(i) * k, 1.0 + Math.sin(i * 2) * k * 0.5 + 0.3, -1.4 + Math.sin(i) * k * 0.5), size: 0.3 * Math.max(0, 1 - a), color: 0xffe14a }); } }
     if (t > 14.5 && t < T_EXPLODE) for (let i = 0; i < 4; i++) { const k = (t * 1.5 + i * 0.25) % 1; puffs.push({ pos: V(K + 2.05 + k * 0.4, 1.05 + k * 0.5, -1.7), size: 0.15 + k * 0.4, op: 0.8 * (1 - k), color: 0x777777 }); } }
+  // sky tuk exhaust
+  if (t >= 85.0 && t < 101) { const q = tuk2.getWorldQuaternion(new THREE.Quaternion()); const dir = V(1, 0, 0).applyQuaternion(q); const base = V(0.9, 0.6, 0).applyMatrix4(tuk2.matrixWorld); for (let i = 0; i < 10; i++) { const ph = (t * 3.5 + i / 10) % 1; trails.push({ pos: base.clone().add(dir.clone().multiplyScalar(0.3 + ph * 2.2)), size: 0.35 + ph * 0.5, op: 1 - ph, color: ph < 0.3 ? 0xffa030 : 0xdddddd }); } }
   // tuk trail
   if (t >= 38.4 && t < T_CRASH) { const tp = tuk.getWorldPosition(V(0, 0, 0)); for (let i = 0; i < 10; i++) trails.push({ pos: tp.clone().add(V(-0.8 - i * 0.45, 0.6 + i * 0.12, -i * 0.15)), size: 0.5 + i * 0.08, op: 1 - i / 10, color: i < 2 ? 0xffa030 : 0xdddddd }); }
   { const a = t - T_CRASH; if (a > 0 && a < 1.8) for (let i = 0; i < 12; i++) { const k = Math.min(1, a * 1.5); puffs.push({ pos: V(MK + 0.2 + (hash(i) - .5) * 4 * k, 0.5 + hash(i + 1) * 2 * k, -2.4 + (hash(i + 2) - .5) * 2 * k), size: 0.6 + k, op: 1 - a / 1.8, color: 0xc8b890 }); } }
@@ -591,7 +604,7 @@ window.renderFrame = function (t) {
   if (s.twoD) { /* 2D only */ }
   else if (s.split) {
     renderer.setScissorTest(true); renderer.setClearColor(0x000000, 1);
-    for (const [i, fn] of [[0, s.a], [1, s.b]]) { mic.visible = false; fn(); camera.aspect = (W / 2) / H; camera.updateProjectionMatrix(); renderer.setViewport(i * W / 2, 0, W / 2, H); renderer.setScissor(i * W / 2, 0, W / 2, H); renderer.render(scene, camera); }
+    for (const [i, fn] of [[0, s.a], [1, s.b]]) { mic.visible = false; micArm.visible = false; fn(); camera.aspect = (W / 2) / H; camera.updateProjectionMatrix(); renderer.setViewport(i * W / 2, 0, W / 2, H); renderer.setScissor(i * W / 2, 0, W / 2, H); renderer.render(scene, camera); }
     fullView(); ctx.drawImage(glCanvas, 0, 0);
   } else {
     look(s.set, t); fullView(); s.f(); camera.aspect = W / H; camera.updateProjectionMatrix();

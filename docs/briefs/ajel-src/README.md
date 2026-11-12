@@ -10,7 +10,7 @@ A local TV news bulletin recaps the series' disasters:
   - Uncle Sayed, the eyewitness, wants tea.
   - Shehata wants his imported melons back.
 - Ibrahim is the studio guest, introduced as "the prime suspect... I mean, the guest". El-Alamy calls in on a split screen to claim the title "العالمي".
-- Bastam reports live from the sky. He's over the pyramids... no, Alexandria.
+- Bastam reports live from the sky, still flying in the Tuk-Tuk 3000 (continuing from «مركز الصيانة»). He's over the pyramids... no, Alexandria.
 - The weather map gives a 90% chance of Bastam falling over Greater Cairo.
 - Ibrahim plugs in the nuclear booster to "boost the signal": NO SIGNAL.
 - At home, Om Hamada sits in the dark: "النور قطع تاني؟... إبراهيييم!" The episode ends on BROADCAST LOST, the achievement «كارثة على الهوا», and "يُتبع...".
