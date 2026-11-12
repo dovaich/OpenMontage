@@ -568,6 +568,7 @@ function drawDialogue(g, t) {
   if (n >= words.length && Math.floor(t * 4) % 2) { g.fillStyle = '#fff'; g.beginPath(); g.moveTo(x + 22, y + 74); g.lineTo(x + 32, y + 74); g.lineTo(x + 27, y + 80); g.fill(); }
 }
 
+
 // =====================================================================
 // مركز الصيانة — the service center (new cast: Bastam, El-Alamy, El-Asly, El-Gazzar)
 // =====================================================================
@@ -668,19 +669,23 @@ const bastam = makeChar({ seed: 61, skin: 0xb07a50, hipY: 0.84, legX: 0.11, legC
   torsoGeo: cyl(0.24, 0.26, 0.64, 6), torsoTex: coverall('#2f5fb0'), torsoColor: 0xffffff, torsoY: 0.32, sleeve: true, sleeveColor: 0x2f5fb0, shoulderX: 0.3, shoulderY: 0.57, neckY: 0.64, headR: 0.27,
   build(head, torso, reg) { const cap = mesh(new THREE.SphereGeometry(0.28, 8, 4, 0, Math.PI * 2, 0, Math.PI * 0.42), reg(M(0xd8231b)), 0, 0.04, 0, head); mesh(box(0.3, 0.03, 0.2), reg(M(0xd8231b)), 0, 0.1, -0.3, head); mesh(box(0.12, 0.08, 0.02), reg(M(0xffffff)), 0.12, 0.45, 0.25, torso); return {}; } }, scene);
 const alamy = makeChar({ seed: 71, skin: 0xc8946a, hipY: 0.86, legX: 0.11, legColor: 0x262a36, shoe: 0x0c0c10, hand: 0xc8946a,
-  torsoGeo: cyl(0.25, 0.22, 0.64, 8), torsoTex: null, torsoColor: 0x1c2440, torsoY: 0.32, sleeve: true, sleeveColor: 0x1c2440, shoulderX: 0.31, shoulderY: 0.57, neckY: 0.64, headR: 0.27,
+  torsoGeo: cyl(0.25, 0.22, 0.64, 8), torsoTex: null, torsoColor: 0x2a1f19, torsoY: 0.32, sleeve: true, sleeveColor: 0x2a1f19, shoulderX: 0.31, shoulderY: 0.57, neckY: 0.64, headR: 0.27,
   build(head, torso, reg) {
     // styled hair: short fade on the sides, volume swept up at the front
     const hair = reg(M(0x15100b));
     mesh(new THREE.SphereGeometry(0.285, 8, 4, 0, Math.PI * 2, 0, Math.PI * 0.38), hair, 0, 0.02, -0.02, head);
     const quiff = mesh(box(0.24, 0.07, 0.12), hair, 0.03, 0.255, 0.13, head); quiff.rotation.x = -0.3;
     for (const sx of [-1, 1]) mesh(box(0.04, 0.12, 0.3), reg(M(0x3a2a20)), sx * 0.26, 0.06, -0.06, head);
-    // crisp white shirt, open collar, dark lapels, pocket square
-    mesh(box(0.15, 0.44, 0.02), reg(M(0xf6f6f2)), 0, 0.42, 0.236, torso);
-    for (const sx of [-1, 1]) { const lap = mesh(box(0.07, 0.36, 0.025), reg(M(0x141a30)), sx * 0.09, 0.5, 0.245, torso); lap.rotation.z = sx * 0.32; }
-    for (const sx of [-1, 1]) { const col = mesh(box(0.08, 0.05, 0.03), reg(M(0xffffff)), sx * 0.06, 0.66, 0.235, torso); col.rotation.z = sx * 0.6; }
-    mesh(box(0.06, 0.03, 0.01), reg(M(0xffffff)), -0.15, 0.48, 0.25, torso);
-    mesh(box(0.035, 0.035, 0.01), reg(M(0xd8c060)), 0, 0.28, 0.25, torso); // blazer button
+    // cool leather jacket, open over a plain white tee
+    mesh(box(0.17, 0.46, 0.02), reg(M(0xf2f2ee)), 0, 0.4, 0.236, torso);
+    mesh(box(0.12, 0.025, 0.025), reg(M(0xf2f2ee)), 0, 0.64, 0.23, torso);
+    for (const sx of [-1, 1]) {
+      const z = mesh(box(0.018, 0.5, 0.03), reg(M(0xb9bcc4)), sx * 0.095, 0.36, 0.248, torso); // open zipper edge
+      const col = mesh(box(0.13, 0.17, 0.03), reg(M(0x17110d)), sx * 0.13, 0.6, 0.24, torso); col.rotation.z = sx * 0.5; // wide leather collar
+      mesh(box(0.08, 0.012, 0.012), reg(M(0xb9bcc4)), sx * 0.16, 0.3, 0.25, torso); // chest pocket zip
+      mesh(box(0.02, 0.02, 0.01), reg(M(0xb9bcc4)), sx * 0.21, 0.55, 0.25, torso); // collar snap
+    }
+    mesh(box(0.5, 0.07, 0.03), reg(M(0x17110d)), 0, 0.04, 0.215, torso); // waistband
     return {};
   } }, scene);
 // gold watch on the left wrist, polished shoes
@@ -844,10 +849,10 @@ function portrait(g, x, y, who, t) {
   g.fillStyle = '#123'; g.fillRect(x, y, 64, 64); g.strokeStyle = '#fff'; g.lineWidth = 2; g.strokeRect(x, y, 64, 64);
   g.save(); g.beginPath(); g.rect(x + 2, y + 2, 60, 60); g.clip();
   const skin = { bastam: '#b07a50', alamy: '#c08a60', asly: '#a86a40', gazzar: '#a87048', dad: '#b27448' }[who];
-  const shirt = { bastam: '#2f5fb0', alamy: '#1c2440', asly: '#6a6a6a', gazzar: '#4a4a38', dad: '#f3f0e3' }[who];
+  const shirt = { bastam: '#2f5fb0', alamy: '#2a1f19', asly: '#6a6a6a', gazzar: '#4a4a38', dad: '#f3f0e3' }[who];
   g.fillStyle = shirt; g.fillRect(x + 8, y + 54, 48, 10); g.fillStyle = skin; g.beginPath(); g.arc(x + 32, y + 36, who === 'asly' ? 23 : 20, 0, 7); g.fill();
   if (who === 'bastam') { g.fillStyle = '#d8231b'; g.beginPath(); g.arc(x + 32, y + 26, 21, Math.PI, 0); g.fill(); }
-  if (who === 'alamy') { g.fillStyle = '#f6f6f2'; g.beginPath(); g.moveTo(x + 26, y + 54); g.lineTo(x + 38, y + 54); g.lineTo(x + 32, y + 64); g.fill(); g.fillStyle = '#15100b'; g.fillRect(x + 12, y + 14, 40, 7); g.fillRect(x + 22, y + 9, 22, 7); }
+  if (who === 'alamy') { g.fillStyle = '#f2f2ee'; g.fillRect(x + 26, y + 54, 12, 10); g.fillStyle = '#b9bcc4'; g.fillRect(x + 24, y + 56, 2, 8); g.fillRect(x + 38, y + 56, 2, 8); g.fillStyle = '#17110d'; g.fillRect(x + 16, y + 52, 9, 6); g.fillRect(x + 39, y + 52, 9, 6); g.fillStyle = '#15100b'; g.fillRect(x + 12, y + 14, 40, 7); g.fillRect(x + 22, y + 9, 22, 7); }
   if (who === 'gazzar') { g.fillStyle = '#120c08'; for (let i = 0; i < 6; i++) { g.beginPath(); g.arc(x + 14 + i * 7, y + 18 + (i % 2) * 3, 8, 0, 7); g.fill(); } g.fillStyle = '#d8231b'; g.fillRect(x + 10, y + 22, 44, 4); }
   if (who === 'dad') { g.fillStyle = '#1b1410'; g.fillRect(x + 10, y + 30, 5, 12); g.fillRect(x + 49, y + 30, 5, 12); g.fillStyle = '#c9a227'; g.fillRect(x + 14, y + 16, 36, 5); }
   const fc = document.createElement('canvas'); fc.width = 32; fc.height = 32; const fg = fc.getContext('2d');

@@ -87,7 +87,7 @@
 | El-Alamy (العالمي) | 28 | Center manager. Handles the computer, tuning and admin. Everyone loves him, but he thinks nobody understands anything | Rasalgethi |
 
 **El-Alamy's look (user request, applies to every episode after "The Service Center"):** NO glasses. A handsome, sharp-dressed young man:
-fitted dark blazer over a crisp shirt, neat styled hair with a fade, clean-shaven or a trimmed short beard, a watch, and polished shoes.
+cool dark leather jacket (wide collar, silver zips) worn open over a plain white tee, neat styled hair with a fade, clean-shaven or a trimmed short beard, a watch, and polished shoes.
 He is a genius: confident, calm, smart eyes (not the tired face). Drop the `glasses` face option and the plain polo model used in "The Service Center".
 | El-Asly (الأصلي) | 43 | Heavy electrician. Always shouting and wants to hit someone | Alnilam |
 | El-Gazzar (الجزار) | 30 | Brilliant mechanic, always "spaced out". Keep it implicit: no drug imagery, for platform safety | Umbriel |
