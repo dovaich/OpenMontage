@@ -157,6 +157,23 @@ function pedalGenerator(s) {
   return { g, cam: [V(1.3, 1.45, 2.9), V(0.1, 0.6, 0)] };
 }
 
+function passwordStethoscope(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(cyl(0.025, 0.025, 2.0, 6), M(0x8a5a2b), 0, 1.0, 0, g);
+  const pan = new THREE.Group(); pan.position.y = 2.02; g.add(pan);
+  mesh(cyl(0.22, 0.18, 0.06, 12), P(0x1d1d1f, { shininess: 80 }), 0, 0, 0, pan); mesh(box(0.05, 0.03, 0.34), P(0x111111), 0, -0.01, 0.34, pan);
+  mesh(cyl(0.08, 0.08, 0.03, 12), P(0xc8ced6, { shininess: 110, specular: 0xffffff }), 0, 0.045, 0, pan);
+  for (let i = 0; i < 3; i++) mesh(box(0.46, 0.03, 0.03), P(0xc9ccd1), 0, 1.5 - i * 0.12, 0.03, g);
+  const tub = (pts) => mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 20, 0.014, 5), M(0x111111), 0, 0, 0, g);
+  tub([V(0, 2.0, 0.05), V(0.25, 1.6, 0.3), V(0.35, 1.15, 0.2)]); tub([V(0, 2.0, 0.05), V(-0.25, 1.6, 0.3), V(-0.35, 1.15, 0.2)]);
+  for (const sx of [-1, 1]) mesh(new THREE.SphereGeometry(0.04, 6, 4), P(0xc8ced6), sx * 0.35, 1.12, 0.2, g);
+  // ceiling slab + sound waves
+  mesh(box(1.6, 0.1, 1.0), M(0xb08a58), 0, 2.12, 0, g);
+  for (let i = 0; i < 3; i++) mesh(new THREE.TorusGeometry(0.15 + i * 0.12, 0.01, 4, 16, Math.PI), new THREE.MeshBasicMaterial({ color: 0x5ab8ff }), 0, 2.25 + i * 0.04, 0, g).rotation.x = -Math.PI / 2;
+  g.position.set(0, -0.25, 0); g.rotation.y = 0.4;
+  return { g, cam: [V(1.6, 1.4, 2.8), V(0, 1.15, 0)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -174,6 +191,9 @@ const CARDS = [
   { file: 'card_pedal_generator', build: pedalGenerator, rarity: ['COMMON', 'عادي', '#7fd07f', '#0f2a10'], ar: 'مولّد البدّال ٣٠٠٠', en: 'PEDAL GENERATOR 3000',
     stats: [['POWER', 'القوة', 1], ['SWEAT', 'العرق', 5], ['SAFETY', 'الأمان', 2], ['CHARGE', 'الشحن', 1]],
     parts: 'عجلة حمادة + مروحة + دينامو + شريط لزق', quote: '«دوّس يا حمادة! كل لفة بتنوّر اللمبة!»', result: 'النتيجة: الموبايل شحن ١٪ بس', ep: 'ضيف من السما' },
+  { file: 'card_password_stethoscope', build: passwordStethoscope, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'سمّاعة الباسورد ٣٠٠٠', en: 'PASSWORD STETHOSCOPE 3000',
+    stats: [['HEARING', 'السمع', 5], ['STEALTH', 'التخفّي', 1], ['LEGALITY', 'القانونية', 0], ['NEIGHBOR ANGER', 'غضب الجيران', 5]],
+    parts: 'سمّاعة دكتور + طاسة + عصاية مقشة + شريط لزق', quote: '«بتسمع أبو سمير وهو بيكتب الباسورد... ششش!»', result: 'النتيجة: النت وصل للشارع كله', ep: 'مقوّي الواي فاي النووي ٢' },
 ];
 
 // ---------- 2D card ----------
@@ -247,7 +267,7 @@ window.drawCover = async () => {
   g.save(); g.translate(CW / 2, CH / 2 + 60); for (let k = 0; k < 24; k++) { g.rotate(Math.PI / 12); g.fillStyle = k % 2 ? 'rgba(255,225,74,0.06)' : 'rgba(0,0,0,0)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(1200, -160); g.lineTo(1200, 160); g.fill(); } g.restore();
   ar('اختراعات إبراهيم', CW / 2, 20, 84, '#ffe14a', 'center', 'ReemKufi');
   px('COLLECT THEM ALL!', CW / 2, 132, 26, '#ffffff', 'center');
-  const cw = 340, ch = 425; const pos = [[24, 205], [370, 205], [716, 205], [197, 690], [543, 690]]; const rot = [-0.035, 0.02, 0.035, -0.025, 0.03];
+  const cw = 340, ch = 425; const pos = [[24, 205], [370, 205], [716, 205], [24, 690], [370, 690], [716, 690]]; const rot = [-0.035, 0.02, 0.035, -0.025, 0.03, -0.02];
   ims.forEach((im, i) => { g.save(); g.translate(pos[i][0] + cw / 2, pos[i][1] + ch / 2); g.rotate(rot[i]); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(-cw / 2 + 10, -ch / 2 + 14, cw, ch); g.drawImage(im, -cw / 2, -ch / 2, cw, ch); g.restore(); });
   for (let y = 0; y < CH; y += 4) { g.fillStyle = 'rgba(0,0,0,0.06)'; g.fillRect(0, y, CW, 1); }
   return card.toDataURL('image/png');
