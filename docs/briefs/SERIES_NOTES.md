@@ -135,3 +135,9 @@ Rules for every episode from now on:
    - The phone falls in the toilet.
 - Abu Samir's AI Studio voice (from «مقوّي الواي فاي النووي ٢»): **Gacrux**.
 - The vertical template is `docs/briefs/wifi-booster-2-src/`: engine8 at W = 540, H = 960, `drawDialogueV`, and the 1080×1920 ffmpeg chain.
+
+## Posting schedule (user decision)
+- **Two NEW episodes every day:** one at 7 PM and one at 12 AM (midnight), Cairo time. No reposts or remasters of old episodes.
+- Produce them in pairs. Write both scripts at once, and record both in one AI Studio batch: share recordings by speaker pair across the two episodes, and merge the single-speaker lines with [long pause].
+- Keep each one to the vertical format rules above, 30–45 s, family core cast, works on its own.
+
