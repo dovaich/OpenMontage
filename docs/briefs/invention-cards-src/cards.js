@@ -174,6 +174,34 @@ function passwordStethoscope(s) {
   return { g, cam: [V(1.6, 1.4, 2.8), V(0, 1.15, 0)] };
 }
 
+function nuclearHeater(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(1.4, 1.8, 0.08), M(0xdfeef4), 0, 1.1, -0.35, g);
+  const h = new THREE.Group(); h.position.set(0, 1.35, -0.05); g.add(h);
+  mesh(cyl(0.3, 0.3, 0.9, 14), P(0xf4f4f4, { shininess: 60 }), 0, 0, 0, h);
+  mesh(cyl(0.305, 0.305, 0.91, 14, true), new THREE.MeshBasicMaterial({ color: 0xff3a10, transparent: true, opacity: 0.35, side: THREE.DoubleSide }), 0, 0, 0, h);
+  mesh(new THREE.CircleGeometry(0.08, 10), M(0xffffff), 0, 0.12, 0.301, h); mesh(box(0.014, 0.07, 0.01), M(0xd8231b), 0.02, 0.14, 0.31, h).rotation.z = -1.2;
+  const k = new THREE.Group(); k.position.set(-0.34, -0.58, 0.14); h.add(k); mesh(cyl(0.12, 0.14, 0.24, 10), P(0xd8d8e0, { shininess: 100 }), 0, 0, 0, k); mesh(cyl(0.02, 0.03, 0.15, 5), P(0xd8d8e0), 0.15, 0.04, 0, k).rotation.z = -1.0;
+  const d = new THREE.Group(); d.position.set(0.28, -0.52, 0.2); h.add(d); mesh(cyl(0.07, 0.08, 0.3, 8), P(0xff5fa8), 0, 0, 0, d).rotation.z = Math.PI / 2; mesh(box(0.06, 0.18, 0.06), P(0xff5fa8), -0.06, -0.12, 0, d);
+  mesh(cyl(0.2, 0.16, 0.05, 10), P(0x1d1d1f, { shininess: 80 }), 0, -0.5, 0.25, h).rotation.x = 1.2;
+  for (let i = 0; i < 3; i++) mesh(box(0.66, 0.04, 0.02), P(0xc9ccd1), 0, -0.2 - i * 0.16, 0.31, h);
+  mesh(box(0.16, 0.16, 0.06), new THREE.MeshBasicMaterial({ color: 0xd8231b }), 0.45, 0.6, -0.28, g);
+  for (let i = 0; i < 6; i++) mesh(new THREE.IcosahedronGeometry(0.1 + i * 0.03, 0), new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 - i * 0.1 }), Math.sin(i * 2) * 0.25, 1.9 + i * 0.12, 0.1, g);
+  g.rotation.y = -0.3; return { g, cam: [V(1.2, 1.5, 2.6), V(0, 1.1, 0)] };
+}
+function phoneDryer(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.8, 0.9, 0.6), P(0xdedede), 0, 0.45, 0, g); for (let i = 0; i < 4; i++) mesh(cyl(0.09, 0.09, 0.02, 8), M(0x222222), -0.18 + (i % 2) * 0.36, 0.91, -0.13 + Math.floor(i / 2) * 0.26, g);
+  const p = new THREE.Group(); p.position.set(0, 0.93, 0); g.add(p);
+  mesh(cyl(0.24, 0.22, 0.28, 12), P(0xc8ced6, { shininess: 110 }), 0, 0.14, 0, p); mesh(cyl(0.25, 0.25, 0.03, 12), P(0xb8bec6, { shininess: 110 }), 0.05, 0.4, 0, p).rotation.z = 0.25;
+  const d = new THREE.Group(); d.position.set(0.27, 0.17, 0.06); p.add(d); mesh(cyl(0.06, 0.07, 0.26, 8), P(0xff5fa8), 0, 0, 0, d).rotation.z = Math.PI / 2; mesh(box(0.05, 0.16, 0.05), P(0xff5fa8), 0.04, -0.1, 0, d);
+  mesh(box(0.5, 0.03, 0.02), P(0xc9ccd1), 0, 0.12, 0.225, p);
+  const ph = new THREE.Group(); ph.position.set(-0.05, 0.47, 0.02); ph.rotation.set(-0.4, 0, 0.3); p.add(ph); mesh(box(0.1, 0.18, 0.015), P(0x222222), 0, 0, 0, ph); mesh(new THREE.PlaneGeometry(0.085, 0.15), new THREE.MeshBasicMaterial({ color: 0x9fd0ff }), 0, 0, 0.009, ph);
+  mesh(new THREE.SphereGeometry(0.2, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), M(0xf4ecd8), 0, 0.3, 0, p).scale.y = 0.4;
+  const fl = [0xffdd33, 0xff9a1a, 0x4a8aff]; for (let i = 0; i < 8; i++) { const a = i / 8 * 6.28; mesh(new THREE.ConeGeometry(0.05, 0.3, 5), new THREE.MeshBasicMaterial({ color: fl[i % 3] }), Math.cos(a) * 0.18, 0.98, Math.sin(a) * 0.18, g); }
+  g.rotation.y = 0.35; return { g, cam: [V(1.1, 1.75, 1.9), V(0, 1.0, 0)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -194,6 +222,12 @@ const CARDS = [
   { file: 'card_password_stethoscope', build: passwordStethoscope, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'سمّاعة الباسورد ٣٠٠٠', en: 'PASSWORD STETHOSCOPE 3000',
     stats: [['HEARING', 'السمع', 5], ['STEALTH', 'التخفّي', 1], ['LEGALITY', 'القانونية', 0], ['NEIGHBOR ANGER', 'غضب الجيران', 5]],
     parts: 'سمّاعة دكتور + طاسة + عصاية مقشة + شريط لزق', quote: '«بتسمع أبو سمير وهو بيكتب الباسورد... ششش!»', result: 'النتيجة: النت وصل للشارع كله', ep: 'مقوّي الواي فاي النووي ٢' },
+  { file: 'card_nuclear_heater', build: nuclearHeater, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'السخان النووي ٣٠٠٠', en: 'NUCLEAR WATER HEATER 3000',
+    stats: [['HEAT', 'السخونية', 5], ['CONTROL', 'التحكم', 0], ['SAFETY', 'الأمان', 0], ['STEAM', 'البخار', 5]],
+    parts: 'كاتل + سشوار + طاسة + زرار تيربو', quote: '«ادخل استحمى... وأنا هدوس على التوربو»', result: 'النتيجة: الشقة بقت سبا', ep: 'السخان النووي' },
+  { file: 'card_phone_dryer', build: phoneDryer, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'مجفف الموبايلات النووي ٣٠٠٠', en: 'NUCLEAR PHONE DRYER 3000',
+    stats: [['DRYING', 'التنشيف', 4], ['FLAVOR', 'الطعم', 5], ['SAFETY', 'الأمان', 1], ['GUEST SHOCK', 'صدمة الضيوف', 5]],
+    parts: 'حلة الرز + سشوار + نار البوتاجاز', quote: '«الرز بيشفط المية... وأنا هزوّد عليه نار»', result: 'النتيجة: الرز بيرن', ep: 'مجفف الموبايلات النووي' },
 ];
 
 // ---------- 2D card ----------
@@ -267,7 +301,7 @@ window.drawCover = async () => {
   g.save(); g.translate(CW / 2, CH / 2 + 60); for (let k = 0; k < 24; k++) { g.rotate(Math.PI / 12); g.fillStyle = k % 2 ? 'rgba(255,225,74,0.06)' : 'rgba(0,0,0,0)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(1200, -160); g.lineTo(1200, 160); g.fill(); } g.restore();
   ar('اختراعات إبراهيم', CW / 2, 20, 84, '#ffe14a', 'center', 'ReemKufi');
   px('COLLECT THEM ALL!', CW / 2, 132, 26, '#ffffff', 'center');
-  const cw = 340, ch = 425; const pos = [[24, 205], [370, 205], [716, 205], [24, 690], [370, 690], [716, 690]]; const rot = [-0.035, 0.02, 0.035, -0.025, 0.03, -0.02];
+  const cw = 250, ch = 312; const pos = [[14, 215], [278, 215], [542, 215], [806, 215], [14, 600], [278, 600], [542, 600], [806, 600]]; const rot = [-0.035, 0.02, 0.035, -0.025, 0.03, -0.02, 0.025, -0.03];
   ims.forEach((im, i) => { g.save(); g.translate(pos[i][0] + cw / 2, pos[i][1] + ch / 2); g.rotate(rot[i]); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(-cw / 2 + 10, -ch / 2 + 14, cw, ch); g.drawImage(im, -cw / 2, -ch / 2, cw, ch); g.restore(); });
   for (let y = 0; y < CH; y += 4) { g.fillStyle = 'rgba(0,0,0,0.06)'; g.fillRect(0, y, CW, 1); }
   return card.toDataURL('image/png');
