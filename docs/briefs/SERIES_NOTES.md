@@ -115,7 +115,9 @@ Rules for every episode from now on:
    - Put a large dialogue box at the bottom.
    - Keep the 4:3 version only as an extra.
 2. **Hook text, first 3 s:** a large Egyptian-Arabic line on screen that states the situation, readable with the sound off. Example: «لما النت يفصل قبل امتحان الأونلاين بـ٥ دقايق 😭».
-3. **Cold open:** start with ~1 s of the funniest or biggest moment, then go back to the start of the story.
+3. **Cold open:** start with the funniest or biggest moment, then go back to the start of the story (REWIND).
+   The cold-open line must be **complete**, never cut mid-sentence (user feedback on «مقوّي الواي فاي النووي ٢»).
+   Plan about 2.5–4 s for it: use the whole voiced line, or a short line that ends on its own. The hook text comes right after the rewind.
 4. **Length target 30–45 s.** Cut dead air and long pauses between lines.
 5. **No episode numbers anywhere, the cover included.** The cover shows the hook line plus Ibrahim's face or the invention, never «الحلقة N».
 6. **Content that worked:**
