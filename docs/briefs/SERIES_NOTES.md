@@ -79,3 +79,13 @@
 ## Invention cards (page posts)
 - `docs/briefs/invention-cards-src/` makes the collectible cards and the "collect them all" cover. When Ibrahim builds a new invention in an episode,
   add a card for it there, so the set keeps growing with the series.
+
+## Service-center cast (introduced in "The Service Center")
+| Character | Age | Traits | AI Studio voice |
+|---|---|---|---|
+| Bastam (بستم) | 29 | Technicians' foreman. Always shouting someone's name, understands nothing about technology | Sadachbia |
+| El-Alamy (العالمي) | 28 | Center manager. Handles the computer, tuning and admin. Everyone loves him, but he thinks nobody understands anything | Rasalgethi |
+| El-Asly (الأصلي) | 43 | Heavy electrician. Always shouting and wants to hit someone | Alnilam |
+| El-Gazzar (الجزار) | 30 | Brilliant mechanic, always "spaced out". Keep it implicit: no drug imagery, for platform safety | Umbriel |
+- Running gag: Ibrahim calls himself "the world-famous inventor" (المخترع العالمي), which clashes with El-Alamy's name.
+- More characters will be added later. Record each new one here with their voice.
