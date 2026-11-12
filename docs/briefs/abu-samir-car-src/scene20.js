@@ -612,6 +612,69 @@ function makeAlamy(parent) {
   return c;
 }
 
+// ===== Abu Samir's car: a 1980 «١٢٨» (Egyptian Fiat 128), reusable =====
+// Scale: characters are ~1.9 units tall (≈ 1.75 m), so 1 unit ≈ 0.92 m.
+// Car: length 4.0 (≈ 3.7 m), width 1.75, height 1.45 (≈ 1.35 m), like the real car next to a person.
+// Look: mustard-orange body + white roof, chrome bumpers, whitewall tyres, one cream (replaced) door, rust patches,
+// duct tape, a roof rack (rolled carpet + butane cylinder), fuzzy dice, a blue evil-eye charm, «ما شاء الله» sticker, plate «س م ر ١٩٨٠».
+// Needs engine8 globals (mesh, box, cyl, M, P, canvasTex). Front faces local +x.
+function makeSamirCar(parent) {
+  const g = new THREE.Group(); parent.add(g);
+  const body = P(0xe8a020, { shininess: 70 }), roofC = P(0xf4f0e6, { shininess: 60 }), chrome = P(0xe0e0e8, { shininess: 140, specular: 0xffffff });
+  const glass = new THREE.MeshPhongMaterial({ color: 0x9fc8e0, transparent: true, opacity: 0.55, shininess: 120 });
+  const L = 4.0, Wd = 1.75;
+  // lower body (boxy 128 shape) + hood + trunk slopes
+  mesh(box(L, 0.55, Wd), body, 0, 0.6, 0, g);
+  mesh(box(L - 0.1, 0.06, Wd - 0.05), M(0x2a2a2a), 0, 0.32, 0, g); // sill shadow
+  // cabin
+  mesh(box(2.0, 0.08, Wd - 0.12), roofC, -0.2, 1.42, 0, g);
+  for (const [x, z] of [[0.75, 0.78], [0.75, -0.78], [-1.15, 0.78], [-1.15, -0.78]]) mesh(box(0.08, 0.55, 0.08), roofC, x, 1.13, z, g);
+  mesh(box(1.9, 0.52, Wd - 0.16), glass, -0.2, 1.13, 0, g);
+  const ws = mesh(box(0.06, 0.6, Wd - 0.2), glass, 0.86, 1.12, 0, g); ws.rotation.z = -0.35;
+  // replaced cream front-left door + rust + tape
+  mesh(new THREE.PlaneGeometry(0.95, 0.5), M(0xece0c0), 0.25, 0.62, Wd / 2 + 0.006, g);
+  for (const [x, y, s] of [[-1.4, 0.5, 0.3], [1.5, 0.42, 0.22], [-0.6, 0.38, 0.18]]) mesh(new THREE.PlaneGeometry(s, s * 0.6), M(0x8a4a22), x, y, Wd / 2 + 0.008, g);
+  for (const [x, y, s] of [[-1.0, 0.5, 0.28], [1.2, 0.45, 0.2]]) { const r = mesh(new THREE.PlaneGeometry(s, s * 0.6), M(0x8a4a22), x, y, -Wd / 2 - 0.008, g); r.rotation.y = Math.PI; }
+  for (let i = 0; i < 2; i++) mesh(box(0.05, 0.57, Wd + 0.02), P(0xc9ccd1), 1.0 + i * 0.3, 0.6, 0, g);
+  // wheels: black + whitewall + chrome hub
+  const wheels = [];
+  for (const [x, z] of [[-1.25, 0.82], [1.25, 0.82], [-1.25, -0.82], [1.25, -0.82]]) {
+    const w = new THREE.Group(); w.position.set(x, 0.32, z); w.rotation.x = Math.PI / 2; g.add(w);
+    mesh(cyl(0.32, 0.32, 0.2, 14), M(0x111111), 0, 0, 0, w); mesh(cyl(0.2, 0.2, 0.21, 14), M(0xf4f4f4), 0, 0, 0, w); mesh(cyl(0.12, 0.12, 0.22, 10), chrome, 0, 0, 0, w); wheels.push(w);
+  }
+  for (const x of [-1.25, 1.25]) for (const z of [-1, 1]) mesh(box(0.85, 0.12, 0.08), body, x, 0.68, z * (Wd / 2 + 0.03), g); // wheel arches
+  // chrome bumpers + grille + round headlamps + tail lights
+  for (const x of [L / 2 + 0.05, -L / 2 - 0.05]) mesh(box(0.1, 0.14, Wd + 0.08), chrome, x, 0.42, 0, g);
+  mesh(box(0.02, 0.22, 0.8), M(0x222222), L / 2 + 0.005, 0.66, 0, g);
+  for (let i = 0; i < 4; i++) mesh(box(0.025, 0.02, 0.78), chrome, L / 2 + 0.012, 0.58 + i * 0.05, 0, g);
+  const lamps = [];
+  for (const z of [-0.62, 0.62]) { lamps.push(mesh(new THREE.CircleGeometry(0.13, 12), new THREE.MeshBasicMaterial({ color: 0xfff6c0 }), L / 2 + 0.012, 0.68, z, g)); lamps[lamps.length - 1].rotation.y = Math.PI / 2; mesh(new THREE.TorusGeometry(0.13, 0.02, 4, 12), chrome, L / 2 + 0.01, 0.68, z, g).rotation.y = Math.PI / 2; }
+  for (const z of [-0.62, 0.62]) mesh(box(0.02, 0.14, 0.26), new THREE.MeshBasicMaterial({ color: 0xd8231b }), -L / 2 - 0.005, 0.7, z, g);
+  // plate + sticker
+  const plateT = canvasTex(64, 20, (c) => { c.fillStyle = '#f0f0f0'; c.fillRect(0, 0, 64, 20); c.fillStyle = '#1f5fd8'; c.fillRect(0, 0, 64, 5); });
+  const plate = mesh(new THREE.PlaneGeometry(0.42, 0.13), new THREE.MeshBasicMaterial({ map: plateT }), L / 2 + 0.11, 0.42, 0, g); plate.rotation.y = Math.PI / 2;
+  const stickT = canvasTex(64, 20, (c) => { c.fillStyle = '#d8231b'; c.fillRect(0, 0, 64, 20); });
+  const stick = mesh(new THREE.PlaneGeometry(0.6, 0.19), new THREE.MeshBasicMaterial({ map: stickT }), -L / 2 - 0.006, 0.62, 0, g); stick.rotation.y = -Math.PI / 2;
+  // roof rack: rolled carpet + butane cylinder
+  for (const x of [-0.8, 0.4]) mesh(box(0.05, 0.08, Wd - 0.2), chrome, x, 1.5, 0, g);
+  mesh(box(1.6, 0.04, 0.05), chrome, -0.2, 1.54, 0.7, g); mesh(box(1.6, 0.04, 0.05), chrome, -0.2, 1.54, -0.7, g);
+  const carpet = mesh(cyl(0.16, 0.16, 1.5, 10), M(0xb8342a), -0.3, 1.66, 0.2, g); carpet.rotation.x = Math.PI / 2;
+  for (let i = 0; i < 3; i++) { const s = mesh(cyl(0.165, 0.165, 0.06, 10), M(0xf0d070), -0.3, 1.66, -0.4 + i * 0.4, g); s.rotation.x = Math.PI / 2; }
+  mesh(cyl(0.16, 0.16, 0.5, 10), P(0x2f6fd8), 0.15, 1.78, -0.45, g).rotation.z = Math.PI / 2;
+  // mirror charm (blue evil eye) + fuzzy dice
+  const charm = mesh(new THREE.CircleGeometry(0.06, 10), M(0x1f5fd8, { side: THREE.DoubleSide }), 0.55, 1.15, 0, g); charm.rotation.y = Math.PI / 2;
+  for (const dz of [-0.06, 0.06]) mesh(box(0.08, 0.08, 0.08), M(0xff5fa8), 0.6, 1.25 - Math.abs(dz) * 2, dz, g);
+  // hood (hinged at the windshield) + engine bay with the taped wiring
+  const hood = new THREE.Group(); hood.position.set(0.9, 0.88, 0); g.add(hood); mesh(box(1.12, 0.05, Wd - 0.06), body, 0.56, 0, 0, hood);
+  const bay = new THREE.Group(); bay.position.set(1.4, 0.6, 0); g.add(bay);
+  mesh(box(0.7, 0.12, 1.1), M(0x2a2a2a), 0, 0, 0, bay); mesh(box(0.45, 0.16, 0.5), M(0x555555), -0.05, 0.1, 0, bay);
+  const wires = []; for (let i = 0; i < 5; i++) wires.push(mesh(box(0.6, 0.025, 0.025), M([0xd8231b, 0xffd400, 0x1f5fd8, 0x3df05a, 0xffffff][i]), 0, 0.2, -0.3 + i * 0.15, bay));
+  for (let i = 0; i < 3; i++) mesh(box(0.07, 0.04, 0.8), P(0xc9ccd1), -0.15 + i * 0.15, 0.22, 0, bay);
+  const late = () => { const c1 = plateT.userData.g; c1.fillStyle = '#f0f0f0'; c1.fillRect(0, 5, 64, 15); c1.fillStyle = '#111'; c1.font = '12px Lalezar'; c1.textAlign = 'center'; c1.textBaseline = 'middle'; c1.direction = 'rtl'; c1.fillText('س م ر ١٩٨٠', 32, 13); plateT.needsUpdate = true;
+    const c2 = stickT.userData.g; c2.fillStyle = '#d8231b'; c2.fillRect(0, 0, 64, 20); c2.fillStyle = '#ffe14a'; c2.font = '13px Lalezar'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.direction = 'rtl'; c2.fillText('ما شاء الله', 32, 11); stickT.needsUpdate = true; };
+  return { g, hood, bay, wires, wheels, lamps, late, L, Wd };
+}
+
 // =====================================================================
 // Shared vertical (9:16) helpers + home sets for the family episodes
 // (needs engine8 globals; engine8 built with W = 540, H = 960)
@@ -814,22 +877,10 @@ scene.add(samir.root);
 const Lx = (i) => LINES[i - 1];
 const T_RW = Lx(1).t1 + 0.15, T_HOOK = T_RW + 0.6, T_ANNO = Lx(10).t0;
 
-// ---------- Abu Samir's 1980 sCar ----------
-const S_CAR = V(G + 0.6, 0, 0.4);
-const sCar = new THREE.Group(); sCar.position.copy(S_CAR); sCar.rotation.y = -0.35; scene.add(sCar);
-const cream = P(0xe6d8b0, { shininess: 50 });
-mesh(box(2.3, 0.45, 1.15), cream, 0, 0.45, 0, sCar); mesh(box(1.2, 0.45, 1.05), cream, -0.15, 0.9, 0, sCar);
-mesh(box(1.1, 0.38, 1.07), new THREE.MeshPhongMaterial({ color: 0x9fc8e0, transparent: true, opacity: 0.6 }), -0.15, 0.9, 0, sCar);
-for (const [x, z] of [[-0.75, 0.58], [0.75, 0.58], [-0.75, -0.58], [0.75, -0.58]]) mesh(cyl(0.22, 0.22, 0.15, 10), M(0x111111), x, 0.22, z, sCar).rotation.x = Math.PI / 2;
-for (const z of [-0.35, 0.35]) mesh(new THREE.CircleGeometry(0.1, 10), new THREE.MeshBasicMaterial({ color: 0xfff6c0 }), 1.151, 0.5, z, sCar).rotation.y = Math.PI / 2;
-for (const x of [-1.17, 1.17]) mesh(box(0.06, 0.1, 1.2), P(0xd8d8d8, { shininess: 120 }), x, 0.32, 0, sCar);
-for (const [x, z, s] of [[0.5, 0.58, 0.25], [-0.6, -0.58, 0.2], [0.9, -0.58, 0.18]]) mesh(new THREE.PlaneGeometry(s, s * 0.7), M(0x8a4a22), x, 0.45, z * 1.005, sCar).rotation.y = z > 0 ? 0 : Math.PI; // rust
-for (let i = 0; i < 2; i++) mesh(box(0.04, 0.47, 1.17), P(0xc9ccd1), 0.2 + i * 0.25, 0.45, 0, sCar); // duct tape
-const carHood = new THREE.Group(); carHood.position.set(0.55, 0.68, 0); sCar.add(carHood); mesh(box(0.62, 0.04, 1.1), cream, 0.31, 0, 0, carHood);
-const engineBay = new THREE.Group(); engineBay.position.set(0.85, 0.6, 0); sCar.add(engineBay);
-mesh(box(0.45, 0.2, 0.7), M(0x3a3a3a), 0, 0, 0, engineBay);
-const wires = []; for (let i = 0; i < 5; i++) wires.push(mesh(box(0.5, 0.02, 0.02), M([0xd8231b, 0xffd400, 0x1f5fd8, 0x3df05a, 0xffffff][i]), 0, 0.12, -0.25 + i * 0.12, engineBay));
-for (let i = 0; i < 3; i++) mesh(box(0.06, 0.04, 0.6), P(0xc9ccd1), -0.12 + i * 0.12, 0.14, 0, engineBay); // tape over the wires
+// ---------- Abu Samir's 1980 car (samir_car.js) ----------
+const S_CAR = V(G + 0.1, 0, -1.0);
+const SC = makeSamirCar(scene); const sCar = SC.g; sCar.position.copy(S_CAR); sCar.rotation.y = -0.2;
+const carHood = SC.hood, engineBay = SC.bay, wires = SC.wires; lateDraw.push(SC.late);
 const horn = new THREE.Group(); scene.add(horn); mesh(cyl(0.06, 0.12, 0.16, 10), P(0xd8d8d8, { shininess: 120 }), 0, 0, 0, horn).rotation.z = Math.PI / 2; mesh(box(0.05, 0.05, 0.05), M(0x222222), -0.1, 0, 0, horn);
 const laptopA = new THREE.Group(); scene.add(laptopA);
 mesh(box(0.42, 0.025, 0.3), P(0x3a3a44), 0, 0, 0, laptopA);
@@ -839,7 +890,7 @@ const garLight = new THREE.PointLight(0xfff6e8, 1.8, 14, 1.0); garLight.position
 const caneS = mesh(cyl(0.015, 0.015, 0.9, 5), M(0x6a4220), 0, 0, 0, scene);
 
 // positions (world)
-const P_SAMIR = V(G - 0.65, 0, 1.15), P_BASTAM = V(G - 1.3, 0, 0.3), P_ASLY = V(G + 1.95, 0, 0.75), P_GAZ = V(G + 1.85, 0, -0.15), P_ALAMY = V(G + 1.15, 0, 1.75);
+const P_SAMIR = V(G - 0.7, 0, 0.75), P_BASTAM = V(G - 1.7, 0, 0.35), P_ASLY = V(G + 2.35, 0, 0.55), P_GAZ = V(G + 2.75, 0, -0.75), P_ALAMY = V(G + 1.0, 0, 1.25);
 
 function stateAt(t) {
   const sp = speakerAt(t);
@@ -861,15 +912,15 @@ function stateAt(t) {
   setFace(bastam, hornOut ? 'sparkle' : 'wide', talkMouth(t, 'bastam', 'scream') || (hornOut ? 'grin' : 'o'), { fuzz: true });
   horn.visible = hornOut; if (hornOut) { horn.position.copy(bastam.arms[1].hand.getWorldPosition(V(0, 0, 0))).add(V(0, 0.08, 0.05)); horn.rotation.set(0, 0.6, 0.3); }
   // ----- El-Asly at the carHood -----
-  asly.root.position.copy(inT(t, Lx(6).t0 - 0.3, Lx(7).t0) ? V(G + 2.7, 0, 1.7) : P_ASLY); asly.root.rotation.set(0, -1.6, 0);
+  asly.root.position.copy(inT(t, Lx(6).t0 - 0.3, Lx(7).t0) ? V(G + 2.7, 0, 1.7) : P_ASLY); asly.root.rotation.set(0, -2.5, 0);
   let ap = { ...POSE0, bend: 0.35, aLx: 1.0, eL: 0.6, aRx: 1.0, eR: 0.6 };
   if (inT(t, Lx(4).t0 - 0.1, Lx(5).t0)) { ap = { ...POSE0, bend: 0, aRx: 1.9, eR: 0.2, aLz: 0.8, eL: 1.2 }; asly.root.rotation.y = -0.6; asly.root.position.y = Math.abs(Math.sin(t * 9)) * 0.04; }
   applyPose(asly, talkPose(ap, t, 'asly', 0.3));
   setFace(asly, 'angry', talkMouth(t, 'asly', 'scream') || 'clench', { stache: true });
   // ----- El-Gazzar, ear on the engine -----
-  gazzar.root.position.copy(P_GAZ); gazzar.root.rotation.set(0, -1.25, 0);
+  gazzar.root.position.copy(P_GAZ); gazzar.root.rotation.set(0, -1.75, 0);
   const gp = { ...POSE0, bend: 0.75, y: -0.15, aLx: 0.9, eL: 0.5, aRz: 0.3, hz: 0.5 };
-  if (inT(t, Lx(6).t0 - 0.2, Lx(6).t1 + 0.3)) { gp.bend = 0.4; gp.hz = 0.2; gazzar.root.rotation.y = -0.8; }
+  if (inT(t, Lx(6).t0 - 0.2, Lx(6).t1 + 0.3)) { gp.bend = 0.4; gp.hz = 0.2; gazzar.root.rotation.y = -1.2; }
   applyPose(gazzar, talkPose(gp, t, 'gazzar', 0.2));
   setFace(gazzar, 'tired', talkMouth(t, 'gazzar') || 'smile', { fuzz: true });
   // ----- El-Alamy with the laptop (cable into the sCar) -----
@@ -879,7 +930,7 @@ function stateAt(t) {
     const e = engineBay.getWorldPosition(V(0, 0, 0)); cableA.geometry.setFromPoints([laptopA.position.clone(), VL(laptopA.position, e, 0.5).add(V(0, -0.5, 0)), e]); }
   setFace(alamy, 'smug', talkMouth(t, 'alamy') || 'smile', ALAMY_FACE);
   // ----- the sCar: carHood open, sobbing shake, horn missing at the end -----
-  carHood.rotation.z = t >= Lx(2).t1 ? 1.1 : 0;
+  carHood.rotation.z = t >= Lx(2).t1 ? 1.15 : 0;
   const sob = inT(t, Lx(3).t0, Lx(4).t0) || inT(t, Lx(6).t0, Lx(7).t0);
   sCar.position.copy(S_CAR).add(V(0, sob ? Math.abs(Math.sin(t * 14)) * 0.025 : 0, 0)); sCar.rotation.z = sob ? Math.sin(t * 7) * 0.012 : 0;
   wires.forEach((w, i) => { w.rotation.x = inT(t, Lx(4).t0, Lx(5).t0) ? Math.sin(t * 30 + i) * 0.3 : 0; });
@@ -889,7 +940,7 @@ function stateAt(t) {
 
 function shotAt(t) {
   if (t < T_RW + 0.6) { faceCam(samir, 1.9, 0.3, 0.05, 60, 0.3); camera.position.add(shake(t, 0.03)); return; }
-  if (t < Lx(3).t0 - 0.1) { const k = easeOut(seg(t, T_HOOK, Lx(2).t1)); cam(VL(V(G - 0.2, 1.9, 4.6), V(G - 0.4, 1.7, 3.8), k), V(G - 0.4, 1.2, 0.4), 66); return; }
+  if (t < Lx(3).t0 - 0.1) { const k = easeOut(seg(t, T_HOOK, Lx(2).t1)); cam(VL(V(G + 0.6, 4.2, 4.6), V(G + 0.5, 3.6, 4.0), k), V(G + 0.2, 0.5, -0.9), 66); return; }
   if (t < Lx(4).t0 - 0.1) { faceCam(samir, 1.9, -0.35, 0.05, 60, 0.3); return; }
   if (t < Lx(5).t0 - 0.1) { const h = headOf(asly); cam(h.clone().add(V(-0.4, 0.1, 1.9)).add(shake(t, 0.015)), h.clone().add(V(0, -0.35, 0)), 62); return; }
   if (t < Lx(6).t0 - 0.1) { faceCam(samir, 1.8, -0.35, 0.05, 60, 0.3); return; }
@@ -903,7 +954,7 @@ function particles(t) {
   const st = [], sw = [];
   if (inT(t, Lx(4).t0, Lx(5).t0)) { const e = engineBay.getWorldPosition(V(0, 0, 0)); for (let i = 0; i < 8; i++) { const k = (t * 3 + i / 8) % 1; st.push({ pos: e.clone().add(V(Math.cos(i * 2.3) * k * 0.6, 0.15 + k * 0.6, Math.sin(i * 1.7) * k * 0.4)), size: 0.1 * (1 - k), color: 0x9fd0ff }); } }
   const sob = inT(t, Lx(3).t0, Lx(4).t0) || inT(t, Lx(6).t0, Lx(7).t0);
-  if (sob) { for (const z of [-0.35, 0.35]) { const lp = V(1.16, 0.45, z).applyMatrix4(sCar.matrixWorld); for (let i = 0; i < 2; i++) { const k = (t * 1.4 + i * 0.5 + (z > 0 ? 0.25 : 0)) % 1; sw.push({ pos: lp.clone().add(V(0.05, -k * 0.4, 0)), size: 0.08, op: 1 - k }); } } }
+  if (sob) { for (const z of [-0.35, 0.35]) { const lp = V(2.02, 0.68, z * 1.77).applyMatrix4(sCar.matrixWorld); for (let i = 0; i < 2; i++) { const k = (t * 1.4 + i * 0.5 + (z > 0 ? 0.25 : 0)) % 1; sw.push({ pos: lp.clone().add(V(0.05, -k * 0.4, 0)), size: 0.08, op: 1 - k }); } } }
   emit(st, starPool); emit([], puffPool); emit([], trailPool); emit(sw, sweatPool);
 }
 function drawDiag(g, t) {
@@ -933,5 +984,8 @@ window.renderFrame = function (t) {
   return true;
 };
 window.frameData = () => out.toDataURL('image/png');
+window.carSheet = (i) => { stateAt(1.0); samir.root.position.copy(sCar.position.clone().add(V(0.4, 0, 1.5))); samir.root.rotation.set(0, 0.3, 0); applyPose(samir, { ...POSE0, aLz: 0.15 }); bastam.root.visible = alamy.root.visible = asly.root.visible = gazzar.root.visible = false; carHood.rotation.z = 0; laptopA.visible = cableA.visible = false;
+  const c = sCar.position.clone().add(V(0, 0.8, 0)); const views = [[V(4.2, 1.8, 4.2), 50], [V(-4.8, 1.6, 2.6), 50], [V(0.5, 1.6, 6.0), 48], [V(5.5, 3.2, -0.3), 46]]; const [o, f] = views[i];
+  camera.aspect = W / H; cam(c.clone().add(o.applyAxisAngle(V(0, 1, 0), -0.2)), c, f); renderer.render(scene, camera); ctx.clearRect(0, 0, W, H); ctx.drawImage(glCanvas, 0, 0); return out.toDataURL('image/png'); };
 window.DUR = DUR;
 document.fonts.load('10px PS2P').then(() => document.fonts.load('20px Lalezar', 'ع')).then(() => document.fonts.load('700 20px ReemKufi', 'ع')).then(() => { lateDraw.forEach(f => f()); window.READY = true; });
