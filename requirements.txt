@@ -6,6 +6,7 @@ python-dotenv>=1.0
 Pillow>=10.0
 numpy>=1.24
 requests>=2.31
+gradio_client>=1.3     # free Hugging Face Spaces (hf_space_image, hf_space_video)
 certifi>=2026.10.19    # Updated trust roots after the eMudhra intermediate CA compromise
 google-auth>=2.0       # service-account auth for Google TTS + Imagen (Vertex AI)
 google-genai>=1.0.0    # Gemini Developer API clients for Lyria, Veo, and Gemini Omni
