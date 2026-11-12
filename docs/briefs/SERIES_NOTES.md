@@ -83,7 +83,7 @@
 ## Service-center cast (introduced in "The Service Center")
 | Character | Age | Traits | AI Studio voice |
 |---|---|---|---|
-| Bastam (بستم) | 29 | Technicians' foreman. Always shouting someone's name, understands nothing about technology | Sadachbia |
+| Bestem (بستم) | 29 | Technicians' foreman. Always shouting someone's name, understands nothing about technology | Sadachbia |
 | El-Alamy (العالمي) | 28 | Center manager. Handles the computer, tuning and admin. Everyone loves him, but he thinks nobody understands anything | Rasalgethi |
 
 **El-Alamy's look (user request, applies to every episode after "The Service Center"):** NO glasses. A handsome, sharp-dressed young man:
