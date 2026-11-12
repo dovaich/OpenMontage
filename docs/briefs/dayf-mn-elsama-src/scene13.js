@@ -702,7 +702,7 @@ function stateAt(t) {
     if (inT(t, 14.9, 17.9)) { sp.aLz = 0.9; sp.aRx = 0.4; sp.eR = 0.5; sp.hx = 0; } }
   else if (t < 36.0) { const ph = t * pedal(t); son.root.position.copy(BIKE).add(V(-0.12, 0.08, 0)); sr = Math.PI / 2; sp = { ...POSE0, y: -0.05, bend: 0.35, lL: 1.2 + Math.sin(ph) * 0.45, lR: 1.2 - Math.sin(ph) * 0.45, aLx: 1.2, eL: 0.3, aRx: 1.2, eR: 0.3 };
     if (t >= 23.6) sp.bend = 0.55; if (t >= 33.6) { sp.hx = -0.5; sp.bend = 0; } }
-  else if (t < 82.6) { son.root.position.set(2.1, 0, 0.4); sr = -0.6; sp = { ...POSE0, aLz: 0.2, aRz: 0.2 };
+  else if (t < 82.6) { son.root.position.set(t < 77.0 ? 2.1 : 2.55, 0, t < 77.0 ? 0.4 : 0.65); sr = -0.6; sp = { ...POSE0, aLz: 0.2, aRz: 0.2 };
     if (inT(t, T_CRASH - 0.3, 41)) { sp.aLz = 2.4; sp.aRz = 2.4; sp.y = -0.15; }
     if (inT(t, 62.2, 64.4)) { sp.aRx = 0.9; sp.eR = 0.4; } }
   else { son.root.position.set(0.05, 0, -0.75); sr = 0.1; sp = { ...POSE0, y: -0.5, lL: 1.45, lR: 1.45, aLx: 0.7, eL: 1.2, aRx: 0.7, eR: 1.2 }; }
@@ -813,15 +813,16 @@ function shotAt(t) {
   if (t < 44.5) { faceCam(bastam, 2.0, 0.5, 0.05, 44, 0.2); return; }
   if (t < T_DOOR) { faceCam(dad, 2.0, -0.6, 0.05, 44, 0.2); return; }
   if (t < 47.16) { cam(V(1.3, 1.5, 2.6), V(1.6, 1.1, -1.3), 46); return; }
-  if (t < 52.48) { faceCam(mom, 2.0, 0.45, 0.05, 44, 0.2); return; }
+  if (t < 52.48) { faceCam(mom, 2.0, -0.5, 0.05, 44, 0.2); return; }
   if (t < 58.99) { cam(V(-0.2, 1.6, 3.3), V(-0.5, 0.95, 0.0), 50); return; }
   if (t < 63.5) { faceCam(dad, 2.0, 0.5, 0.05, 44, 0.2); return; }
   if (t < T_LIGHTS) { cam(V(1.35, 0.8, -0.35), V(0.85, 0.45, -1.2), 50); return; }
   if (t < 66.84) { const k = easeOut(seg(t, T_LIGHTS, 66.84)); cam(VL(V(0.0, 1.6, 1.15), V(0.0, 1.8, 1.25), k), V(0, 0.0, 16), 60); return; }
-  if (t < 71.72) { faceCam(mom, 1.9, 0.45, 0.05, 44, 0.2); return; }
+  if (t < 71.72) { faceCam(mom, 1.9, -0.5, 0.05, 44, 0.2); return; }
   if (t < 75.06) { faceCam(dad, 1.9, -0.45, 0.05, 44, 0.2); return; }
   if (t < 77.65) { faceCam(bastam, 1.8, 0.4, 0.05, 44, 0.2); return; }
-  if (t < 82.6) { cam(V(0.6, 1.55, 3.5), V(0.6, 0.9, -0.6), 52); return; }
+  if (t < 80.3) { faceCam(mom, 2.7, -0.7, 0.05, 46, 0.3); return; }
+  if (t < 82.6) { cam(V(0.4, 1.55, 3.5), V(0.6, 0.9, -0.6), 52); return; }
   const k = easeInOut(seg(t, 82.6, 97)); cam(VL(V(0.2, 1.4, 3.2), V(0.2, 3.6, 9.5), k), VL(V(0.0, 0.5, -0.6), V(0, 0.8, -0.8), k), 50);
 }
 
