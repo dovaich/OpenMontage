@@ -75,3 +75,7 @@
   This uses the same `generativelanguage.googleapis.com` secret, and these text models have their own free quota, separate from TTS.
   Then snap the transcript's line boundaries to the measured silence gaps.
 - `gemini-2.5-flash` is no longer offered to new keys. `gemini-3.5-transcribe` rejects JSON mode. `gemini-3.8-flash` often returns 503.
+
+## Invention cards (page posts)
+- `docs/briefs/invention-cards-src/` makes the collectible cards and the "collect them all" cover. When Ibrahim builds a new invention in an episode,
+  add a card for it there, so the set keeps growing with the series.
