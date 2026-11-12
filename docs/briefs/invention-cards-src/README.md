@@ -2,7 +2,7 @@
 
 These are collectible "invention cards" for the page, 1080×1350 (4:5). Each one shows a low-poly model of an invention from the series,
 with its rarity, stats, parts, a quote, the result, and the episode it appeared in (by name, never a number).
-- Cards: Jet Dishwasher 3000 (legendary), Nuclear Wi-Fi Booster (epic), Tuk-Tuk 3000 (mythic) and Lie Detector 3000 (rare).
+- Cards: Jet Dishwasher 3000 (legendary), Nuclear Wi-Fi Booster (epic), Tuk-Tuk 3000 (mythic), Lie Detector 3000 (rare) and Pedal Generator 3000 (common).
 - `cards.js` builds each model, renders it at 470×300 and scales it up with nearest-neighbour for the PS2 look, then draws the card in 2D.
 - To add a card for a new invention, add a model function and an entry to `CARDS`.
 

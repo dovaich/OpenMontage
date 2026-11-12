@@ -136,6 +136,27 @@ function lieDetector(s) {
   return { g, cam: [V(1.6, 1.35, 2.4), V(0, 0.45, 0.1)] };
 }
 
+function pedalGenerator(s) {
+  const g = new THREE.Group(); s.add(g);
+  const frameM = P(0x1f6fd8, { shininess: 80 });
+  for (const x of [-0.5, 0.5]) { const w = new THREE.Group(); w.position.set(x, 0.38, 0); g.add(w); mesh(new THREE.TorusGeometry(0.3, 0.035, 5, 14), M(0x111111), 0, 0, 0, w); for (let k = 0; k < 3; k++) mesh(box(0.56, 0.015, 0.015), M(0xaaaaaa), 0, 0, 0, w).rotation.z = k * Math.PI / 3; }
+  for (const [x, y, l, rz] of [[0, 0.55, 0.9, 0], [-0.22, 0.48, 0.45, 1.1], [0.25, 0.5, 0.42, -1.0], [-0.45, 0.62, 0.5, 0.25]]) mesh(box(l, 0.04, 0.04), frameM, x, y, 0, g).rotation.z = rz;
+  mesh(box(0.2, 0.05, 0.1), M(0x111111), -0.12, 0.82, 0, g); mesh(box(0.04, 0.04, 0.45), P(0xcccccc), 0.5, 0.9, 0, g); mesh(box(0.04, 0.3, 0.04), frameM, 0.48, 0.76, 0, g);
+  mesh(box(0.3, 0.14, 0.5), M(0x555555), -0.5, 0.07, 0, g);
+  mesh(box(0.14, 0.14, 0.12), P(0xd8231b), -0.5, 0.3, 0.16, g); mesh(box(0.5, 0.03, 0.03), P(0xc9ccd1), -0.5, 0.36, 0.18, g);
+  const fan = new THREE.Group(); fan.position.set(1.0, 0, -0.35); g.add(fan);
+  mesh(cyl(0.16, 0.18, 0.05, 8), M(0x2a8a8a), 0, 0.03, 0, fan); mesh(cyl(0.03, 0.03, 0.9, 6), M(0x2a8a8a), 0, 0.48, 0, fan);
+  const head = new THREE.Group(); head.position.set(0, 0.98, 0); head.rotation.y = -0.5; fan.add(head);
+  mesh(new THREE.TorusGeometry(0.24, 0.015, 4, 14), M(0xdddddd), 0, 0, 0.04, head);
+  for (let k = 0; k < 3; k++) { const b = mesh(box(0.08, 0.2, 0.01), M(0x8fd0ff), 0, 0, 0, head); b.position.set(Math.sin(k * 2.09) * 0.1, Math.cos(k * 2.09) * 0.1, 0); b.rotation.z = -k * 2.09; }
+  mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshBasicMaterial({ color: 0xfff0a0 }), 0.0, 1.35, 0.1, g); mesh(box(0.012, 0.3, 0.012), M(0x111111), 0, 1.55, 0.1, g);
+  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(-0.5, 0.3, 0.22), V(0.2, 0.05, 0.3), V(0.8, 0.1, 0.0), V(1.0, 0.9, -0.35)]), 16, 0.012, 4), M(0x111111), 0, 0, 0, g);
+  // sparks from the dynamo
+  for (let i = 0; i < 6; i++) mesh(new THREE.OctahedronGeometry(0.03, 0), new THREE.MeshBasicMaterial({ color: 0x9fd0ff }), -0.5 + Math.cos(i) * 0.15, 0.45 + i * 0.04, 0.25 + Math.sin(i) * 0.08, g);
+  g.position.set(-0.15, 0, 0); g.rotation.y = 0.35;
+  return { g, cam: [V(1.3, 1.45, 2.9), V(0.1, 0.6, 0)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -150,6 +171,9 @@ const CARDS = [
   { file: 'card_lie_detector', build: lieDetector, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'كاشف الكدب ٣٠٠٠', en: 'LIE DETECTOR 3000',
     stats: [['ACCURACY', 'الدقة', 5], ['VOLUME', 'الصفير', 5], ['SAFETY', 'الأمان', 1], ['SAFE ANSWERS', 'إجابات آمنة', 0]],
     parts: 'حلة ضغط + ريموت + مصفاة + لمبة حمرا', quote: '«أي حد يكدب... الحلة تصفّر»', result: 'النتيجة: إبراهيم في البلكونة', ep: 'كاشف الكدب ٣٠٠٠' },
+  { file: 'card_pedal_generator', build: pedalGenerator, rarity: ['COMMON', 'عادي', '#7fd07f', '#0f2a10'], ar: 'مولّد البدّال ٣٠٠٠', en: 'PEDAL GENERATOR 3000',
+    stats: [['POWER', 'القوة', 1], ['SWEAT', 'العرق', 5], ['SAFETY', 'الأمان', 2], ['CHARGE', 'الشحن', 1]],
+    parts: 'عجلة حمادة + مروحة + دينامو + شريط لزق', quote: '«دوّس يا حمادة! كل لفة بتنوّر اللمبة!»', result: 'النتيجة: الموبايل شحن ١٪ بس', ep: 'ضيف من السما' },
 ];
 
 // ---------- 2D card ----------
@@ -214,7 +238,7 @@ window.drawCardN = (i) => { drawCard(i, renderArt(i)); return card.toDataURL('im
 window.CARD_FILES = CARDS.map(c => c.file);
 document.fonts.load('20px PS2P').then(() => document.fonts.load('20px Lalezar', 'ع')).then(() => document.fonts.load('700 20px ReemKufi', 'ع')).then(() => { window.READY = true; });
 
-// ---------- album cover: all four cards ----------
+// ---------- album cover: all the cards ----------
 window.drawCover = async () => {
   const load = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.src = src; });
   const ims = await Promise.all(CARDS.map(c => load(c.file + '.png')));
@@ -223,7 +247,7 @@ window.drawCover = async () => {
   g.save(); g.translate(CW / 2, CH / 2 + 60); for (let k = 0; k < 24; k++) { g.rotate(Math.PI / 12); g.fillStyle = k % 2 ? 'rgba(255,225,74,0.06)' : 'rgba(0,0,0,0)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(1200, -160); g.lineTo(1200, 160); g.fill(); } g.restore();
   ar('اختراعات إبراهيم', CW / 2, 20, 84, '#ffe14a', 'center', 'ReemKufi');
   px('COLLECT THEM ALL!', CW / 2, 132, 26, '#ffffff', 'center');
-  const cw = 452, ch = 565; const pos = [[70, 190], [558, 190], [70, 772], [558, 772]]; const rot = [-0.035, 0.03, 0.03, -0.03];
+  const cw = 340, ch = 425; const pos = [[24, 205], [370, 205], [716, 205], [197, 690], [543, 690]]; const rot = [-0.035, 0.02, 0.035, -0.025, 0.03];
   ims.forEach((im, i) => { g.save(); g.translate(pos[i][0] + cw / 2, pos[i][1] + ch / 2); g.rotate(rot[i]); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(-cw / 2 + 10, -ch / 2 + 14, cw, ch); g.drawImage(im, -cw / 2, -ch / 2, cw, ch); g.restore(); });
   for (let y = 0; y < CH; y += 4) { g.fillStyle = 'rgba(0,0,0,0.06)'; g.fillRect(0, y, CW, 1); }
   return card.toDataURL('image/png');
