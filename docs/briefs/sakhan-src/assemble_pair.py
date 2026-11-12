@@ -25,6 +25,28 @@ EP = {
   ("son", "r2", 12.45, 16.03, 0.5, "الموبايل اشتغل يا بابا!... بس ريحته رز بالشعرية.", "The phone works, Dad!... but it smells like vermicelli rice."),
   ("anno", "r3", 18.23, 23.17, 0.5, "", "Phone status: alive. Rice status: ringing."),
  ]),
+ "takyeef": ("التكييف النووي", 3.4, [
+  ("mom", "r3", 0.22, 5.41, 0.15, "إبراهيم!... فاتورة الكهربا جت... بخمس تلاف جنيه!", "Ibrahim!... the electricity bill came... five thousand pounds!"),
+  ("son", "r1", 0.24, 3.20, 1.25, "بابا! أنا بسيح... الحر ده مش طبيعي!", "Dad! I'm melting... this heat isn't normal!"),
+  ("dad", "r1", 4.04, 8.32, 0.25, "ولا يهمك يا بطل... قدامك: التكييف النووي تلاتة آلاف!", "Don't worry, champ... behold: the Nuclear AC 3000!"),
+  ("son", "r1", 8.87, 12.14, 0.25, "دي التلاجة مفتوحة والمروحة قدامها يا بابا!", "That's the open fridge with a fan in front of it, Dad!"),
+  ("dad", "r1", 12.84, 16.67, 0.3, "هوا التلاجة... بالمروحة... يبقى تكييف. اقعد قدامه.", "Fridge air... plus fan... equals AC. Sit in front of it."),
+  ("son", "r1", 17.35, 21.00, 0.9, "بابا... أنا اتجمدت!... حواجبي فيها تلج!", "Dad... I'm frozen!... there's ice in my eyebrows!"),
+  ("mom", "r3", 0.22, 5.41, 0.5, "إبراهيم!... فاتورة الكهربا جت... بخمس تلاف جنيه!", "Ibrahim!... the electricity bill came... five thousand pounds!"),
+  ("dad", "r1", 21.73, 24.82, 0.4, "خلاص... ندفعها بالتلج... عندنا كتير.", "Fine... we'll pay it in ice... we have plenty."),
+  ("anno", "r3", 12.53, 18.88, 0.5, "", "Room temperature: minus ten. Electricity bill: nuclear."),
+ ]),
+ "natiga": ("موقع النتيجة", 3.4, [
+  ("mom", "r3", 7.16, 11.38, 0.15, "إبراهيم! إنت وقّعت موقع النتيجة للمحافظة كلها؟!", "Ibrahim! You crashed the results website for the whole governorate?!"),
+  ("son", "r2", 0.05, 3.30, 1.25, "بابا! موقع النتيجة واقع... والناس كلها مستنية!", "Dad! The results website is down... and everyone's waiting!"),
+  ("dad", "r2", 3.81, 8.06, 0.25, "ولا يهمك... قدامك: مسرّع المواقع النووي تلاتة آلاف!", "Don't worry... behold: the Nuclear Website Booster 3000!"),
+  ("son", "r2", 8.81, 10.69, 0.25, "ده الراوتر متربط في المروحة يا بابا!", "That's the router tied to the fan, Dad!"),
+  ("dad", "r2", 11.36, 15.17, 0.3, "المروحة بتزق النت... والنت بيجري. اكتب رقم الجلوس.", "The fan pushes the internet... and the internet runs. Type your seat number."),
+  ("son", "r2", 15.91, 19.56, 0.5, "اشتغل!... أنا جبت... خمسين في المية؟!", "It works!... I got... fifty percent?!"),
+  ("mom", "r3", 7.16, 11.38, 0.5, "إبراهيم! إنت وقّعت موقع النتيجة للمحافظة كلها؟!", "Ibrahim! You crashed the results website for the whole governorate?!"),
+  ("dad", "r2", 19.75, 24.86, 0.4, "بالعكس... أنا خليت المحافظة كلها تشوف نتيجة حمادة.", "On the contrary... I let the whole governorate see Hamada's result."),
+  ("anno", "r3", 21.28, 26.76, 0.5, "", "Server status: down. Hamada's score: fifty percent."),
+ ]),
 }
 P0 = "/home/user/OpenMontage/projects/"
 name = sys.argv[1]; title, tail, L = EP[name]; P = P0 + name

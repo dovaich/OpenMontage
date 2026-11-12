@@ -202,6 +202,28 @@ function phoneDryer(s) {
   g.rotation.y = 0.35; return { g, cam: [V(1.1, 1.75, 1.9), V(0, 1.0, 0)] };
 }
 
+const hash = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function fanRig(g, x, z, ry) { const f = new THREE.Group(); f.position.set(x, 0, z); f.rotation.y = ry; g.add(f); mesh(cyl(0.18, 0.2, 0.05, 8), M(0x2a8a8a), 0, 0.03, 0, f); mesh(cyl(0.03, 0.03, 0.9, 6), M(0x2a8a8a), 0, 0.48, 0, f);
+  const h = new THREE.Group(); h.position.set(0, 1.0, 0); f.add(h); mesh(new THREE.TorusGeometry(0.26, 0.015, 4, 14), M(0xdddddd), 0, 0, 0.04, h); for (let k = 0; k < 3; k++) { const b = mesh(box(0.08, 0.22, 0.01), M(0x8fd0ff), 0, 0, 0, h); b.position.set(Math.sin(k * 2.09) * 0.11, Math.cos(k * 2.09) * 0.11, 0); b.rotation.z = -k * 2.09; } return h; }
+function nuclearAC(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.8, 1.9, 0.7), P(0xf0f0f0), 0.2, 0.95, -0.4, g); mesh(new THREE.PlaneGeometry(0.7, 1.7), new THREE.MeshBasicMaterial({ color: 0xd8f0ff }), 0.2, 0.95, -0.049, g);
+  const d = mesh(box(0.78, 1.88, 0.05), P(0xf4f4f4), -0.55, 0.95, 0.15, g); d.rotation.y = 1.2;
+  fanRig(g, 0.0, 0.6, 0.0);
+  for (let i = 0; i < 10; i++) mesh(new THREE.OctahedronGeometry(0.05, 0), new THREE.MeshBasicMaterial({ color: 0xffffff }), (hash(i) - .5) * 1.4, 0.6 + hash(i + 2) * 1.2, 0.8 + hash(i + 4) * 0.6, g);
+  g.rotation.y = 0.3; return { g, cam: [V(1.4, 1.5, 2.9), V(0, 0.95, 0)] };
+}
+function websiteBooster(s) {
+  const g = new THREE.Group(); s.add(g);
+  const h = fanRig(g, 0, 0, 0);
+  const r = new THREE.Group(); r.position.set(0, 0, 0.16); h.add(r); mesh(box(0.3, 0.07, 0.2), P(0x222222), 0, 0, 0, r); for (const sx of [-1, 1]) mesh(cyl(0.01, 0.01, 0.25, 4), P(0x222222), sx * 0.1, 0.15, -0.05, r);
+  for (let i = 0; i < 4; i++) mesh(box(0.03, 0.015, 0.01), new THREE.MeshBasicMaterial({ color: i % 2 ? 0x3df05a : 0xff3a2a }), -0.09 + i * 0.06, 0, 0.105, r);
+  for (let i = 0; i < 2; i++) mesh(box(0.34, 0.03, 0.02), P(0xc9ccd1), 0, -0.02 + i * 0.04, 0.12, r);
+  const lp = new THREE.Group(); lp.position.set(-0.7, 0.4, 0.3); lp.rotation.y = 0.5; g.add(lp); mesh(box(0.5, 0.4, 0.5), M(0x6a4220), 0, -0.2, 0, lp); mesh(box(0.42, 0.025, 0.3), P(0x3a3a44), 0, 0.01, 0, lp); const ld = mesh(box(0.42, 0.28, 0.015), P(0x3a3a44), 0, 0.16, -0.15, lp); ld.rotation.x = -0.35; mesh(new THREE.PlaneGeometry(0.38, 0.24), new THREE.MeshBasicMaterial({ color: 0xffe14a }), 0, 0.16, -0.14, lp).rotation.x = -0.35;
+  for (let i = 0; i < 8; i++) mesh(new THREE.OctahedronGeometry(0.04, 0), new THREE.MeshBasicMaterial({ color: [0x5ab8ff, 0x3df05a, 0xffe14a][i % 3] }), -0.2 - i * 0.08, 1.0 + Math.sin(i) * 0.1, 0.3 + i * 0.03, g);
+  g.rotation.y = -0.3; return { g, cam: [V(1.2, 1.5, 2.6), V(-0.2, 0.85, 0)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -228,6 +250,12 @@ const CARDS = [
   { file: 'card_phone_dryer', build: phoneDryer, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'مجفف الموبايلات النووي ٣٠٠٠', en: 'NUCLEAR PHONE DRYER 3000',
     stats: [['DRYING', 'التنشيف', 4], ['FLAVOR', 'الطعم', 5], ['SAFETY', 'الأمان', 1], ['GUEST SHOCK', 'صدمة الضيوف', 5]],
     parts: 'حلة الرز + سشوار + نار البوتاجاز', quote: '«الرز بيشفط المية... وأنا هزوّد عليه نار»', result: 'النتيجة: الرز بيرن', ep: 'مجفف الموبايلات النووي' },
+  { file: 'card_nuclear_ac', build: nuclearAC, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'التكييف النووي ٣٠٠٠', en: 'NUCLEAR AC 3000',
+    stats: [['COOLING', 'التبريد', 5], ['BILL', 'الفاتورة', 5], ['SAFETY', 'الأمان', 1], ['ICE', 'التلج', 5]],
+    parts: 'تلاجة مفتوحة + مروحة + شريط لزق', quote: '«هوا التلاجة بالمروحة... يبقى تكييف»', result: 'النتيجة: فاتورة ٥٠٠٠ جنيه', ep: 'التكييف النووي' },
+  { file: 'card_website_booster', build: websiteBooster, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'مسرّع المواقع النووي ٣٠٠٠', en: 'NUCLEAR WEBSITE BOOSTER 3000',
+    stats: [['SPEED', 'السرعة', 5], ['SERVER DAMAGE', 'تدمير السيرفر', 5], ['SAFETY', 'الأمان', 1], ['GRADE', 'المجموع', 2]],
+    parts: 'راوتر + مروحة + شريط لزق', quote: '«المروحة بتزق النت... والنت بيجري»', result: 'النتيجة: الموقع وقع للمحافظة', ep: 'موقع النتيجة' },
 ];
 
 // ---------- 2D card ----------
@@ -301,7 +329,7 @@ window.drawCover = async () => {
   g.save(); g.translate(CW / 2, CH / 2 + 60); for (let k = 0; k < 24; k++) { g.rotate(Math.PI / 12); g.fillStyle = k % 2 ? 'rgba(255,225,74,0.06)' : 'rgba(0,0,0,0)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(1200, -160); g.lineTo(1200, 160); g.fill(); } g.restore();
   ar('اختراعات إبراهيم', CW / 2, 20, 84, '#ffe14a', 'center', 'ReemKufi');
   px('COLLECT THEM ALL!', CW / 2, 132, 26, '#ffffff', 'center');
-  const cw = 250, ch = 312; const pos = [[14, 215], [278, 215], [542, 215], [806, 215], [14, 600], [278, 600], [542, 600], [806, 600]]; const rot = [-0.035, 0.02, 0.035, -0.025, 0.03, -0.02, 0.025, -0.03];
+  const cw = 200, ch = 250; const pos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => [14 + (i % 5) * 212, 230 + Math.floor(i / 5) * 290]); const rot = pos.map((_, i) => (i % 2 ? 0.025 : -0.025));
   ims.forEach((im, i) => { g.save(); g.translate(pos[i][0] + cw / 2, pos[i][1] + ch / 2); g.rotate(rot[i]); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(-cw / 2 + 10, -ch / 2 + 14, cw, ch); g.drawImage(im, -cw / 2, -ch / 2, cw, ch); g.restore(); });
   for (let y = 0; y < CH; y += 4) { g.fillStyle = 'rgba(0,0,0,0.06)'; g.fillRect(0, y, CW, 1); }
   return card.toDataURL('image/png');

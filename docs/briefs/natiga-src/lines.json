@@ -1,0 +1,264 @@
+{
+ "title": "موقع النتيجة",
+ "voice_source": "Google AI Studio via local Claude-in-Chrome session (Puck=Hamada, Orus=Ibrahim, Kore=Om Hamada, Algenib=announcer)",
+ "dur": 44.1,
+ "lines": [
+  {
+   "id": "L01",
+   "s": "mom",
+   "t0": 0.15,
+   "t1": 4.45,
+   "src": [
+    "r3",
+    7.16,
+    11.38
+   ],
+   "gain": 0.81,
+   "ar": "إبراهيم! إنت وقّعت موقع النتيجة للمحافظة كلها؟!",
+   "en": "Ibrahim! You crashed the results website for the whole governorate?!",
+   "vox": [
+    [
+     0.19,
+     0.66
+    ],
+    [
+     1.81,
+     2.17
+    ],
+    [
+     2.34,
+     4.41
+    ]
+   ],
+   "gap_after": 1.25
+  },
+  {
+   "id": "L02",
+   "s": "son",
+   "t0": 5.7,
+   "t1": 9.03,
+   "src": [
+    "r2",
+    0.05,
+    3.3
+   ],
+   "gain": 0.92,
+   "ar": "بابا! موقع النتيجة واقع... والناس كلها مستنية!",
+   "en": "Dad! The results website is down... and everyone's waiting!",
+   "vox": [
+    [
+     5.74,
+     6.06
+    ],
+    [
+     6.18,
+     8.75
+    ]
+   ],
+   "gap_after": 0.25
+  },
+  {
+   "id": "L03",
+   "s": "dad",
+   "t0": 9.28,
+   "t1": 13.61,
+   "src": [
+    "r2",
+    3.81,
+    8.06
+   ],
+   "gain": 0.92,
+   "ar": "ولا يهمك... قدامك: مسرّع المواقع النووي تلاتة آلاف!",
+   "en": "Don't worry... behold: the Nuclear Website Booster 3000!",
+   "vox": [
+    [
+     9.32,
+     10.09
+    ],
+    [
+     10.32,
+     10.93
+    ],
+    [
+     11.12,
+     12.77
+    ],
+    [
+     12.89,
+     13.56
+    ]
+   ],
+   "gap_after": 0.25
+  },
+  {
+   "id": "L04",
+   "s": "son",
+   "t0": 13.86,
+   "t1": 15.82,
+   "src": [
+    "r2",
+    8.81,
+    10.69
+   ],
+   "gain": 1.0,
+   "ar": "ده الراوتر متربط في المروحة يا بابا!",
+   "en": "That's the router tied to the fan, Dad!",
+   "vox": [
+    [
+     13.9,
+     15.78
+    ]
+   ],
+   "gap_after": 0.3
+  },
+  {
+   "id": "L05",
+   "s": "dad",
+   "t0": 16.12,
+   "t1": 20.01,
+   "src": [
+    "r2",
+    11.36,
+    15.17
+   ],
+   "gain": 1.17,
+   "ar": "المروحة بتزق النت... والنت بيجري. اكتب رقم الجلوس.",
+   "en": "The fan pushes the internet... and the internet runs. Type your seat number.",
+   "vox": [
+    [
+     16.16,
+     17.4
+    ],
+    [
+     17.77,
+     18.59
+    ],
+    [
+     19.12,
+     19.97
+    ]
+   ],
+   "gap_after": 0.5
+  },
+  {
+   "id": "L06",
+   "s": "son",
+   "t0": 20.51,
+   "t1": 24.24,
+   "src": [
+    "r2",
+    15.91,
+    19.56
+   ],
+   "gain": 1.76,
+   "ar": "اشتغل!... أنا جبت... خمسين في المية؟!",
+   "en": "It works!... I got... fifty percent?!",
+   "vox": [
+    [
+     20.55,
+     20.92
+    ],
+    [
+     21.75,
+     22.24
+    ],
+    [
+     23.07,
+     24.17
+    ]
+   ],
+   "gap_after": 0.5
+  },
+  {
+   "id": "L07",
+   "s": "mom",
+   "t0": 24.74,
+   "t1": 29.04,
+   "src": [
+    "r3",
+    7.16,
+    11.38
+   ],
+   "gain": 0.81,
+   "ar": "إبراهيم! إنت وقّعت موقع النتيجة للمحافظة كلها؟!",
+   "en": "Ibrahim! You crashed the results website for the whole governorate?!",
+   "vox": [
+    [
+     24.78,
+     25.25
+    ],
+    [
+     26.4,
+     26.76
+    ],
+    [
+     26.93,
+     29.0
+    ]
+   ],
+   "gap_after": 0.4
+  },
+  {
+   "id": "L08",
+   "s": "dad",
+   "t0": 29.44,
+   "t1": 34.63,
+   "src": [
+    "r2",
+    19.75,
+    24.86
+   ],
+   "gain": 1.31,
+   "ar": "بالعكس... أنا خليت المحافظة كلها تشوف نتيجة حمادة.",
+   "en": "On the contrary... I let the whole governorate see Hamada's result.",
+   "vox": [
+    [
+     29.54,
+     29.63
+    ],
+    [
+     30.59,
+     31.66
+    ],
+    [
+     31.99,
+     34.59
+    ]
+   ],
+   "gap_after": 0.5
+  },
+  {
+   "id": "L09",
+   "s": "anno",
+   "t0": 35.13,
+   "t1": 40.69,
+   "src": [
+    "r3",
+    21.28,
+    26.76
+   ],
+   "gain": 2.03,
+   "ar": "",
+   "en": "Server status: down. Hamada's score: fifty percent.",
+   "vox": [
+    [
+     35.17,
+     36.34
+    ],
+    [
+     36.57,
+     37.39
+    ],
+    [
+     37.94,
+     39.02
+    ],
+    [
+     39.56,
+     40.65
+    ]
+   ],
+   "gap_after": 0.4
+  }
+ ]
+}
