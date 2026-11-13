@@ -32,3 +32,8 @@
   instead of AI Studio TTS. It saves the images to `incoming/<batch>/`, writes `manifest.txt`, sets the status to `recorded` and pushes.
 - Statuses stay the same (`record` → `recorded` → `done`), so the existing watcher wakes on image batches with no change.
 - Motion is done by the cloud builder on Kaggle (free T4 GPUs, Wan 2.2 image-to-video). See `docs/briefs/alamy-gta-test-src/kaggle_ltx_i2v.md` on `ccr-c6f1b9a5-tgwuni`.
+
+## Video batches (Google Flow / Veo 3.1, no API) — added Nov 2026
+- A batch whose `recording_message.md` starts with `# VIDEO BATCH (not voices)` is made in Google Flow (the user has AI Pro: about 1000 credits/month, and an 8 s Veo 3.1 Fast clip costs about 20).
+  Use Frames to Video with the Gemini scene images as start frames. Save the clips to `incoming/<batch>/`, then set the status to `recorded` and push.
+- The cloud builder lip-syncs every talking clip to the autopilot voices on Kaggle (LatentSync, with MuseTalk as the fallback). The mouths then match the series voices exactly.
