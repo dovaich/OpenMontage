@@ -1,0 +1,62 @@
+{
+ "l1": {
+  "clip": "f1_bestem_line1",
+  "cut": [
+   0.85,
+   5.75
+  ],
+  "spk": "bestem",
+  "text": "يا عالمييي! الحق! التوك توك بيتكلم!",
+  "aligned": "/home/user/OpenMontage/projects/alamy-tuktuk-ai/assets/audio/l1_aligned.wav"
+ },
+ "l2": {
+  "clip": "f2_alamy_line2",
+  "cut": [
+   0.45,
+   4.75
+  ],
+  "spk": "alamy",
+  "text": "طبيعي يا بستم... أنا ركّبتله ذكاء اصطناعي.",
+  "aligned": "/home/user/OpenMontage/projects/alamy-tuktuk-ai/assets/audio/l2_aligned.wav"
+ },
+ "l3": {
+  "clip": "f3_bestem_line3",
+  "cut": [
+   2.55,
+   4.85
+  ],
+  "spk": "bestem",
+  "text": "وهو بيقول إيه بالظبط؟!",
+  "aligned": "/home/user/OpenMontage/projects/alamy-tuktuk-ai/assets/audio/l3_aligned.wav"
+ },
+ "l4": {
+  "clip": "f4_alamy_line4",
+  "cut": [
+   1.25,
+   5.4
+  ],
+  "spk": "alamy",
+  "text": "بيقول عايز إجازة يوم الجمعة... وزيادة في المرتب.",
+  "aligned": "/home/user/OpenMontage/projects/alamy-tuktuk-ai/assets/audio/l4_aligned.wav"
+ },
+ "l5": {
+  "clip": "f5_bestem_line5",
+  "cut": [
+   0.0,
+   4.85
+  ],
+  "spk": "bestem",
+  "text": "توك توك وعايز مرتب؟! ده أنا ماخدتش زيادة من سنتين!",
+  "aligned": "/home/user/OpenMontage/projects/alamy-tuktuk-ai/assets/audio/l5_aligned.wav"
+ },
+ "l6": {
+  "clip": "f6_alamy_line6",
+  "cut": [
+   0.0,
+   2.95
+  ],
+  "spk": "alamy",
+  "text": "معلش يا بستم... هو أذكى منك.",
+  "aligned": "/home/user/OpenMontage/projects/alamy-tuktuk-ai/assets/audio/l6_aligned.wav"
+ }
+}
