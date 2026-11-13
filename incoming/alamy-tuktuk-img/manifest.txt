@@ -1,0 +1,10 @@
+ref_alamy.jpg 1536x2752 El-Alamy reference: full body, black leather biker jacket, black turtleneck, grey trousers, garage at night
+ref_bestem.jpg 1536x2752 Bestem reference: full body, chubby, mustache, navy overalls over grey t-shirt, same garage
+s1_bestem_run.jpg 1536x2752 Bestem running toward camera in panic, shouting, low angle
+s2_tuktuk.jpg 1536x2752 Red tuk-tuk with green smiley screen (Gemini also put a smiley on the windshield), no people
+s3_alamy.jpg 1536x2752 El-Alamy medium close-up, calm smug, looking at camera
+s4_bestem_scared.jpg 1536x2752 Bestem close-up, scared, eyebrows raised, sweating
+s5_alamy_phone.jpg 1536x2752 El-Alamy reading smartphone, deadpan, medium shot
+s6_bestem_angry.jpg 1536x2752 Bestem shouting angrily, pointing finger, medium shot
+s7_alamy_smirk.jpg 1536x2752 El-Alamy close-up smirk, adjusting jacket collar with both hands
+s8_wide.jpg 1536x2752 Wide: Bestem left holding head, El-Alamy right smiling, red tuk-tuk with smiley screens between them
