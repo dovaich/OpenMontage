@@ -21,7 +21,7 @@
 - **Motion:** 7 clips from the Google Flow autopilot batch `alamy-tuktuk-flow`. Each uses Omni 1.2 Flash, Frames-to-Video from the Gemini scenes, 9:16, 8 s, and 24 credits (882 left).
   The prompt includes the Arabic line, so Flow animates the mouth for it.
 - **Lip sync with our voices:** `align_voice.py` finds Flow's own speech in each clip (inside a window per line), runs DTW on the MFCCs of Flow's audio
-  against our autopilot line, and time-stretches our line piece by piece (about 0.25 s each, stretch capped at 1.5×) onto Flow's timing. Flow's audio is then dropped.
+  against our autopilot line, then splits our line into phrases at its natural pauses and stretches each phrase with ffmpeg atempo onto Flow's timing. (The first version used a librosa phase vocoder on 0.25 s pieces; it left an audible echo.) Flow's audio is then dropped.
 - **Final cut:** `build_flow.py` runs the alignment for every line, then `build_final.py` does the edit, the mix (dialogue, announcer with tightened pauses, music ducking, stinger)
   and the text layer (`overlay.html?m=flow` reads `flow_timeline.json`).
 - LatentSync on Kaggle (Python 3.11 venv via uv, because Kaggle runs 3.13) is kept as a fallback for any line that won't fit. It needs a large frontal face.
