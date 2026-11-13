@@ -884,9 +884,14 @@ const tea = mesh(cyl(0.04, 0.035, 0.11, 6), P(0xbf5a1a, { transparent: true, opa
 const slipper = new THREE.Group(); scene.add(slipper); mesh(box(0.12, 0.03, 0.3), M(0x2f6fd8), 0, 0, 0, slipper); mesh(box(0.13, 0.05, 0.04), M(0x1a3a8a), 0, 0.03, 0.05, slipper);
 const phoneA = new THREE.Group(); scene.add(phoneA); mesh(box(0.08, 0.15, 0.012), P(0xc8c4e8, { shininess: 120 }), 0, 0, 0, phoneA); mesh(new THREE.CircleGeometry(0.012, 8), new THREE.MeshBasicMaterial({ color: 0xff2a2a }), 0.025, 0.06, -0.007, phoneA).rotation.y = Math.PI;
 const BARREL = V(G - 4.2, 0, 2.6);
+const gChair = new THREE.Group(); gChair.position.set(G - 3.0, 0, 1.4); gChair.rotation.y = 0.55; scene.add(gChair);
+mesh(box(0.5, 0.06, 0.5), M(0x2a8a3a), 0, 0.46, 0, gChair); mesh(box(0.5, 0.6, 0.06), M(0x2a8a3a), 0, 0.78, -0.24, gChair); for (const [x, z] of [[-0.22, -0.22], [0.22, -0.22], [-0.22, 0.22], [0.22, 0.22]]) mesh(cyl(0.025, 0.025, 0.46, 5), M(0x1a5a2a), x, 0.23, z, gChair);
+const gTea = mesh(cyl(0.04, 0.035, 0.11, 6), P(0xbf5a1a, { transparent: true, opacity: 0.85 }), 0, 0, 0, scene);
+const zTex = canvasTex(32, 32, (g) => { g.clearRect(0, 0, 32, 32); g.fillStyle = '#ffffff'; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('Z', 16, 17); });
+const zz = [0, 1, 2].map(() => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: zTex, transparent: true, depthWrite: false })); scene.add(sp); return sp; });
 mesh(cyl(0.5, 0.5, 1.2, 14), M(0xe86a10), BARREL.x, 0.6, BARREL.z, scene); mesh(new THREE.TorusGeometry(0.5, 0.04, 4, 14), M(0x222222), BARREL.x, 1.2, BARREL.z, scene).rotation.x = Math.PI / 2; mesh(new THREE.TorusGeometry(0.5, 0.04, 4, 14), M(0x222222), BARREL.x, 0.4, BARREL.z, scene).rotation.x = Math.PI / 2; mesh(new THREE.CircleGeometry(0.47, 14), M(0x111111), BARREL.x, 1.19, BARREL.z, scene).rotation.x = -Math.PI / 2;
 const garLight = new THREE.PointLight(0xfff6e8, 1.8, 14, 1.0); garLight.position.set(G + 0.5, 4.2, 1.5); scene.add(garLight);
-const P_ASLY = V(G + 2.45, 0, -0.75), P_BAST0 = V(G - 2.6, 0, 1.9), P_BAST = V(G - 0.6, 0, 1.0), P_ALAMY = V(G + 2.7, 0, 2.2), P_GAZ = V(G - 2.4, 0.18, -1.4);
+const P_ASLY = V(G + 2.45, 0, -0.75), P_BAST0 = V(G - 2.6, 0, 1.9), P_BAST = V(G - 0.6, 0, 1.0), P_ALAMY = V(G + 2.7, 0, 2.2), P_GAZ = V(G - 3.0, 0, 1.4);
 
 function chasePos(t) { // both run around the car (ellipse), Bestem ahead
   const a = (t - T_CHASE) * 2.6; const c = V(G + 0.1, 0, -1.2);
@@ -932,8 +937,12 @@ function stateAt(t) {
   slipper.visible = inT(t, Lx(6).t0, T_BONK + 0.05) || t < T_RW + 0.6;
   if (slipper.visible) { if (t < T_BONK - 0.45 || t < T_RW + 0.6) { slipper.position.copy(asly.arms[1].hand.getWorldPosition(V(0, 0, 0))).add(V(0, 0.1, 0)); slipper.rotation.set(0.5, 0, 0); }
     else { const a = clamp((t - (T_BONK - 0.45)) / 0.45); const from = asly.arms[1].hand.getWorldPosition(V(0, 0, 0)); const to = headOf(bastam); slipper.position.copy(VL(from, to, a)).add(V(0, Math.sin(a * Math.PI) * 0.6, 0)); slipper.rotation.set(t * 20, t * 14, 0); } }
-  // ----- El-Gazzar asleep under the car (never wakes) -----
-  gazzar.root.position.copy(P_GAZ); gazzar.root.rotation.set(-Math.PI / 2, 0.2, 0); applyPose(gazzar, { ...POSE0, aLz: 0.2, aRz: 0.2 }); setFace(gazzar, 'closed', Math.floor(t * 1.5) % 2 ? 'o' : 'flat', { fuzz: true });
+  // ----- El-Gazzar asleep on a chair in the corner, tea in hand (never wakes) -----
+  gazzar.root.position.copy(P_GAZ); gazzar.root.rotation.set(0, 0.55, 0);
+  applyPose(gazzar, { ...POSE0, y: -0.36, lL: 1.45, lR: 1.45, aLx: 0.5, eL: 1.2, aRx: 0.7, eR: 1.5, hz: 0.45, hx: 0.25, bend: -0.12 });
+  setFace(gazzar, 'closed', Math.floor(t * 1.2) % 2 ? 'o' : 'flat', { fuzz: true });
+  gTea.position.copy(gazzar.arms[1].hand.getWorldPosition(V(0, 0, 0))).add(V(0, 0.07, 0.04));
+  zz.forEach((z, i) => { const k = (t * 0.45 + i / 3) % 1; z.position.copy(headOf(gazzar)).add(V(0.25 + k * 0.35, 0.3 + k * 0.7, 0)); z.material.opacity = 1 - k; z.scale.setScalar(0.18 + k * 0.18); });
   // ----- El-Alamy filming -----
   alamy.root.position.copy(P_ALAMY); alamy.root.rotation.set(0, -2.5, 0);
   applyPose(alamy, talkPose({ ...POSE0, aRx: 1.6, eR: 0.6, aRz: 0.2, aLz: 0.15 }, t, 'alamy', 0.2));
@@ -957,7 +966,7 @@ function shotAt(t) {
   if (t < T_BONK + 0.2) { cam(V(G + 0.1, 7.0, 5.6), V(G + 0.1, 0.0, -1.2), 74); return; }
   if (t < Lx(8).t0 - 0.1) { cam(V(G - 1.0, 2.6, 6.2), VL(bastam.root.position.clone().add(V(0, -0.2, 0)), BARREL.clone().add(V(0, 1.3, 0)), clamp((t - T_BONK) / 1.1) * 0.6), 66); return; }
   if (t < T_ANNO) { faceCam(alamy, 2.0, -0.45, 0.1, 60, 0.3); return; }
-  const k = easeInOut(seg(t, T_ANNO, DUR - 3)); cam(VL(V(G - 1.8, 2.2, 5.0), V(G - 1.6, 3.0, 6.2), k), V(G - 2.2, 0.9, 0.4), 70);
+  const k = easeInOut(seg(t, T_ANNO, DUR - 3)); cam(VL(V(G - 2.6, 2.2, 5.4), V(G - 2.5, 3.0, 6.6), k), V(G - 2.9, 0.9, 1.0), 70);
 }
 function particles(t) {
   const st = [], pf = [];
