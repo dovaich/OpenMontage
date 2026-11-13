@@ -1,12 +1,15 @@
 # VIDEO BATCH (not voices): animate 7 shots in Google Flow (Veo 3.1)
 
 This batch is **video clips, not TTS**. Use **Google Flow** (labs.google/flow) through Claude in Chrome, logged in to the user's account (Google AI Pro). Don't use any API.
+Updated: use Omni 1.2 Flash, not Veo 3.1 Fast.
 It's a 30-second EXPERIMENT for a future project (El-Alamy and Bestem). The builder will lip-sync every clip to the series voices afterwards, so the mouths only need to move naturally.
 
 ## Settings for every clip
 - Create a new Flow project named `alamy-tuktuk-flow`.
 - Mode: **Frames to Video**. The start frame is the Gemini image named for the shot below; the images are already in the repo at `incoming/alamy-tuktuk-img/`.
-- Model: **Veo 3.1 Fast**. Aspect ratio: **9:16 portrait**. Length: **8 seconds**. One output per prompt is enough.
+- Model: **Omni 1.2 Flash**, the Flow default. Veo 3.1 Fast/Quality and Omni 1.1 leave Flow on Dec 5. If Omni 1.2 can't do Frames to Video with a start image, use **Veo 3.1 Lite**.
+  Aspect ratio: **9:16 portrait**, with the agent's image default also set to 9:16. Length: **8 seconds** (or the longest available). One output per prompt is enough.
+- If Flow's agent asks for confirmation before generating, confirm each of the 7 clips. The user may set "Confirm before generating" to Never in Agent settings so the run doesn't stall.
 - Keep the camera calm: put "static camera" or a very slow push-in in every prompt. Ask for no on-screen text or subtitles and no music.
 - If a clip has broken hands or a face that turns into a different person, regenerate it once and keep the better take.
 
