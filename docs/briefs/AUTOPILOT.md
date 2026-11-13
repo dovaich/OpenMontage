@@ -25,3 +25,10 @@
   3. Builds the vertical episode(s), covers and invention cards, sends them to the user, sets the status to `done`, and pushes.
 - There are no daily scheduled tasks: episodes are made only when the user asks.
 - The user posts on TikTok (7 PM / 12 AM). Posting can't be automated from here.
+
+## Image batches (Gemini web app, no API) — added Nov 2026
+- Same queue mechanism. An image batch is a normal batch whose `docs/briefs/<batch>/recording_message.md` starts with
+  `# IMAGE BATCH (not voices)`. The local session follows it in the **Gemini web app** (one chat, reference sheets first, then the scenes)
+  instead of AI Studio TTS. It saves the images to `incoming/<batch>/`, writes `manifest.txt`, sets the status to `recorded` and pushes.
+- Statuses stay the same (`record` → `recorded` → `done`), so the existing watcher wakes on image batches with no change.
+- Motion is done by the cloud builder on Kaggle (free T4 GPUs, Wan 2.2 image-to-video). See `docs/briefs/alamy-gta-test-src/kaggle_ltx_i2v.md` on `ccr-c6f1b9a5-tgwuni`.
