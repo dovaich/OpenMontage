@@ -59,6 +59,17 @@ EP = {
   ("bastam", "r1", 17.96, 20.53, 0.35, "خلاص... خد العربية وسيبلنا الكلاكس.", "Fine... take the car and leave us the horn."),
   ("anno", "r4", 0.0, 6.56, 0.5, "", "Car status: emotional. Bill: three thousand."),
  ]),
+ "vacuum": ("المكنسة النووية", 3.0, [
+  ("mom", "r2", 0.06, 5.44, 0.15, "إبراهيم! المكنسة شفطت الستارة... والسجادة... وحمادة!", "Ibrahim! The vacuum sucked up the curtain... the carpet... and Hamada!"),
+  ("son", "r1", 0.04, 3.45, 0.85, "بابا... إنت بتعمل إيه بالشنيور ده الساعة اتنين بالليل؟!", "Dad... what are you doing with that drill at 2 AM?!"),
+  ("dad", "r1", 4.25, 11.88, 0.25, "ششش... أنا في مرحلة التصنيع... قدامك: المكنسة النووية تلاتة آلاف!", "Shhh... I'm in the manufacturing phase... behold: the Nuclear Vacuum 3000!"),
+  ("son", "r1", 12.59, 17.51, 0.25, "ده موتور الغسالة... ومعاه خرطوم المية... ودي حلة أمي!", "That's the washing machine motor... with the water hose... and Mom's pot!"),
+  ("dad", "r1", 18.20, 21.88, 0.3, "كل اختراع عظيم... بيبدأ بحلة أمك. شغّل.", "Every great invention... starts with your mom's pot. Switch it on."),
+  ("son", "r1", 22.66, 25.63, 0.4, "بابا! دي بتشفط... بتشفطني أنااا!", "Dad! It's sucking... it's sucking ME!"),
+  ("mom", "r2", 0.06, 5.44, 0.35, "إبراهيم! المكنسة شفطت الستارة... والسجادة... وحمادة!", "Ibrahim! The vacuum sucked up the curtain... the carpet... and Hamada!"),
+  ("dad", "r1", 26.20, 31.01, 0.4, "ممتاز... نكتب في الكشكول: الاختراع شغّال... بزيادة.", "Excellent... let's write in the notebook: the invention works... too well."),
+  ("anno", "r2", 6.00, 12.62, 0.3, "", "Manufacturing complete. Suction: maximum. Hamada: missing."),
+ ]),
 }
 P0 = "/home/user/OpenMontage/projects/"
 name = sys.argv[1]; title, tail, L = EP[name]; P = P0 + name
@@ -84,9 +95,19 @@ def voiced(x, minsil=0.12):
             i = j
         else: i += 1
     return segs
+MAXGAP = float(sys.argv[2]) if len(sys.argv) > 2 else 0  # shrink pauses inside a line to at most this (s); 0 = off
+def squeeze(x):
+    if not MAXGAP: return x
+    v = voiced(x); parts = []; last = 0
+    for p, q in v:
+        gap0 = int(last * SR); p0 = int(p * SR)
+        if p0 - gap0 > int(MAXGAP * SR) and last > 0: parts.append(x[gap0:gap0 + int(MAXGAP * SR)])
+        else: parts.append(x[gap0:p0])
+        parts.append(x[p0:int(q * SR)]); last = q
+    parts.append(x[int(last * SR):]); return np.concatenate(parts)
 clips = []
 for s, r, a, b, pb, ar, en in L:
-    x = REC[r][max(0, int((a - PAD) * SR)):int((b + PAD) * SR)].copy(); v = voiced(x)
+    x = squeeze(REC[r][max(0, int((a - PAD) * SR)):int((b + PAD) * SR)].copy()); v = voiced(x)
     clips.append([s, r, a, b, pb, ar, en, x, v, rms(np.concatenate([x[int(p * SR):int(q * SR)] for p, q in v]))])
 med = np.median([c[9] for c in clips]); t = 0.0; out = []; lines = []
 for i, (s, r, a, b, pb, ar, en, x, v, vr) in enumerate(clips):

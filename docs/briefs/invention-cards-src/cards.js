@@ -224,6 +224,19 @@ function websiteBooster(s) {
   g.rotation.y = -0.3; return { g, cam: [V(1.2, 1.5, 2.6), V(-0.2, 0.85, 0)] };
 }
 
+function nuclearVacuum(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.6, 0.55, 0.55), P(0xf2f2f2), 0, 0.28, 0, g); mesh(new THREE.CircleGeometry(0.18, 12), P(0x8fb8d0), 0, 0.3, 0.276, g); mesh(new THREE.TorusGeometry(0.18, 0.02, 4, 12), P(0xcccccc), 0, 0.3, 0.28, g);
+  mesh(cyl(0.26, 0.23, 0.32, 12), P(0xc8ced6, { shininess: 110 }), 0, 0.72, 0, g); for (const sx of [-1, 1]) mesh(box(0.08, 0.03, 0.05), M(0x222222), sx * 0.29, 0.82, 0, g);
+  mesh(cyl(0.025, 0.025, 1.3, 6), M(0x8a5a2b), -0.28, 1.0, -0.15, g).rotation.z = 0.25;
+  for (let i = 0; i < 2; i++) mesh(box(0.66, 0.04, 0.03), P(0xc9ccd1), 0, 0.12 + i * 0.27, 0.28, g);
+  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(-0.22, 0.8, 0.05), V(-0.6, 0.3, 0.4), V(-0.3, 0.15, 0.9), V(0.3, 0.3, 1.0)]), 24, 0.05, 6), new THREE.MeshLambertMaterial({ color: 0x2f7fc8 }), 0, 0, 0, g);
+  mesh(cyl(0.09, 0.06, 0.18, 10), P(0x2f6fd8), 0.35, 0.32, 1.0, g).rotation.set(0, 0, Math.PI / 2);
+  for (let i = 0; i < 8; i++) mesh(new THREE.IcosahedronGeometry(0.03 + i * 0.008, 0), new THREE.MeshBasicMaterial({ color: 0xdfe6ee, transparent: true, opacity: 0.8 }), 0.5 + i * 0.09, 0.32 + Math.sin(i) * 0.05, 1.0 + Math.cos(i) * 0.06, g);
+  const sock = mesh(box(0.12, 0.2, 0.06), M(0xff5577), 0.85, 0.35, 1.0, g); sock.rotation.z = 0.8;
+  g.rotation.y = -0.4; return { g, cam: [V(1.3, 1.4, 2.6), V(0.1, 0.55, 0.3)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -256,6 +269,9 @@ const CARDS = [
   { file: 'card_website_booster', build: websiteBooster, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'مسرّع المواقع النووي ٣٠٠٠', en: 'NUCLEAR WEBSITE BOOSTER 3000',
     stats: [['SPEED', 'السرعة', 5], ['SERVER DAMAGE', 'تدمير السيرفر', 5], ['SAFETY', 'الأمان', 1], ['GRADE', 'المجموع', 2]],
     parts: 'راوتر + مروحة + شريط لزق', quote: '«المروحة بتزق النت... والنت بيجري»', result: 'النتيجة: الموقع وقع للمحافظة', ep: 'موقع النتيجة' },
+  { file: 'card_nuclear_vacuum', build: nuclearVacuum, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'المكنسة النووية ٣٠٠٠', en: 'NUCLEAR VACUUM 3000',
+    stats: [['SUCTION', 'الشفط', 6], ['CONTROL', 'التحكم', 0], ['SAFETY', 'الأمان', 0], ['MOM\'S POT', 'حلة ماما', 5]],
+    parts: 'موتور الغسالة + خرطوم المية + حلة ماما', quote: '«كل اختراع عظيم... بيبدأ بحلة أمك»', result: 'النتيجة: شفطت حمادة', ep: 'المكنسة النووية' },
 ];
 
 // ---------- 2D card ----------
@@ -329,7 +345,7 @@ window.drawCover = async () => {
   g.save(); g.translate(CW / 2, CH / 2 + 60); for (let k = 0; k < 24; k++) { g.rotate(Math.PI / 12); g.fillStyle = k % 2 ? 'rgba(255,225,74,0.06)' : 'rgba(0,0,0,0)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(1200, -160); g.lineTo(1200, 160); g.fill(); } g.restore();
   ar('اختراعات إبراهيم', CW / 2, 20, 84, '#ffe14a', 'center', 'ReemKufi');
   px('COLLECT THEM ALL!', CW / 2, 132, 26, '#ffffff', 'center');
-  const cw = 200, ch = 250; const pos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => [14 + (i % 5) * 212, 230 + Math.floor(i / 5) * 290]); const rot = pos.map((_, i) => (i % 2 ? 0.025 : -0.025));
+  const cw = 200, ch = 250; const pos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => [30 + (i % 4) * 258, 210 + Math.floor(i / 4) * 280]); const rot = pos.map((_, i) => (i % 2 ? 0.025 : -0.025));
   ims.forEach((im, i) => { g.save(); g.translate(pos[i][0] + cw / 2, pos[i][1] + ch / 2); g.rotate(rot[i]); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(-cw / 2 + 10, -ch / 2 + 14, cw, ch); g.drawImage(im, -cw / 2, -ch / 2, cw, ch); g.restore(); });
   for (let y = 0; y < CH; y += 4) { g.fillStyle = 'rgba(0,0,0,0.06)'; g.fillRect(0, y, CW, 1); }
   return card.toDataURL('image/png');
