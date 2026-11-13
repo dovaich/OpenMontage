@@ -1,0 +1,9 @@
+f1_bestem_line1.mp4 8 Start s4_bestem_scared; Bestem panics and shouts "يا عالمييي! الحق! التوك توك بيتكلم!". 720x1280, with audio
+f2_alamy_line2.mp4 8 Start s3_alamy; El-Alamy calm and smug at the workbench, line 2. 720x1280, with audio
+f3_bestem_line3.mp4 8 Start s4_bestem_scared; Bestem nervously asks line 3. 720x1280, with audio
+f4_alamy_line4.mp4 8 Start s5_alamy_phone; El-Alamy reads his phone, then looks up, line 4. 720x1280, with audio
+f5_bestem_line5.mp4 8 Start s6_bestem_angry; Bestem outraged and pointing, line 5. First run failed ("audio generation failed", refunded); this is the retry. 720x1280, with audio
+f6_alamy_line6.mp4 8 Start s7_alamy_smirk; El-Alamy smirks and fixes his collar, line 6. 720x1280, with audio
+f7_wide_end.mp4 8 Start s8_wide; Bestem holds his head, El-Alamy smiles, tuk-tuk screen blinks; no dialogue. 720x1280, with audio
+# Google Flow project "alamy-tuktuk-flow", Frames-to-Video with Omni 1.2 Flash, 9:16, 8 s, x1, downloaded at 720p (original size).
+# Cost: 24 credits per clip. Flow credits left after the batch: 882 (resets Dec 10). The refund for the failed f5 run may not show up yet.
