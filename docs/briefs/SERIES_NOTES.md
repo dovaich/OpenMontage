@@ -1,5 +1,7 @@
 # Om Hamada / Ibrahim series: standing notes
 
+> Assets (animations, models, textures, HDRIs, voices) and the PS3/PS2 look are handled by `.claude/skills/ps3-asset-autopilot/SKILL.md` (`/ps3`).
+
 - **No episode numbers.** Future episodes must not mention an episode number anywhere: not in the title card, not in the end card
   ("EPISODE n"), and not in the script. Use the episode's own name only.
 - Production pattern (episodes "Jet Dishwasher 3000", "Shibshib Final Boss", "Nuclear Wi-Fi Booster"):
