@@ -70,6 +70,17 @@ EP = {
   ("dad", "r1", 26.20, 31.01, 0.4, "ممتاز... نكتب في الكشكول: الاختراع شغّال... بزيادة.", "Excellent... let's write in the notebook: the invention works... too well."),
   ("anno", "r2", 6.00, 12.62, 0.3, "", "Manufacturing complete. Suction: maximum. Hamada: missing."),
  ]),
+ "asly-work": ("الأصلي بيشتغل", 3.0, [
+  ("asly", "r1", 16.55, 18.79, 0.15, "الشاي؟! تعالى هنا يا بستم!", "Tea?! Get over here, Bestem!"),
+  ("asly", "r1", 0.02, 7.23, 0.85, "ششش... السلك الأحمر في الأحمر... والأزرق في الأزرق... محدش يتنفس.", "Shhh... red wire to red... blue to blue... nobody breathe."),
+  ("bastam", "r1", 7.78, 9.58, 0.3, "يا أصلييييي!", "ASLIIIII!"),
+  ("asly", "r1", 9.92, 13.35, 1.0, "مين... اللي... زعق؟!", "Who... just... yelled?!"),
+  ("bastam", "r1", 13.78, 16.13, 0.3, "أنا... كنت عايز أقولك الشاي جاهز.", "Me... I wanted to tell you the tea's ready."),
+  ("asly", "r1", 16.55, 18.79, 0.3, "الشاي؟! تعالى هنا يا بستم!", "Tea?! Get over here, Bestem!"),
+  ("bastam", "r1", 19.15, 20.67, 0.25, "يا جزاااار! الحقني!", "Gazzaaar! Help me!"),
+  ("alamy", "r2", 0.12, 4.24, 1.4, "الكاميرات سجلت كل حاجة... والفيديو عامل مليون مشاهدة.", "The cameras caught everything... and the video has a million views."),
+  ("anno", "r2", 5.51, 11.44, 0.35, "", "Electrician rage: maximum. Bestem: launched."),
+ ]),
 }
 P0 = "/home/user/OpenMontage/projects/"
 name = sys.argv[1]; title, tail, L = EP[name]; P = P0 + name
