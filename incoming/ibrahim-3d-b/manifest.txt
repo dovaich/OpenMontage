@@ -1,0 +1,17 @@
+NO RIGGED FILES IN THIS BATCH: Mixamo's auto-rigger never finished on ibrahim_obj.zip.
+
+What happened (mixamo.com, user's free Adobe account, nothing paid):
+- Upload of incoming/ibrahim-3d-a/ibrahim_obj.zip worked. Mixamo processed it and showed Ibrahim upright and facing forward (no rotation needed).
+- Texture in Mixamo's viewer: partly. Skin, white undershirt and goggles show; the trousers look plain grey (stripes not visible).
+- Markers: Use Symmetry on, chin under the mustache, wrists, elbows, knees, groin where the legs split. Skeleton LOD Standard Skeleton (65).
+- Rig tries: 3 with Standard Skeleton (65) (groin nudged slightly lower after try 1), plus 1 diagnostic try meant to use "No Fingers (25)"
+  (the dropdown seemed to snap back to Standard, so that setting may not have applied).
+  Every try: "Auto-Rigging..." runs ~15-90 s, then silently returns to the marker screen. No error text in the dialog.
+  Network: PUT /api/v1/characters/<id>/rig -> 202, GET .../monitor -> 202 then 200, then the UI drops back to markers (the monitor
+  result was not inspected). Mixamo character id: b55eab72-b92b-4a48-8323-38a62a90a3bf.
+- Not downloaded: ibrahim_rigged.fbx, ibrahim_silly_dance.fbx (nothing rigged to download).
+
+Ideas for the builder (on Kaggle / headless): the OBJ may be one non-manifold mesh with fused hands or very high poly count, which
+Mixamo's auto-rigger often rejects. Try decimating (e.g. to ~20-50k tris), merging vertices / making it one clean watertight mesh,
+and exporting as FBX before re-queuing for Mixamo; or rig without Mixamo (Blender Rigify / auto-weights onto the X Bot skeleton,
+which is the skeleton the ps3-mixamo-lib animations already use).
