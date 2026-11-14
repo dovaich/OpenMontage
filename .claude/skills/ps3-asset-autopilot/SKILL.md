@@ -77,6 +77,8 @@ Read the script or the user's request and write a short asset list, for example 
   and `src/face.ts`. A new character is a new `CharCfg` (colors, head size, `build()` for accessories), not a new model.
 - Because every character shares that skeleton, any Mixamo animation works on all of them. Download animations **on X Bot, FBX Binary, 30 fps,
   "Without Skin"**, put them in `public/models/anims/<name>.fbx`, and add `<name>` to `FBX_ANIMS`. The loader drops root travel so the scene places the character.
+- Mixamo's FBX skeleton has different bone rest orientations from the GLB rig, so a downloaded clip played directly flips the limbs. Always load
+  FBX clips through `retarget()` (in `PS3Test.tsx`), which bakes each bone's world-space rotation from the T-pose onto the GLB rig.
 - Small acting on top of a clip (pointing, arms up, head tilt) is done with the `pose()` bone tweaks, not by editing the clip.
 
 ## Mixamo through the autopilot queue (the route from a cloud session)

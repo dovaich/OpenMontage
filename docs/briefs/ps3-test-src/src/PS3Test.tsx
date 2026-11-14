@@ -15,7 +15,7 @@ import env from "./env.json";
 import { drawFace } from "./face";
 
 // Mixamo FBX downloads ("Without Skin" is enough) dropped in public/models/anims/. The clip name is the file name.
-const FBX_ANIMS = ["samba_dancing"];
+const FBX_ANIMS = ["yelling", "angry_point", "arguing", "talking", "bragging", "shrug", "facepalm", "scared", "fall_back", "silly_dance"];
 
 const FPS = 30;
 // Timeline (seconds). Voiced windows were measured from the generated takes.
@@ -69,15 +69,7 @@ const useAssets = (): Assets | null => {
       const clips = [...xbot.animations];
       for (const name of FBX_ANIMS) {
         const fbx = await new FBXLoader().loadAsync(staticFile(`models/anims/${name}.fbx`));
-        const clip = fbx.animations[0];
-        clip.name = name;
-        // keep the hips' height but drop root travel, so the scene decides where the character stands
-        clip.tracks = clip.tracks.map((tr) => {
-          if (!/Hips\.position$/.test(tr.name)) return tr;
-          const v = tr.values.slice();
-          for (let i = 0; i < v.length; i += 3) { v[i] = v[0]; v[i + 2] = v[2]; }
-          return new THREE.VectorKeyframeTrack(tr.name, tr.times as any, v as any);
-        });
+        const clip = retarget(fbx, name, xbot.scene);
         clips.push(clip);
       }
       setAssets({ xbot, clips, hdri, tex });
@@ -85,6 +77,44 @@ const useAssets = (): Assets | null => {
     })();
   }, [handle]);
   return assets;
+};
+
+// Mixamo's own FBX skeleton and the GLB skeleton share bone names and proportions but not the bones' rest orientations,
+// so a downloaded clip cannot be played as is. Bake it: copy each bone's world-space rotation away from the T-pose onto the GLB rig.
+const retarget = (fbx: THREE.Object3D & { animations: THREE.AnimationClip[] }, name: string, glbRoot: THREE.Object3D) => {
+  const src: Record<string, THREE.Object3D> = {}, dst: Record<string, THREE.Object3D> = {};
+  fbx.traverse((o: any) => { if (o.isBone) src[o.name] = o; });
+  glbRoot.traverse((o: any) => { if (o.isBone) dst[o.name] = o; });
+  fbx.updateMatrixWorld(true); glbRoot.updateMatrixWorld(true);
+  const names = Object.keys(dst).filter((n) => src[n]); // parent-first
+  const wq = (o: THREE.Object3D) => o.getWorldQuaternion(new THREE.Quaternion());
+  const srcRootInv = wq(src.mixamorigHips.parent!).invert(), dstRootInv = wq(dst.mixamorigHips.parent!).invert();
+  const srcRestInv: Record<string, THREE.Quaternion> = {}, dstRest: Record<string, THREE.Quaternion> = {};
+  for (const n of names) { srcRestInv[n] = srcRootInv.clone().multiply(wq(src[n])).invert(); dstRest[n] = dstRootInv.clone().multiply(wq(dst[n])); }
+  const clip = fbx.animations[0];
+  const mixer = new THREE.AnimationMixer(fbx);
+  mixer.clipAction(clip).play();
+  const N = Math.max(2, Math.round(clip.duration * 30) + 1);
+  const times = new Float32Array(N), quats: Record<string, Float32Array> = {}, hips = new Float32Array(N * 3);
+  for (const n of names) quats[n] = new Float32Array(N * 4);
+  const rest = dst.mixamorigHips.position;
+  const G: Record<string, THREE.Quaternion> = {};
+  for (let i = 0; i < N; i++) {
+    times[i] = Math.min(i / 30, clip.duration);
+    mixer.setTime(times[i]);
+    fbx.updateMatrixWorld(true);
+    for (const n of names) {
+      G[n] = srcRootInv.clone().multiply(wq(src[n])).multiply(srcRestInv[n]).multiply(dstRest[n]);
+      const par = dst[n].parent!;
+      const local = G[par.name] ? G[par.name].clone().invert().multiply(G[n]) : G[n].clone();
+      local.toArray(quats[n], i * 4);
+    }
+    // keep the hips' height, drop root travel: the scene decides where the character stands
+    hips.set([rest.x, src.mixamorigHips.position.y, rest.z], i * 3);
+  }
+  const tracks: THREE.KeyframeTrack[] = names.map((n) => new THREE.QuaternionKeyframeTrack(`${n}.quaternion`, times as any, quats[n] as any));
+  tracks.push(new THREE.VectorKeyframeTrack("mixamorigHips.position", times as any, hips as any));
+  return new THREE.AnimationClip(name, clip.duration, tracks);
 };
 
 const canvasTex = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) => {
@@ -100,7 +130,7 @@ const canvasTex = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => 
 // ---------- characters: the series' own low-poly designs, mounted on the Mixamo skeleton ----------
 // Only the Mixamo rig is kept (the X Bot mesh is hidden). Every body part is a rigid piece attached to its bone,
 // so any Mixamo clip (GLB or "Without Skin" FBX) drives Om Hamada and Ibrahim directly.
-type Layer = { clip: string; w: number; time: number };
+type Layer = { clip: string; w: number; time: number; hold?: boolean };
 type Tweak = { bone: string; axis: [number, number, number]; angle: number };
 const X = new THREE.Vector3(), Q = new THREE.Quaternion(), QP = new THREE.Quaternion(), QB = new THREE.Quaternion();
 const UP = new THREE.Vector3(0, 1, 0);
@@ -190,7 +220,7 @@ const pose = (rig: Rig, layers: Layer[], tweaks: Tweak[]) => {
     const a = rig.actions[l.clip];
     a.setEffectiveWeight(l.w);
     const d = a.getClip().duration;
-    a.time = ((l.time % d) + d) % d;
+    a.time = l.hold ? clamp(l.time, 0, d - 0.04) : ((l.time % d) + d) % d;
   }
   rig.mixer.update(0);
   // world-space additive tweaks, expressed in character space (x = character's left, y = up, z = forward)
@@ -236,20 +266,15 @@ const OmHamada: React.FC<{ t: number; assets: Assets }> = ({ t, assets }) => {
   useLayoutEffect(() => {
     if (after) {
       rig.faceMat.map = faceTexture("flat", "flat");
-      pose(rig, [{ clip: "idle", w: 0.4, time: t }, { clip: "sad_pose", w: 0.6, time: 0 }], [{ bone: "Head", axis: [0, 1, 0], angle: -0.45 }]);
+      pose(rig, [{ clip: "facepalm", w: 1, time: t - CUT3 + 0.6, hold: true }], []);
     } else {
       rig.faceMat.map = faceTexture(t < 0.6 ? "flat" : shout > 0.3 ? "wide" : "angry", t < 0.6 ? "flat" : mouthOf(talk, true), { red: point > 0.5 });
-      const hs = seg(t, 2.3, 2.6) * (1 - seg(t, 3.8, 4.1));
-      pose(rig, [{ clip: "idle", w: 1 - hs * 0.8, time: t }, { clip: "headShake", w: hs * 0.8, time: (t - 2.3) * 1.5 }], [
-        { bone: "LeftArm", axis: [0, 0, 1], angle: shout * (2.35 + jit) },
-        { bone: "RightArm", axis: [0, 0, 1], angle: -shout * (2.35 - jit) },
-        { bone: "RightArm", axis: [1, 0, 0], angle: -point * (1.35 + jit * 0.6) },
-        { bone: "RightArm", axis: [0, 1, 0], angle: -point * 0.35 },
-        { bone: "LeftArm", axis: [0, 0, 1], angle: point * 0.55 },
-        { bone: "LeftForeArm", axis: [0, 1, 0], angle: -point * 1.5 },
-        { bone: "Spine", axis: [1, 0, 0], angle: point * 0.16 - shout * 0.12 },
-        { bone: "Head", axis: [1, 0, 0], angle: -shout * 0.25 + talk * 0.1 },
-      ]);
+      const y = seg(t, 0.55, 0.85), ap = easeInOut(seg(t, 2.1, 2.5));
+      pose(rig, [
+        { clip: "idle", w: 1 - y, time: t },
+        { clip: "yelling", w: y * (1 - ap), time: t - 0.55 },
+        { clip: "angry_point", w: y * ap, time: t - 2.1 },
+      ], [{ bone: "Head", axis: [1, 0, 0], angle: talk * 0.1 }]);
     }
   });
   return (
@@ -291,19 +316,15 @@ const Ibrahim: React.FC<{ t: number; assets: Assets }> = ({ t, assets }) => {
     g.rotation.x = lerp(-0.6, 0, gog);
     if (after) {
       rig.faceMat.map = faceTexture("closed", "grin", { stache: true });
-      // Mixamo FBX clip ("Samba Dancing", downloaded format) on the same rig
-      pose(rig, [{ clip: "samba_dancing", w: 1, time: 4.0 + (t - CUT3) }], []);
+      pose(rig, [{ clip: "silly_dance", w: 1, time: t - CUT3 + 1.0 }], []);
     } else {
       rig.faceMat.map = faceTexture(hero > 0.5 ? "sparkle" : "smug", hero > 0.5 && talk < 0.1 ? "grin" : mouthOf(talk), { stache: true });
-      const nod = seg(t, 6.3, 6.6) * 0.7;
-      pose(rig, [{ clip: "walk", w: 1 - stop, time: t - CUT2 }, { clip: "idle", w: stop * (1 - nod), time: t }, { clip: "agree", w: stop * nod, time: t - 6.3 }], [
-        { bone: "LeftArm", axis: [1, 0, 0], angle: -calm * 1.0 - pat },
-        { bone: "LeftForeArm", axis: [1, 0, 0], angle: -calm * 0.5 + pat },
-        { bone: "RightArm", axis: [1, 0, 0], angle: -hero * 2.75 },
-        { bone: "RightArm", axis: [0, 0, 1], angle: -hero * 0.2 },
-        { bone: "Spine", axis: [1, 0, 0], angle: -hero * 0.1 },
-        { bone: "Head", axis: [1, 0, 0], angle: -hero * 0.12 + talk * 0.08 },
-      ]);
+      const br = easeInOut(seg(t, 5.9, 6.3));
+      pose(rig, [
+        { clip: "walk", w: 1 - stop, time: t - CUT2 },
+        { clip: "talking", w: stop * (1 - br), time: t - 4.85 },
+        { clip: "bragging", w: stop * br, time: t - 5.9, hold: true },
+      ], [{ bone: "Head", axis: [1, 0, 0], angle: talk * 0.08 }]);
     }
   });
   const pos: [number, number, number] = after ? [0.85, 0, -0.55] : [lerp(1.95, 1.4, easeOut(walkK)), 0, -0.35];

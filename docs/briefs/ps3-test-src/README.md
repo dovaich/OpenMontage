@@ -4,8 +4,9 @@ A 10-second 9:16 test of `.claude/skills/ps3-asset-autopilot` built in a cloud s
 
 - Characters: Om Hamada and Ibrahim in the series' low-poly design (`buildChar()`, face decals in `src/face.ts`), mounted as rigid pieces on the
   Mixamo skeleton. Only the skeleton of `public/models/xbot/Xbot.glb` is used (three.js examples repo, MIT); its mesh is hidden.
-- Animation: Mixamo clips driven by `useCurrentFrame()`: walk, idle, agree, headShake, sad_pose from the GLB, plus a Mixamo FBX
-  (`public/models/anims/samba_dancing.fbx`, three.js examples) loaded the same way a Mixamo download would be. Gestures are bone tweaks on top.
+- Animation: Mixamo clips driven by `useCurrentFrame()`: walk, idle, agree, headShake, sad_pose from the GLB, plus the 10 Mixamo FBX
+  downloads of autopilot batch `ps3-mixamo-lib` in `public/models/anims/` (yelling, angry_point, talking, bragging, facepalm and silly_dance are
+  used here), retargeted onto the GLB rig by `retarget()`.
   New animations come from mixamo.com through the autopilot queue (batch `ps3-mixamo-lib`, see the skill).
 - Poly Haven (CC0): HDRI `small_empty_room_1`, textures `long_white_tiles`, `floor_tiles_06`, `oak_wood_planks`, `floral_jacquard` (1k).
 - Voices: Gemini 3.8 Flash TTS, `ar-eg-advisor-9` (Om Hamada) and `ar-eg-advisor-7` (Ibrahim), one request each.
