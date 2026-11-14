@@ -13,3 +13,9 @@ A 10-second 9:16 test of `.claude/skills/ps3-asset-autopilot` built in a cloud s
 - Look: N8AO, Bloom 0.8 / threshold 0.7, ACES, desaturated warm grade, vignette, light noise, real shadows.
 - Render: `npx remotion render src/index.ts PS3Test out/ps3-test-10s.mp4 --gl=swangle --browser-executable=<chrome-headless-shell>`
   (about 9 minutes on software GL).
+
+## Ibrahim from a Gemini drawing (v5)
+- `public/models/ibrahim/ibrahim_tpose.png`: the Gemini drawing (autopilot batch `ibrahim-3d-a`).
+- `public/models/ibrahim/ibrahim.glb`: Hunyuan3D-2 shape + paint, made on Kaggle's free T4 (40k faces).
+- Mixamo's auto-rigger failed on it (batch `ibrahim-3d-b`), so `buildSkinned()` skins it in code onto the Mixamo skeleton.
+- Om Hamada is still the code-built character.

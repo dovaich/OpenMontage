@@ -98,3 +98,14 @@ files in Chrome on the laptop, and pushes them back.
 3. Start a background watcher (`git fetch` every 20 s) until the status is `recorded`. Keep building everything else meanwhile.
 4. Copy `incoming/<batch>/*.fbx` into `public/models/anims/`, add the names to `FBX_ANIMS`, check each one on a still (a wrong pick shows
    immediately), build, deliver, then set the status to `done` and push.
+
+## Experiment: a Gemini drawing as the character (image → 3D → skinned in code)
+Worked for Ibrahim in `docs/briefs/ps3-test-src` (Nov 2026). Free end to end.
+1. **Drawing:** autopilot `# CHARACTER BATCH` on `ccr-3b18907e-5bki3m`; the local session draws the character in the Gemini web app: strict
+   T-pose, front view, whole body, plain grey background (the API's free image quota is zero, so this cannot be done from the cloud).
+2. **3D model:** the cloud builder runs Hunyuan3D-2 (shape + paint) on Kaggle's free T4 (`kaggle_client.py`, script kernel, about 11 minutes,
+   7 GB VRAM). Pin `transformers==4.48.3 diffusers==0.32.2 "huggingface_hub<1.0"`; Kaggle's newer transformers cannot load the image encoder.
+   The free web tools all failed (ZeroGPU limits, texture disabled, paid export). Check front / side / back renders before using the model.
+3. **Rig:** Mixamo's auto-rigger refused the generated mesh (4 tries, silent failure). Use `buildSkinned()` in `PS3Test.tsx` instead: it scales
+   the Mixamo skeleton to the model's arm line, stretches the arms to the fingertips, and weights each vertex to its nearest bone segments
+   within that bone's body region. The whole Mixamo animation library then plays on the model. The face is baked and does not move.
