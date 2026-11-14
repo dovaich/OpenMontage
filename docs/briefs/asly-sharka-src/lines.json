@@ -1,0 +1,278 @@
+{
+ "title": "أصلي شركة",
+ "voice_source": "Google AI Studio via local Claude-in-Chrome session (Puck=Hamada, Orus=Ibrahim, Kore=Om Hamada, Algenib=announcer)",
+ "dur": 40.6,
+ "lines": [
+  {
+   "id": "L01",
+   "s": "asly",
+   "t0": 0.15,
+   "t1": 2.58,
+   "src": [
+    "r1",
+    10.94,
+    13.29
+   ],
+   "gain": 0.65,
+   "ar": "سيبوني عليه! ده بيقول اسمي في كل جملة!",
+   "en": "Let me at him! He says my name in every sentence!",
+   "vox": [
+    [
+     0.19,
+     0.88
+    ],
+    [
+     1.2,
+     2.38
+    ]
+   ],
+   "gap_after": 0.85
+  },
+  {
+   "id": "L02",
+   "s": "samir",
+   "t0": 3.43,
+   "t1": 6.18,
+   "src": [
+    "r2",
+    0.23,
+    2.9
+   ],
+   "gain": 0.98,
+   "ar": "الفلتر ده أصلي ولا تقليد يا ابني؟",
+   "en": "Is this filter genuine or fake, son?",
+   "vox": [
+    [
+     3.48,
+     6.11
+    ]
+   ],
+   "gap_after": 0.3
+  },
+  {
+   "id": "L03",
+   "s": "bastam",
+   "t0": 6.48,
+   "t1": 9.38,
+   "src": [
+    "r1",
+    0.02,
+    2.86
+   ],
+   "gain": 1.19,
+   "ar": "أصلي شركة يا حاج! أصلي أصلي!",
+   "en": "Genuine OEM, sir! Genuine, genuine!",
+   "vox": [
+    [
+     6.53,
+     9.34
+    ]
+   ],
+   "gap_after": 0.4
+  },
+  {
+   "id": "L04",
+   "s": "asly",
+   "t0": 9.78,
+   "t1": 11.9,
+   "src": [
+    "r1",
+    3.9,
+    6.07
+   ],
+   "gain": 0.75,
+   "ar": "إنت بتنادي عليا... ولا بتتريق عليا؟!",
+   "en": "Are you calling me... or mocking me?!",
+   "vox": [
+    [
+     9.82,
+     10.61
+    ],
+    [
+     10.96,
+     11.85
+    ]
+   ],
+   "gap_after": 0.3
+  },
+  {
+   "id": "L05",
+   "s": "bastam",
+   "t0": 12.2,
+   "t1": 15.0,
+   "src": [
+    "r1",
+    7.2,
+    9.92
+   ],
+   "gain": 1.05,
+   "ar": "لا والله... أصلي... أصلي كنت بقول أصلي!",
+   "en": "No, I swear... I was... I was saying genuine!",
+   "vox": [
+    [
+     12.24,
+     14.96
+    ]
+   ],
+   "gap_after": 0.9
+  },
+  {
+   "id": "L06",
+   "s": "asly",
+   "t0": 15.9,
+   "t1": 18.33,
+   "src": [
+    "r1",
+    10.94,
+    13.29
+   ],
+   "gain": 0.65,
+   "ar": "سيبوني عليه! ده بيقول اسمي في كل جملة!",
+   "en": "Let me at him! He says my name in every sentence!",
+   "vox": [
+    [
+     15.94,
+     16.63
+    ],
+    [
+     16.95,
+     18.13
+    ]
+   ],
+   "gap_after": 0.3
+  },
+  {
+   "id": "L07",
+   "s": "alamy",
+   "t0": 18.63,
+   "t1": 21.65,
+   "src": [
+    "r2",
+    8.48,
+    11.42
+   ],
+   "gain": 1.12,
+   "ar": "اهدى يا أصلي! ده كلام قطع غيار!",
+   "en": "Calm down, Asly! It's spare-parts talk!",
+   "vox": [
+    [
+     18.67,
+     20.06
+    ],
+    [
+     20.26,
+     21.57
+    ]
+   ],
+   "gap_after": 0.3
+  },
+  {
+   "id": "L08",
+   "s": "gazzar",
+   "t0": 21.95,
+   "t1": 27.75,
+   "src": [
+    "r3",
+    0.2,
+    6.57
+   ],
+   "gain": 1.0,
+   "ar": "سيبه يا أصلي... ده مش قصده... أصلي... قصدي... خلاص.",
+   "en": "Leave him, Asly... he didn't mean it... because... I mean... never mind.",
+   "vox": [
+    [
+     21.99,
+     23.5
+    ],
+    [
+     23.85,
+     24.76
+    ],
+    [
+     25.11,
+     27.7
+    ]
+   ],
+   "gap_after": 0.3
+  },
+  {
+   "id": "L09",
+   "s": "asly",
+   "t0": 28.05,
+   "t1": 29.3,
+   "src": [
+    "r1",
+    14.69,
+    15.86
+   ],
+   "gain": 0.92,
+   "ar": "حتى إنت يا جزار؟!",
+   "en": "You too, Gazzar?!",
+   "vox": [
+    [
+     28.09,
+     29.25
+    ]
+   ],
+   "gap_after": 0.4
+  },
+  {
+   "id": "L10",
+   "s": "samir",
+   "t0": 29.7,
+   "t1": 32.28,
+   "src": [
+    "r2",
+    4.46,
+    7.63
+   ],
+   "gain": 1.58,
+   "ar": "طب أنا هاخد الفلتر التقليد... أسلم.",
+   "en": "Fine, I'll take the fake filter... it's safer.",
+   "vox": [
+    [
+     29.74,
+     31.35
+    ],
+    [
+     31.7,
+     32.24
+    ]
+   ],
+   "gap_after": 0.35
+  },
+  {
+   "id": "L11",
+   "s": "anno",
+   "t0": 32.63,
+   "t1": 37.58,
+   "src": [
+    "r3",
+    7.44,
+    12.5
+   ],
+   "gain": 1.19,
+   "ar": "",
+   "en": "Genuine part: confirmed. Bestem: still hanging.",
+   "vox": [
+    [
+     32.67,
+     33.85
+    ],
+    [
+     34.2,
+     35.09
+    ],
+    [
+     35.44,
+     36.01
+    ],
+    [
+     36.36,
+     37.53
+    ]
+   ],
+   "gap_after": 0.4
+  }
+ ]
+}

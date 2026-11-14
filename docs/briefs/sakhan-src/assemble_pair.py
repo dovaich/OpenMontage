@@ -81,6 +81,19 @@ EP = {
   ("alamy", "r2", 0.12, 4.24, 1.4, "الكاميرات سجلت كل حاجة... والفيديو عامل مليون مشاهدة.", "The cameras caught everything... and the video has a million views."),
   ("anno", "r2", 5.51, 11.44, 0.35, "", "Electrician rage: maximum. Bestem: launched."),
  ]),
+ "asly-sharka": ("أصلي شركة", 3.0, [
+  ("asly", "r1", 10.94, 13.29, 0.15, "سيبوني عليه! ده بيقول اسمي في كل جملة!", "Let me at him! He says my name in every sentence!"),
+  ("samir", "r2", 0.23, 2.90, 0.85, "الفلتر ده أصلي ولا تقليد يا ابني؟", "Is this filter genuine or fake, son?"),
+  ("bastam", "r1", 0.02, 2.86, 0.3, "أصلي شركة يا حاج! أصلي أصلي!", "Genuine OEM, sir! Genuine, genuine!"),
+  ("asly", "r1", 3.90, 6.07, 0.4, "إنت بتنادي عليا... ولا بتتريق عليا؟!", "Are you calling me... or mocking me?!"),
+  ("bastam", "r1", 7.20, 9.92, 0.3, "لا والله... أصلي... أصلي كنت بقول أصلي!", "No, I swear... I was... I was saying genuine!"),
+  ("asly", "r1", 10.94, 13.29, 0.9, "سيبوني عليه! ده بيقول اسمي في كل جملة!", "Let me at him! He says my name in every sentence!"),
+  ("alamy", "r2", 8.48, 11.42, 0.3, "اهدى يا أصلي! ده كلام قطع غيار!", "Calm down, Asly! It's spare-parts talk!"),
+  ("gazzar", "r3", 0.20, 6.57, 0.3, "سيبه يا أصلي... ده مش قصده... أصلي... قصدي... خلاص.", "Leave him, Asly... he didn't mean it... because... I mean... never mind."),
+  ("asly", "r1", 14.69, 15.86, 0.3, "حتى إنت يا جزار؟!", "You too, Gazzar?!"),
+  ("samir", "r2", 4.46, 7.63, 0.4, "طب أنا هاخد الفلتر التقليد... أسلم.", "Fine, I'll take the fake filter... it's safer."),
+  ("anno", "r3", 7.44, 12.50, 0.35, "", "Genuine part: confirmed. Bestem: still hanging."),
+ ]),
 }
 P0 = "/home/user/OpenMontage/projects/"
 name = sys.argv[1]; title, tail, L = EP[name]; P = P0 + name
