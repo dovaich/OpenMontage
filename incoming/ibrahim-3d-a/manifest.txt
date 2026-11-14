@@ -1,0 +1,14 @@
+ibrahim_tpose.png  Ibrahim T-pose drawing, Gemini web app, 1792x2400 (saved as PNG). Took 2 tries: try 1 was an A-pose (arms angled down), try 2 passed every check (true T-pose, whole body goggles to sandals, 2 arms/2 legs/5 fingers, plain grey background, front view). Fingertips come close to the left/right edges but are not cropped.
+
+NO 3D MODEL IN THIS BATCH. Please make the image -> 3D model ON KAGGLE (free T4 GPUs) from ibrahim_tpose.png,
+e.g. TRELLIS (image-to-3D, textured GLB) or Hunyuan3D-2.1 shape + texture, then continue with the rigging batch as planned.
+
+What was tried locally (all free, nothing paid):
+1. Hunyuan3D-2.1 Space (tencent): textured generation refused, "requested GPU duration (270s) is larger than the maximum allowed" (ZeroGPU, not signed in to Hugging Face).
+2. Hunyuan3D-2 Space (tencent): texture generation is turned off on this Space ("Texture Generation (Unavailable)").
+3. TRELLIS.2 Space (microsoft): "Error" at 1024 and at 512, no message.
+4. TRELLIS Space (trellis-community): "Error", no message.
+5. Tripo (studio.tripo3d.ai, user's Google sign-in, 55 of 200 free credits): the model came out well (full figure, arms out and separate, legs separate), but every export (GLB at 4k, 2k, 512) opens a paid "Subscribe" window. The model stays in the user's Tripo account; not downloadable for free.
+6. Stable Fast 3D Space (stabilityai): the "Remove Background" step does nothing, so the 3D step never appears.
+7. TripoSR Space (stabilityai): the Space itself is broken ("Your space is in error").
+Official Hunyuan3D site needs a Tencent login; not tried.
