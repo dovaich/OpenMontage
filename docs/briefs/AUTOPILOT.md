@@ -39,6 +39,7 @@
 - The cloud builder lip-syncs every talking clip to the autopilot voices on Kaggle (LatentSync, with MuseTalk as the fallback). The mouths then match the series voices exactly.
 
 ## Animation batches (mixamo.com, no API) — added Nov 2026
+- Experiments only for now: the episodes keep their current look. Queue these batches only for the PS3-look tests.
 - A batch whose `recording_message.md` starts with `# ANIMATION BATCH (not voices)` is downloaded from **mixamo.com** (free Adobe account, the user signs in once).
   Always X Bot, FBX Binary, Without Skin, 30 fps, In Place when offered. Save the `.fbx` files to `incoming/<batch>/`, write `manifest.txt`,
   set the status to `recorded` and push. Statuses are unchanged, so the existing watcher wakes on these batches too.
