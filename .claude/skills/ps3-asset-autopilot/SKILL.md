@@ -71,10 +71,13 @@ Read the script or the user's request and write a short asset list, for example 
 - **Cloud session with no laptop:** if `get_device_info` / the device bridge isn't available, don't stop. Fetch what the container's network allows (Poly Haven API, Piper voices from Hugging Face) directly into the repo, skip Mixamo/Sketchfab (they need the user's sign-in), and tell the user in one line which assets still need the laptop.
 
 ## Characters: our designs on the Mixamo skeleton (standing rule)
-- Never show Mixamo's own characters. Keep **only the Mixamo skeleton** (`public/models/xbot/Xbot.glb`, mesh hidden) and mount the series' low-poly
-  designs on it as rigid pieces per bone: floral galabeya / undershirt, box limbs, big sphere head, the pixel **face decals** (`drawFace` eyes and
-  mouths, mouth chosen from the line's audio level), scarf, goggles, mustache. Reference: `buildChar()` in `docs/briefs/ps3-test-src/src/PS3Test.tsx`
-  and `src/face.ts`. A new character is a new `CharCfg` (colors, head size, `build()` for accessories), not a new model.
+- Never show Mixamo's own characters. Keep **only the Mixamo skeleton** (`public/models/xbot/Xbot.glb`, mesh hidden) and mount the series' characters on it.
+- Character style (user's choice, Nov 2026): **early-2000s open-world game characters**, not boxes. Human proportions, smooth tapered limbs with
+  joint balls, a one-piece lathe torso (a dress runs to the ankles), slab hands with a thumb, painted cloth textures with folds, and a **painted
+  head texture** wrapped on the skull (eyes, brows, mouth shapes, mustache, hair band), swapped per expression and per audio level for the mouth.
+  Same identities as before: Om Hamada (floral pink galabeya, green scarf, yellow dish gloves, blue slippers), Ibrahim (ribbed undershirt, striped
+  pajama pants, mustache, balding, brass goggles). Reference: `buildChar()` and `drawHead()` in `docs/briefs/ps3-test-src/src/PS3Test.tsx`.
+  A new character is a new `CharCfg` (look, radii, materials, `build()` for accessories), not a new model. Do not copy any real game's characters.
 - Because every character shares that skeleton, any Mixamo animation works on all of them. Download animations **on X Bot, FBX Binary, 30 fps,
   "Without Skin"**, put them in `public/models/anims/<name>.fbx`, and add `<name>` to `FBX_ANIMS`. The loader drops root travel so the scene places the character.
 - Mixamo's FBX skeleton has different bone rest orientations from the GLB rig, so a downloaded clip played directly flips the limbs. Always load

@@ -2,7 +2,7 @@
 
 A 10-second 9:16 test of `.claude/skills/ps3-asset-autopilot` built in a cloud session (no laptop bridge).
 
-- Characters: Om Hamada and Ibrahim in the series' low-poly design (`buildChar()`, face decals in `src/face.ts`), mounted as rigid pieces on the
+- Characters: Om Hamada and Ibrahim as early-2000s open-world-game style humans (`buildChar()`, painted heads in `drawHead()`), mounted as rigid pieces on the
   Mixamo skeleton. Only the skeleton of `public/models/xbot/Xbot.glb` is used (three.js examples repo, MIT); its mesh is hidden.
 - Animation: Mixamo clips driven by `useCurrentFrame()`: walk, idle, agree, headShake, sad_pose from the GLB, plus the 10 Mixamo FBX
   downloads of autopilot batch `ps3-mixamo-lib` in `public/models/anims/` (yelling, angry_point, talking, bragging, facepalm and silly_dance are
