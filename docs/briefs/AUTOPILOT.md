@@ -52,4 +52,5 @@
   The free image-to-3D web tools did not deliver a downloadable textured model (ZeroGPU limits, disabled texture, paid export), so the
   **cloud builder makes the model on Kaggle** (free T4): Hunyuan3D-2 shape + paint, about 11 minutes, 7 GB VRAM. It needs
   `transformers==4.48.3`, `diffusers==0.32.2`, `huggingface_hub<1.0` (Kaggle's newer transformers cannot load the image encoder).
-- `# RIGGING BATCH`: the local session uploads the OBJ zip to Mixamo's auto-rigger and downloads the rigged FBX (T-pose).
+- `# RIGGING BATCH` (Mixamo auto-rigger): **failed** on the generated mesh (4 tries, silent return to the marker screen). Do not queue it again;
+  the cloud builder skins the model in code onto the Mixamo skeleton (`buildSkinned()` in `docs/briefs/ps3-test-src` on `ccr-5c42b35f-yana04`).
