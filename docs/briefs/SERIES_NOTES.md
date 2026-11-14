@@ -81,3 +81,8 @@
 ## Invention cards (page posts)
 - `docs/briefs/invention-cards-src/` makes the collectible cards and the "collect them all" cover. When Ibrahim builds a new invention in an episode,
   add a card for it there, so the set keeps growing with the series.
+
+## PS3-look episodes: Mixamo skeleton + our characters
+- Characters are the series' own designs mounted on the Mixamo skeleton (`ps3-test-src`), never Mixamo's characters.
+- Mixamo animations are fetched the same way as the AI Studio voices: one copy-paste message for the Claude-in-Chrome extension, the user uploads
+  the FBX files, Claude wires them in. The message template and the download settings are in `.claude/skills/ps3-asset-autopilot/SKILL.md`.

@@ -10,7 +10,12 @@ import * as THREE from "three";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone as skeletonClone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import env from "./env.json";
+import { drawFace } from "./face";
+
+// Mixamo FBX downloads ("Without Skin" is enough) dropped in public/models/anims/. The clip name is the file name.
+const FBX_ANIMS = ["samba_dancing"];
 
 const FPS = 30;
 // Timeline (seconds). Voiced windows were measured from the generated takes.
@@ -33,7 +38,7 @@ const envAt = (k: "om" | "ib", t: number, start: number) => {
 };
 
 // ---------- assets (Poly Haven, CC0) ----------
-type Assets = { xbot: { scene: THREE.Object3D; animations: THREE.AnimationClip[] }; hdri: THREE.Texture; tex: Record<string, { map: THREE.Texture; normalMap: THREE.Texture; roughnessMap: THREE.Texture }> };
+type Assets = { xbot: { scene: THREE.Object3D; animations: THREE.AnimationClip[] }; clips: THREE.AnimationClip[]; hdri: THREE.Texture; tex: Record<string, { map: THREE.Texture; normalMap: THREE.Texture; roughnessMap: THREE.Texture }> };
 const TEX: Record<string, [number, number]> = {
   long_white_tiles: [3, 2], floor_tiles_06: [3, 3], oak_wood_planks: [2, 1], floral_jacquard: [3, 2],
 };
@@ -61,7 +66,21 @@ const useAssets = (): Assets | null => {
       }
       await Promise.all([font("lalezar-arabic-400-normal.woff2"), font("lalezar-latin-400-normal.woff2")]);
       const xbot = await new GLTFLoader().loadAsync(staticFile("models/xbot/Xbot.glb"));
-      setAssets({ xbot, hdri, tex });
+      const clips = [...xbot.animations];
+      for (const name of FBX_ANIMS) {
+        const fbx = await new FBXLoader().loadAsync(staticFile(`models/anims/${name}.fbx`));
+        const clip = fbx.animations[0];
+        clip.name = name;
+        // keep the hips' height but drop root travel, so the scene decides where the character stands
+        clip.tracks = clip.tracks.map((tr) => {
+          if (!/Hips\.position$/.test(tr.name)) return tr;
+          const v = tr.values.slice();
+          for (let i = 0; i < v.length; i += 3) { v[i] = v[0]; v[i + 2] = v[2]; }
+          return new THREE.VectorKeyframeTrack(tr.name, tr.times as any, v as any);
+        });
+        clips.push(clip);
+      }
+      setAssets({ xbot, clips, hdri, tex });
       continueRender(handle);
     })();
   }, [handle]);
@@ -78,35 +97,94 @@ const canvasTex = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => 
   return t;
 };
 
-// ---------- characters: Mixamo X Bot rig, Mixamo mocap clips driven by the Remotion frame ----------
+// ---------- characters: the series' own low-poly designs, mounted on the Mixamo skeleton ----------
+// Only the Mixamo rig is kept (the X Bot mesh is hidden). Every body part is a rigid piece attached to its bone,
+// so any Mixamo clip (GLB or "Without Skin" FBX) drives Om Hamada and Ibrahim directly.
 type Layer = { clip: string; w: number; time: number };
 type Tweak = { bone: string; axis: [number, number, number]; angle: number };
 const X = new THREE.Vector3(), Q = new THREE.Quaternion(), QP = new THREE.Quaternion(), QB = new THREE.Quaternion();
+const UP = new THREE.Vector3(0, 1, 0);
 
-const mat = (color: string, o: Partial<THREE.MeshStandardMaterialParameters> = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.6, ...o });
-const part = (geo: THREE.BufferGeometry, m: THREE.Material, p: [number, number, number], rot: [number, number, number] = [0, 0, 0], sc: [number, number, number] = [1, 1, 1]) => {
+const flat = (color: string | number, o: any = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.8, flatShading: true, ...o });
+const pix = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void, rep?: [number, number]) => {
+  const t = canvasTex(w, h, draw);
+  t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  if (rep) t.repeat.set(...rep);
+  return t;
+};
+const faceCache = new Map<string, THREE.Texture>();
+const faceTexture = (eyes: string, mouth: string, opts: any = {}) => {
+  const k = eyes + "|" + mouth + "|" + JSON.stringify(opts);
+  if (!faceCache.has(k)) faceCache.set(k, pix(64, 64, (g) => drawFace(g, 64, eyes, mouth, opts)));
+  return faceCache.get(k)!;
+};
+const M3 = (geo: THREE.BufferGeometry, m: THREE.Material, x = 0, y = 0, z = 0, parent?: THREE.Object3D) => {
   const o = new THREE.Mesh(geo, m);
-  o.position.set(...p); o.rotation.set(...rot); o.scale.set(...sc); o.castShadow = true;
+  o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true;
+  parent?.add(o);
   return o;
 };
 
-const useRig = (assets: Assets, surface: THREE.Material, joints: THREE.Material, dress: (bones: Record<string, THREE.Object3D>) => void) =>
-  useMemo(() => {
-    const root = skeletonClone(assets.xbot.scene) as THREE.Object3D;
-    const bones: Record<string, THREE.Object3D> = {};
-    root.traverse((o: any) => {
-      if (o.isBone) bones[o.name.replace("mixamorig", "")] = o;
-      if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = /Joints/.test(o.material.name) ? joints : surface; }
-    });
-    dress(bones);
-    const mixer = new THREE.AnimationMixer(root);
-    const actions: Record<string, THREE.AnimationAction> = {};
-    for (const c of assets.xbot.animations) { actions[c.name] = mixer.clipAction(c); actions[c.name].play(); actions[c.name].setEffectiveWeight(0); }
-    return { root, bones, mixer, actions };
-    // eslint-disable-next-line
-  }, [assets]);
+type CharCfg = {
+  skin: number; hand: number; shoe: number; headR: number; torso: [number, number]; torsoMat: THREE.Material; sleeveMat?: THREE.Material;
+  legMat?: THREE.Material; skirtMat?: THREE.Material; build: (head: THREE.Group, k: number) => any;
+};
+const buildChar = (assets: Assets, cfg: CharCfg) => {
+  const root = skeletonClone(assets.xbot.scene) as THREE.Object3D;
+  const bones: Record<string, THREE.Object3D> = {};
+  root.traverse((o: any) => {
+    if (o.isBone) bones[o.name.replace("mixamorig", "")] = o;
+    if (o.isMesh) o.visible = false;
+  });
+  root.updateMatrixWorld(true);
+  const wp = (n: string) => bones[n].getWorldPosition(new THREE.Vector3());
+  const bind = (bone: string, o: THREE.Object3D) => { o.updateMatrixWorld(true); bones[bone].attach(o); return o; };
+  const limb = (bone: string, from: string, to: string, w: number, m: THREE.Material, grow = 0.02) => {
+    const p0 = wp(from), p1 = wp(to), d = p1.clone().sub(p0), len = d.length();
+    const o = M3(new THREE.BoxGeometry(w, len + grow, w), m);
+    o.position.copy(p0).addScaledVector(d, 0.5);
+    o.quaternion.setFromUnitVectors(UP, d.normalize());
+    return bind(bone, o);
+  };
+  const skin = flat(cfg.skin), handM = flat(cfg.hand), shoe = flat(cfg.shoe, { roughness: 0.45 });
+  const hips = wp("Hips"), neck = wp("Neck");
+  // torso
+  const tl = neck.y - hips.y + 0.04;
+  const torso = M3(new THREE.CylinderGeometry(cfg.torso[0], cfg.torso[1], tl, 7), cfg.torsoMat, hips.x, hips.y + tl / 2 - 0.02, hips.z);
+  bind("Spine1", torso);
+  if (cfg.skirtMat) bind("Hips", M3(new THREE.CylinderGeometry(cfg.torso[1], cfg.torso[1] * 1.5, hips.y - 0.06, 7), cfg.skirtMat, hips.x, (hips.y + 0.06) / 2, hips.z));
+  for (const S of ["Left", "Right"]) {
+    if (cfg.legMat) {
+      limb(S + "UpLeg", S + "UpLeg", S + "Leg", 0.14, cfg.legMat);
+      limb(S + "Leg", S + "Leg", S + "Foot", 0.125, cfg.legMat);
+    }
+    const f = wp(S + "Foot");
+    bind(S + "Foot", M3(new THREE.BoxGeometry(0.13, 0.08, 0.27), shoe, f.x, 0.04, f.z + 0.07));
+    limb(S + "Arm", S + "Arm", S + "ForeArm", 0.115, cfg.sleeveMat || skin, 0.05);
+    limb(S + "ForeArm", S + "ForeArm", S + "Hand", 0.095, skin);
+    const h = wp(S + "Hand"), dir = h.clone().sub(wp(S + "ForeArm")).normalize();
+    bind(S + "Hand", M3(new THREE.IcosahedronGeometry(0.075, 0), handM, h.x + dir.x * 0.07, h.y + dir.y * 0.07, h.z + dir.z * 0.07));
+  }
+  bind("Neck", M3(new THREE.CylinderGeometry(0.05, 0.06, 0.12, 6), skin, neck.x, neck.y + 0.04, neck.z));
+  // head: sphere + nose + swappable face decal
+  const R = cfg.headR, k = R / 0.3, hp = wp("Head");
+  const head = new THREE.Group();
+  head.position.set(hp.x, hp.y + R * 0.72, hp.z + 0.015);
+  M3(new THREE.SphereGeometry(R, 8, 6), skin, 0, 0, 0, head);
+  M3(new THREE.ConeGeometry(0.06 * k, 0.12 * k, 4), skin, 0, -0.02 * k, R * 0.98, head).rotation.x = Math.PI / 2;
+  const faceMat = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: 0.5, roughness: 1 });
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(R * 1.7, R * 1.7), faceMat);
+  face.position.set(0, 0, R * 0.93); head.add(face);
+  const extras = cfg.build(head, k);
+  bind("Head", head);
+  const mixer = new THREE.AnimationMixer(root);
+  const actions: Record<string, THREE.AnimationAction> = {};
+  for (const c of assets.clips) { actions[c.name] = mixer.clipAction(c); actions[c.name].play(); actions[c.name].setEffectiveWeight(0); }
+  return { root, bones, mixer, actions, faceMat, extras };
+};
+type Rig = ReturnType<typeof buildChar>;
 
-const pose = (rig: ReturnType<typeof useRig>, layers: Layer[], tweaks: Tweak[]) => {
+const pose = (rig: Rig, layers: Layer[], tweaks: Tweak[]) => {
   for (const k of Object.keys(rig.actions)) rig.actions[k].setEffectiveWeight(0);
   for (const l of layers) {
     const a = rig.actions[l.clip];
@@ -128,18 +206,27 @@ const pose = (rig: ReturnType<typeof useRig>, layers: Layer[], tweaks: Tweak[]) 
     bone.quaternion.copy(QP.invert().multiply(Q));
   }
 };
+const mouthOf = (talk: number, loud = false) => (talk > 0.55 ? (loud ? "scream" : "talk2") : talk > 0.28 ? "talk2" : talk > 0.1 ? "talk1" : "flat");
 
 const OmHamada: React.FC<{ t: number; assets: Assets }> = ({ t, assets }) => {
-  const rig = useRig(assets,
-    useMemo(() => mat("#ff8fb4", { normalMap: assets.tex.floral_jacquard.normalMap, roughness: 0.85 }), [assets]),
-    useMemo(() => mat("#0d8f58", { roughness: 0.7 }), []),
-    (b) => {
-      const scarf = mat("#0d8f58", { roughness: 0.75 }), glove = mat("#ffd21f", { roughness: 0.3 });
-      b.Head.add(part(new THREE.SphereGeometry(12.6, 24, 18, 0, Math.PI * 2, 0, Math.PI * 0.62), scarf, [0, 3.8, -0.5], [-0.35, 0, 0]));
-      b.Head.add(part(new THREE.SphereGeometry(5, 12, 10), scarf, [0, -3, -12.5]));
-      b.Hips.add(part(new THREE.CylinderGeometry(17, 31, 92, 28, 1, true), mat("#ff8fb4", { normalMap: assets.tex.floral_jacquard.normalMap, roughness: 0.9, side: THREE.DoubleSide }), [0, -44, 0]));
-      for (const h of ["LeftHand", "RightHand"]) b[h].add(part(new THREE.SphereGeometry(6.5, 14, 12), glove, [0, 6, 0], [0, 0, 0], [1, 1.3, 0.75]));
+  const rig = useMemo(() => {
+    const floral = pix(32, 32, (g) => {
+      g.fillStyle = "#ec86ad"; g.fillRect(0, 0, 32, 32);
+      const r = rng(4);
+      for (let i = 0; i < 9; i++) { const x = (r() * 28) | 0, y = (r() * 28) | 0; g.fillStyle = "#fff3a6"; g.fillRect(x + 1, y, 2, 4); g.fillRect(x, y + 1, 4, 2); g.fillStyle = "#c0306a"; g.fillRect(x + 1, y + 1, 2, 2); }
+    }, [3, 3]);
+    const dress = flat(0xffffff, { map: floral });
+    return buildChar(assets, {
+      skin: 0xc98d5f, hand: 0xffd400, shoe: 0x2f6fff, headR: 0.21, torso: [0.2, 0.28], torsoMat: dress, sleeveMat: dress, skirtMat: dress,
+      build(head, k) {
+        const scarf = flat(0x1f9e5a);
+        const s = M3(new THREE.SphereGeometry(0.33 * k, 8, 5, 0, Math.PI * 2, 0, Math.PI * 0.55), scarf, 0, 0.03 * k, -0.03 * k, head); s.rotation.x = -0.35;
+        M3(new THREE.IcosahedronGeometry(0.09 * k, 0), scarf, 0, -0.12 * k, -0.3 * k, head);
+        M3(new THREE.BoxGeometry(0.08 * k, 0.22 * k, 0.04 * k), scarf, 0.05 * k, -0.28 * k, -0.3 * k, head);
+        return {};
+      },
     });
+  }, [assets]);
   const talk = envAt("om", t, OM_START);
   const turn = easeBack(seg(t, 0.45, 0.8));
   const shout = easeOut(seg(t, 0.75, 0.95)) * (1 - easeInOut(seg(t, 1.9, 2.3)));
@@ -148,10 +235,10 @@ const OmHamada: React.FC<{ t: number; assets: Assets }> = ({ t, assets }) => {
   const jit = Math.sin(t * 36) * 0.07 * (0.3 + talk);
   useLayoutEffect(() => {
     if (after) {
-      pose(rig, [{ clip: "idle", w: 0.35, time: t }, { clip: "sad_pose", w: 0.65, time: 0 }], [
-        { bone: "Head", axis: [0, 1, 0], angle: -0.5 }, { bone: "LeftArm", axis: [1, 0, 0], angle: -0.25 }, { bone: "RightArm", axis: [1, 0, 0], angle: -0.25 },
-      ]);
+      rig.faceMat.map = faceTexture("flat", "flat");
+      pose(rig, [{ clip: "idle", w: 0.4, time: t }, { clip: "sad_pose", w: 0.6, time: 0 }], [{ bone: "Head", axis: [0, 1, 0], angle: -0.45 }]);
     } else {
+      rig.faceMat.map = faceTexture(t < 0.6 ? "flat" : shout > 0.3 ? "wide" : "angry", t < 0.6 ? "flat" : mouthOf(talk, true), { red: point > 0.5 });
       const hs = seg(t, 2.3, 2.6) * (1 - seg(t, 3.8, 4.1));
       pose(rig, [{ clip: "idle", w: 1 - hs * 0.8, time: t }, { clip: "headShake", w: hs * 0.8, time: (t - 2.3) * 1.5 }], [
         { bone: "LeftArm", axis: [0, 0, 1], angle: shout * (2.35 + jit) },
@@ -166,29 +253,30 @@ const OmHamada: React.FC<{ t: number; assets: Assets }> = ({ t, assets }) => {
     }
   });
   return (
-    <group position={[-0.6, 0, -1.0]} rotation={[0, after ? 0.5 : lerp(Math.PI * 0.86, 0.42, turn), 0]} scale={[1.06, 0.87 * (1 + talk * 0.02), 1.06]}>
+    <group position={[-0.6, 0, -1.0]} rotation={[0, after ? 0.5 : lerp(Math.PI * 0.86, 0.42, turn), 0]} scale={[1, 0.84 * (1 + talk * 0.02), 1]}>
       <primitive object={rig.root} />
     </group>
   );
 };
 
 const Ibrahim: React.FC<{ t: number; assets: Assets }> = ({ t, assets }) => {
-  const gogRef = React.useRef<THREE.Group | null>(null);
-  const rig = useRig(assets,
-    useMemo(() => mat("#4f72b0", { roughness: 0.7 }), []),
-    useMemo(() => mat("#26324d", { roughness: 0.6 }), []),
-    (b) => {
-      const black = mat("#0d0907", { roughness: 0.9 }), brass = mat("#c9973a", { metalness: 1, roughness: 0.25 });
-      b.Head.add(part(new THREE.CapsuleGeometry(2.3, 11, 6, 12), black, [0, -2, 11.6], [0, 0, Math.PI / 2]));
-      const g = new THREE.Group();
-      for (const s of [-1, 1]) {
-        g.add(part(new THREE.TorusGeometry(3.6, 1.0, 10, 20), brass, [s * 4.6, 0, 0]));
-        g.add(part(new THREE.CircleGeometry(3.5, 20), mat("#0b1a16", { metalness: 0.9, roughness: 0.08 }), [s * 4.6, 0, 0]));
-      }
-      g.add(part(new THREE.TorusGeometry(10.6, 0.9, 8, 28), mat("#3a2a1a", { roughness: 0.8 }), [0, 0, -9.6], [Math.PI / 2, 0, 0]));
-      b.Head.add(g);
-      gogRef.current = g;
+  const rig = useMemo(() => {
+    const stripes = pix(16, 16, (g) => { g.fillStyle = "#7f8fa8"; g.fillRect(0, 0, 16, 16); g.fillStyle = "#3d4e6b"; g.fillRect(2, 0, 3, 16); g.fillRect(10, 0, 2, 16); }, [2, 2]);
+    return buildChar(assets, {
+      skin: 0xb27448, hand: 0xb27448, shoe: 0x6b4a2a, headR: 0.2, torso: [0.21, 0.18], torsoMat: flat(0xf3f0e3), legMat: flat(0xffffff, { map: stripes }),
+      build(head, k) {
+        const hair = flat(0x1b1410);
+        for (const s of [-1, 1]) M3(new THREE.BoxGeometry(0.08 * k, 0.16 * k, 0.24 * k), hair, s * 0.28 * k, 0.02 * k, -0.04 * k, head);
+        const gog = new THREE.Group(); head.add(gog);
+        const brass = flat(0xc9a227, { metalness: 1, roughness: 0.25 });
+        for (const s of [-1, 1]) {
+          M3(new THREE.TorusGeometry(0.07 * k, 0.025 * k, 4, 8), brass, s * 0.1 * k, 0, 0, gog);
+          M3(new THREE.CircleGeometry(0.06 * k, 8), flat(0x335a3a, { metalness: 0.8, roughness: 0.1 }), s * 0.1 * k, 0, -0.005 * k, gog);
+        }
+        return { gog, k };
+      },
     });
+  }, [assets]);
   const talk = envAt("ib", t, IB_START);
   const walkK = seg(t, CUT2, 5.0);
   const stop = easeInOut(seg(t, 4.85, 5.2));
@@ -196,19 +284,19 @@ const Ibrahim: React.FC<{ t: number; assets: Assets }> = ({ t, assets }) => {
   const hero = easeBack(seg(t, 6.0, 6.35));
   const gog = easeInOut(seg(t, 7.2, 7.5));
   const after = t >= CUT3;
-  const tada = after ? easeBack(seg(t, CUT3, CUT3 + 0.4)) : 0;
   const pat = Math.sin(t * 11) * 0.14 * calm;
   useLayoutEffect(() => {
-    gogRef.current?.position.set(0, lerp(11.5, 4.5, gog), lerp(8.5, 11.6, gog));
-    gogRef.current?.rotation.set(lerp(-0.5, 0, gog), 0, 0);
+    const { gog: g, k } = rig.extras;
+    g.position.set(0, lerp(0.2, 0.05, gog) * k, lerp(0.2, 0.27, gog) * k);
+    g.rotation.x = lerp(-0.6, 0, gog);
     if (after) {
-      pose(rig, [{ clip: "idle", w: 1, time: t }], [
-        { bone: "LeftArm", axis: [0, 0, 1], angle: tada * 1.75 }, { bone: "RightArm", axis: [0, 0, 1], angle: -tada * 1.75 },
-        { bone: "Spine", axis: [1, 0, 0], angle: -tada * 0.15 },
-      ]);
+      rig.faceMat.map = faceTexture("closed", "grin", { stache: true });
+      // Mixamo FBX clip ("Samba Dancing", downloaded format) on the same rig
+      pose(rig, [{ clip: "samba_dancing", w: 1, time: 4.0 + (t - CUT3) }], []);
     } else {
+      rig.faceMat.map = faceTexture(hero > 0.5 ? "sparkle" : "smug", hero > 0.5 && talk < 0.1 ? "grin" : mouthOf(talk), { stache: true });
       const nod = seg(t, 6.3, 6.6) * 0.7;
-      pose(rig, [{ clip: "walk", w: 1 - stop, time: (t - CUT2) * 1.0 }, { clip: "idle", w: stop * (1 - nod), time: t }, { clip: "agree", w: stop * nod, time: t - 6.3 }], [
+      pose(rig, [{ clip: "walk", w: 1 - stop, time: t - CUT2 }, { clip: "idle", w: stop * (1 - nod), time: t }, { clip: "agree", w: stop * nod, time: t - 6.3 }], [
         { bone: "LeftArm", axis: [1, 0, 0], angle: -calm * 1.0 - pat },
         { bone: "LeftForeArm", axis: [1, 0, 0], angle: -calm * 0.5 + pat },
         { bone: "RightArm", axis: [1, 0, 0], angle: -hero * 2.75 },
@@ -218,9 +306,9 @@ const Ibrahim: React.FC<{ t: number; assets: Assets }> = ({ t, assets }) => {
       ]);
     }
   });
-  const pos: [number, number, number] = after ? [0.95, 0, -1.0] : [lerp(1.95, 1.4, easeOut(walkK)), 0, -0.35];
+  const pos: [number, number, number] = after ? [0.85, 0, -0.55] : [lerp(1.95, 1.4, easeOut(walkK)), 0, -0.35];
   return (
-    <group position={pos} rotation={[0, after ? -0.7 : -1.05, 0]} scale={[0.9, 0.97, 0.9]}>
+    <group position={pos} rotation={[0, after ? -0.25 : -1.05, 0]} scale={0.93}>
       <primitive object={rig.root} />
     </group>
   );
@@ -342,9 +430,9 @@ const Rig: React.FC<{ t: number }> = ({ t }) => {
     } else {
       const k = seg(t, CUT3, 10);
       const a = lerp(-0.35, 0.3, k);
-      p = [0.15 + Math.sin(a) * 2.7, 1.5, -1.66 + Math.cos(a) * 2.7];
-      l = [0.15, 1.2, -1.5];
-      fov = 50;
+      p = [0.35 + Math.sin(a) * 3.3, 1.45, -1.5 + Math.cos(a) * 3.3];
+      l = [0.35, 1.0, -1.3];
+      fov = 52;
     }
     camera.position.set(p[0], p[1], p[2]);
     camera.fov = fov;

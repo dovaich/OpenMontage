@@ -69,3 +69,29 @@ Read the script or the user's request and write a short asset list, for example 
 - Asset paths above (`public/models`, `public/textures`, `public/hdri`, `public/audio`) are relative to the Remotion project (`remotion-composer/` in this repo unless the episode has its own project).
 - Record every fetched asset (source URL, license, credit) in the project's asset manifest under `projects/<project-id>/` so the pipeline review and the TikTok credits stay in sync.
 - **Cloud session with no laptop:** if `get_device_info` / the device bridge isn't available, don't stop. Fetch what the container's network allows (Poly Haven API, Piper voices from Hugging Face) directly into the repo, skip Mixamo/Sketchfab (they need the user's sign-in), and tell the user in one line which assets still need the laptop.
+
+## Characters: our designs on the Mixamo skeleton (standing rule)
+- Never show Mixamo's own characters. Keep **only the Mixamo skeleton** (`public/models/xbot/Xbot.glb`, mesh hidden) and mount the series' low-poly
+  designs on it as rigid pieces per bone: floral galabeya / undershirt, box limbs, big sphere head, the pixel **face decals** (`drawFace` eyes and
+  mouths, mouth chosen from the line's audio level), scarf, goggles, mustache. Reference: `buildChar()` in `docs/briefs/ps3-test-src/src/PS3Test.tsx`
+  and `src/face.ts`. A new character is a new `CharCfg` (colors, head size, `build()` for accessories), not a new model.
+- Because every character shares that skeleton, any Mixamo animation works on all of them. Download animations **on X Bot, FBX Binary, 30 fps,
+  "Without Skin"**, put them in `public/models/anims/<name>.fbx`, and add `<name>` to `FBX_ANIMS`. The loader drops root travel so the scene places the character.
+- Small acting on top of a clip (pointing, arms up, head tilt) is done with the `pose()` bone tweaks, not by editing the clip.
+
+## Mixamo through the Claude-in-Chrome extension (route when the laptop bridge is not reachable)
+Same hand-off as the AI Studio voices: Claude cannot open mixamo.com from a cloud session, so it writes **one copy-paste message** for the extension,
+the extension downloads the FBX files in the user's Chrome, the user uploads them to the session, and Claude wires them in.
+1. From the script, list the animations each beat needs, as English Mixamo search terms (for example `Angry Point`, `Slipping`, `Falling Back Death`,
+   `Silly Dancing`, `Talking`, `Yelling`, `Sad Idle`). Skip the ones already in `public/models/anims/`.
+2. Hand the user this message, with the list filled in:
+
+   > Open https://www.mixamo.com (I am already signed in; if not, stop and ask me to sign in, never type a password). In the Characters tab choose
+   > **X Bot**. Then for each animation below: open the Animations tab, search the name, pick the closest match, tick **In Place** when that option
+   > is shown, press **Download** with Format **FBX Binary (.fbx)**, Skin **Without Skin**, Frames per Second **30**, Keyframe Reduction **none**.
+   > Wait for each download to finish before the next one. At the end, give me a table: search term, the exact animation name you picked, and the
+   > downloaded file name. Animations: 1) … 2) … 3) …
+
+3. When the user uploads the files, rename them to snake_case names that match the beat (`angry_point.fbx`), put them in `public/models/anims/`,
+   add them to `FBX_ANIMS`, and check each one on a still before the full render (a wrong pick shows immediately).
+4. If a download is "With Skin" by mistake it still works; only the animation is read.
