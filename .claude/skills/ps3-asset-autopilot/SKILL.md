@@ -64,15 +64,17 @@ Read the script or the user's request and write a short asset list, for example 
 - If a site needs the user's sign-in or approval, open the page first, then ask them for the one step they need to do.
 - At the end, reply with one line: what got added, the location of the video, and any credits needed in the description.
 ## Wiring into OpenMontage (repo autopilot)
-- This skill is the **asset stage** of the Om Hamada / Ibrahim series. Before fetching, read `docs/briefs/SERIES_NOTES.md` (characters, voice casting, no episode numbers, dialogue-sync rules) and the closest previous episode in `docs/briefs/*-src/` so the new episode reuses the same rigs, HUD and finishing chain.
+- This skill is the asset stage of the **PS3-look experiments** with the Om Hamada / Ibrahim characters, not of the running episodes. Before fetching, read `docs/briefs/SERIES_NOTES.md` (characters, voice casting, no episode numbers, dialogue-sync rules) and the closest previous episode in `docs/briefs/*-src/` so the new episode reuses the same rigs, HUD and finishing chain.
 - Voices: the series default is Gemini TTS / AI Studio per `SERIES_NOTES.md`. Use Piper only when the user asks for it or the Gemini route is blocked (quota, no audio uploaded).
 - Asset paths above (`public/models`, `public/textures`, `public/hdri`, `public/audio`) are relative to the Remotion project (`remotion-composer/` in this repo unless the episode has its own project).
 - Record every fetched asset (source URL, license, credit) in the project's asset manifest under `projects/<project-id>/` so the pipeline review and the TikTok credits stay in sync.
 - **Cloud session with no laptop:** if `get_device_info` / the device bridge isn't available, don't stop. Fetch what the container's network allows (Poly Haven API, Piper voices from Hugging Face) directly into the repo, skip Mixamo/Sketchfab (they need the user's sign-in), and tell the user in one line which assets still need the laptop.
 
-## Characters: our designs on the Mixamo skeleton (standing rule)
+## Characters: our designs on the Mixamo skeleton (experiment)
+- **This whole look is an experiment (user, Nov 2026).** The running Om Hamada / Ibrahim episodes keep their current low-poly PS2 look and
+  pipeline (`docs/briefs/SERIES_NOTES.md`). Use this skill only when the user asks for the PS3 / new-character test, never to restyle an episode.
 - Never show Mixamo's own characters. Keep **only the Mixamo skeleton** (`public/models/xbot/Xbot.glb`, mesh hidden) and mount the series' characters on it.
-- Character style (user's choice, Nov 2026): **early-2000s open-world game characters**, not boxes. Human proportions, smooth tapered limbs with
+- Character style being tested: **early-2000s open-world game characters**, not boxes. Human proportions, smooth tapered limbs with
   joint balls, a one-piece lathe torso (a dress runs to the ankles), slab hands with a thumb, painted cloth textures with folds, and a **painted
   head texture** wrapped on the skull (eyes, brows, mouth shapes, mustache, hair band), swapped per expression and per audio level for the mouth.
   Same identities as before: Om Hamada (floral pink galabeya, green scarf, yellow dish gloves, blue slippers), Ibrahim (ribbed undershirt, striped

@@ -1,6 +1,6 @@
 # Om Hamada / Ibrahim series: standing notes
 
-> Assets (animations, models, textures, HDRIs, voices) and the PS3/PS2 look are handled by `.claude/skills/ps3-asset-autopilot/SKILL.md` (`/ps3`).
+> The PS3 look and the Mixamo characters (`.claude/skills/ps3-asset-autopilot/SKILL.md`, `/ps3`) are **experiments only**. Episodes keep the look and workflow described below.
 
 - **No episode numbers.** Future episodes must not mention an episode number anywhere: not in the title card, not in the end card
   ("EPISODE n"), and not in the script. Use the episode's own name only.
@@ -82,7 +82,8 @@
 - `docs/briefs/invention-cards-src/` makes the collectible cards and the "collect them all" cover. When Ibrahim builds a new invention in an episode,
   add a card for it there, so the set keeps growing with the series.
 
-## PS3-look episodes: Mixamo skeleton + our characters
+## PS3-look experiments (not used in episodes): Mixamo skeleton + our characters
+- Experiments only. Do not change the current episodes' look or characters unless the user says so.
 - Characters are the series' own designs mounted on the Mixamo skeleton (`ps3-test-src`), never Mixamo's characters.
 - Mixamo animations come through the autopilot queue, like voices, images and Flow clips: an `# ANIMATION BATCH` brief plus
   `queue/<batch>.status = record` on `ccr-3b18907e-5bki3m`; the local watcher downloads the FBX files and pushes them to `incoming/<batch>/`.
