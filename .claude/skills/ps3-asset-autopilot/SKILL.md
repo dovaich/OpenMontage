@@ -79,19 +79,15 @@ Read the script or the user's request and write a short asset list, for example 
   "Without Skin"**, put them in `public/models/anims/<name>.fbx`, and add `<name>` to `FBX_ANIMS`. The loader drops root travel so the scene places the character.
 - Small acting on top of a clip (pointing, arms up, head tilt) is done with the `pose()` bone tweaks, not by editing the clip.
 
-## Mixamo through the Claude-in-Chrome extension (route when the laptop bridge is not reachable)
-Same hand-off as the AI Studio voices: Claude cannot open mixamo.com from a cloud session, so it writes **one copy-paste message** for the extension,
-the extension downloads the FBX files in the user's Chrome, the user uploads them to the session, and Claude wires them in.
-1. From the script, list the animations each beat needs, as English Mixamo search terms (for example `Angry Point`, `Slipping`, `Falling Back Death`,
-   `Silly Dancing`, `Talking`, `Yelling`, `Sad Idle`). Skip the ones already in `public/models/anims/`.
-2. Hand the user this message, with the list filled in:
-
-   > Open https://www.mixamo.com (I am already signed in; if not, stop and ask me to sign in, never type a password). In the Characters tab choose
-   > **X Bot**. Then for each animation below: open the Animations tab, search the name, pick the closest match, tick **In Place** when that option
-   > is shown, press **Download** with Format **FBX Binary (.fbx)**, Skin **Without Skin**, Frames per Second **30**, Keyframe Reduction **none**.
-   > Wait for each download to finish before the next one. At the end, give me a table: search term, the exact animation name you picked, and the
-   > downloaded file name. Animations: 1) … 2) … 3) …
-
-3. When the user uploads the files, rename them to snake_case names that match the beat (`angry_point.fbx`), put them in `public/models/anims/`,
-   add them to `FBX_ANIMS`, and check each one on a still before the full render (a wrong pick shows immediately).
-4. If a download is "With Skin" by mistake it still works; only the animation is read.
+## Mixamo through the autopilot queue (the route from a cloud session)
+The cloud session cannot open mixamo.com, and the user no longer pastes messages into the Chrome extension. Use the same queue as the voice,
+image and video batches (`docs/briefs/AUTOPILOT.md` on branch `ccr-3b18907e-5bki3m`): the local session's watcher picks the batch up, downloads the
+files in Chrome on the laptop, and pushes them back.
+1. From the script, list the animations each beat needs as English Mixamo search terms. Skip what is already in `public/models/anims/` or in
+   `incoming/ps3-mixamo-lib/` (the shared starter library: yelling, angry_point, arguing, talking, bragging, shrug, facepalm, scared, fall_back, silly_dance).
+2. On `ccr-3b18907e-5bki3m`, write `docs/briefs/<batch>/recording_message.md` starting with `# ANIMATION BATCH (not voices)` (copy the layout of
+   `docs/briefs/ps3-mixamo-lib/recording_message.md`: X Bot, FBX Binary, Without Skin, 30 fps, In Place when offered, file name → search term →
+   description), set `queue/<batch>.status` to `record`, and push.
+3. Start a background watcher (`git fetch` every 20 s) until the status is `recorded`. Keep building everything else meanwhile.
+4. Copy `incoming/<batch>/*.fbx` into `public/models/anims/`, add the names to `FBX_ANIMS`, check each one on a still (a wrong pick shows
+   immediately), build, deliver, then set the status to `done` and push.

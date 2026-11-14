@@ -84,5 +84,6 @@
 
 ## PS3-look episodes: Mixamo skeleton + our characters
 - Characters are the series' own designs mounted on the Mixamo skeleton (`ps3-test-src`), never Mixamo's characters.
-- Mixamo animations are fetched the same way as the AI Studio voices: one copy-paste message for the Claude-in-Chrome extension, the user uploads
-  the FBX files, Claude wires them in. The message template and the download settings are in `.claude/skills/ps3-asset-autopilot/SKILL.md`.
+- Mixamo animations come through the autopilot queue, like voices, images and Flow clips: an `# ANIMATION BATCH` brief plus
+  `queue/<batch>.status = record` on `ccr-3b18907e-5bki3m`; the local watcher downloads the FBX files and pushes them to `incoming/<batch>/`.
+  No copy-paste messages. Details: `docs/briefs/AUTOPILOT.md` on that branch and `.claude/skills/ps3-asset-autopilot/SKILL.md`.
