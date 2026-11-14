@@ -37,3 +37,11 @@
 - A batch whose `recording_message.md` starts with `# VIDEO BATCH (not voices)` is made in Google Flow (the user has AI Pro: about 1000 credits/month, and an 8 s Veo 3.1 Fast clip costs about 20).
   Use Frames to Video with the Gemini scene images as start frames. Save the clips to `incoming/<batch>/`, then set the status to `recorded` and push.
 - The cloud builder lip-syncs every talking clip to the autopilot voices on Kaggle (LatentSync, with MuseTalk as the fallback). The mouths then match the series voices exactly.
+
+## Animation batches (mixamo.com, no API) — added Nov 2026
+- A batch whose `recording_message.md` starts with `# ANIMATION BATCH (not voices)` is downloaded from **mixamo.com** (free Adobe account, the user signs in once).
+  Always X Bot, FBX Binary, Without Skin, 30 fps, In Place when offered. Save the `.fbx` files to `incoming/<batch>/`, write `manifest.txt`,
+  set the status to `recorded` and push. Statuses are unchanged, so the existing watcher wakes on these batches too.
+- The cloud builder mounts the series' own low-poly characters on the Mixamo skeleton (Mixamo's characters are never shown) and plays the clips
+  from the Remotion frame. Source: `docs/briefs/ps3-test-src` and `.claude/skills/ps3-asset-autopilot/SKILL.md` on `ccr-5c42b35f-yana04`.
+- `ps3-mixamo-lib` is the shared starter library; later batches only ask for animations that are not in it yet.
