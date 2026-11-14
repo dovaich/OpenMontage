@@ -46,3 +46,10 @@
 - The cloud builder mounts the series' own low-poly characters on the Mixamo skeleton (Mixamo's characters are never shown) and plays the clips
   from the Remotion frame. Source: `docs/briefs/ps3-test-src` and `.claude/skills/ps3-asset-autopilot/SKILL.md` on `ccr-5c42b35f-yana04`.
 - `ps3-mixamo-lib` is the shared starter library; later batches only ask for animations that are not in it yet.
+
+## Character batches (drawing → 3D model → Mixamo rig) — experiment, Nov 2026
+- `# CHARACTER BATCH`: the local session draws the character in the Gemini web app (strict T-pose, front view, plain background).
+  The free image-to-3D web tools did not deliver a downloadable textured model (ZeroGPU limits, disabled texture, paid export), so the
+  **cloud builder makes the model on Kaggle** (free T4): Hunyuan3D-2 shape + paint, about 11 minutes, 7 GB VRAM. It needs
+  `transformers==4.48.3`, `diffusers==0.32.2`, `huggingface_hub<1.0` (Kaggle's newer transformers cannot load the image encoder).
+- `# RIGGING BATCH`: the local session uploads the OBJ zip to Mixamo's auto-rigger and downloads the rigged FBX (T-pose).

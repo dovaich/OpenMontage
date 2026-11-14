@@ -12,3 +12,7 @@ What was tried locally (all free, nothing paid):
 6. Stable Fast 3D Space (stabilityai): the "Remove Background" step does nothing, so the 3D step never appears.
 7. TripoSR Space (stabilityai): the Space itself is broken ("Your space is in error").
 Official Hunyuan3D site needs a Tencent login; not tried.
+
+ibrahim.glb  Textured 3D model made by the cloud builder on Kaggle (free T4): Hunyuan3D-2 shape + paint from ibrahim_tpose.png, 40k faces.
+ibrahim_obj.zip  The same model as OBJ + MTL + texture, zipped for the Mixamo upload.
+model_views.png  Front / side / back / three-quarter check renders.
