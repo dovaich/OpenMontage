@@ -4,8 +4,9 @@
 // Look: mustard-orange body + white roof, chrome bumpers, whitewall tyres, one cream (replaced) door, rust patches,
 // duct tape, a roof rack (rolled carpet + butane cylinder), fuzzy dice, a blue evil-eye charm, «ما شاء الله» sticker, plate «س م ر ١٩٨٠».
 // Needs engine8 globals (mesh, box, cyl, M, P, canvasTex). Front faces local +x.
-function makeSamirCar(parent) {
-  const g = new THREE.Group(); parent.add(g);
+function makeSamirCar(parent, scale = 1.2) {
+  // scale 1.2 (default): roomy enough for seated characters (roof at 1.74)
+  const root = new THREE.Group(); parent.add(root); const g = new THREE.Group(); g.scale.setScalar(scale); root.add(g);
   const body = P(0xe8a020, { shininess: 70 }), roofC = P(0xf4f0e6, { shininess: 60 }), chrome = P(0xe0e0e8, { shininess: 140, specular: 0xffffff });
   const glass = new THREE.MeshPhongMaterial({ color: 0x9fc8e0, transparent: true, opacity: 0.55, shininess: 120 });
   const L = 4.0, Wd = 1.75;
@@ -58,5 +59,5 @@ function makeSamirCar(parent) {
   for (let i = 0; i < 3; i++) mesh(box(0.07, 0.04, 0.8), P(0xc9ccd1), -0.15 + i * 0.15, 0.22, 0, bay);
   const late = () => { const c1 = plateT.userData.g; c1.fillStyle = '#f0f0f0'; c1.fillRect(0, 5, 64, 15); c1.fillStyle = '#111'; c1.font = '12px Lalezar'; c1.textAlign = 'center'; c1.textBaseline = 'middle'; c1.direction = 'rtl'; c1.fillText('س م ر ١٩٨٠', 32, 13); plateT.needsUpdate = true;
     const c2 = stickT.userData.g; c2.fillStyle = '#d8231b'; c2.fillRect(0, 0, 64, 20); c2.fillStyle = '#ffe14a'; c2.font = '13px Lalezar'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.direction = 'rtl'; c2.fillText('ما شاء الله', 32, 11); stickT.needsUpdate = true; };
-  return { g, hood, bay, wires, wheels, lamps, late, L, Wd };
+  return { g: root, body: g, scale, hood, bay, wires, wheels, lamps, late, L: L * scale, Wd: Wd * scale };
 }

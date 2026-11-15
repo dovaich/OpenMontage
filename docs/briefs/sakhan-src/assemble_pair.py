@@ -94,6 +94,18 @@ EP = {
   ("samir", "r2", 4.46, 7.63, 0.4, "طب أنا هاخد الفلتر التقليد... أسلم.", "Fine, I'll take the fake filter... it's safer."),
   ("anno", "r3", 7.44, 12.50, 0.35, "", "Genuine part: confirmed. Bestem: still hanging."),
  ]),
+ "uber": ("أوبر إبراهيم", 3.0, [
+  ("shehata", "r2", 5.65, 8.54, 0.15, "يا أستاذ! العربية بتطير ليه؟!", "Mister! Why is the car flying?!"),
+  ("mom", "r2", 9.52, 12.92, 0.85, "خلاص يا إبراهيم... مفيش اختراعات. شوفلك شغلانة عادية.", "That's it, Ibrahim... no more inventions. Find a normal job."),
+  ("dad", "r1", 0.21, 2.79, 0.3, "هشتغل أوبر... بعربية أبو سمير.", "I'll drive Uber... in Abu Samir's car."),
+  ("sayed", "r1", 4.14, 8.11, 1.0, "على مهلك يا ابني... إيه الزرار الأحمر ده؟", "Easy, son... what's that red button?"),
+  ("dad", "r1", 8.92, 10.53, 0.3, "ده... ده تكييف.", "That's... that's the AC."),
+  ("shehata", "r2", 0.11, 1.93, 0.4, "بسرعة يا أسطى! السوق هيقفل!", "Hurry up, driver! The market's closing!"),
+  ("dad", "r1", 12.23, 14.23, 0.3, "بسرعة؟... امسك في البطيخ.", "Hurry?... hold on to the melons."),
+  ("shehata", "r2", 5.65, 8.54, 1.3, "يا أستاذ! العربية بتطير ليه؟!", "Mister! Why is the car flying?!"),
+  ("dad", "r1", 16.01, 18.61, 0.35, "دي مش اختراع... دي أوبر بريميوم.", "It's not an invention... it's Uber Premium."),
+  ("anno", "r3", 0.30, 4.76, 0.6, "", "Rating: one star. Ibrahim: grounded."),
+ ]),
 }
 P0 = "/home/user/OpenMontage/projects/"
 name = sys.argv[1]; title, tail, L = EP[name]; P = P0 + name
