@@ -1,0 +1,4 @@
+"Man in Black Bomber Jacket" by SidewalkNZ
+https://sketchfab.com/3d-models/man-in-black-bomber-jacket-b4bed0f116344be0a752939aa5025b4b
+License: CC Attribution 4.0 (credit the author in the video description).
+Used as El-Alamy's body in docs/briefs/alamy-sketchfab-blender/scene.py (holsters + earpiece removed at load time).
