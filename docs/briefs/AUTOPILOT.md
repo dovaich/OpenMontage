@@ -7,16 +7,16 @@
   - `done`: the cloud session built and delivered the episodes.
 - The brief for each batch is `docs/briefs/<batch>/recording_message.md`.
 
-## Local session (user's laptop, Claude in Chrome): fastest mode, a background watcher instead of /loop
-- Keep a background watcher running, with no Claude turns while waiting. It's a shell loop (Monitor, or Bash in the background with an until-loop) that:
-  1. Runs `git fetch origin ccr-3b18907e-5bki3m` every 20 seconds.
-  2. Exits and wakes the session as soon as any `queue/*.status` on `origin/ccr-3b18907e-5bki3m` says `record`.
-- When woken:
-  1. `git pull`.
-  2. Record the batch in AI Studio exactly as `docs/briefs/<batch>/recording_message.md` says. Run the recordings back-to-back, and don't wait between them.
-  3. Save `incoming/<batch>/r1.wav`, `r2.wav`, `r3.wav` and `manifest.txt`.
-  4. Set the status to `recorded`, then commit and push immediately.
-  5. Restart the watcher.
+## Local session (user's laptop, Claude in Chrome): started by watcher.ps1
+- Waiting is done by `watcher.ps1` in the repo root (started by `start-watcher.bat` on the Desktop), not by Claude.
+  It runs `git fetch origin ccr-3b18907e-5bki3m` every 2 minutes with no Claude running. When the branch has a new commit and any
+  `queue/*.status` says `record`, it runs `git pull` and starts one fresh `claude -p --chrome` session for those batches.
+  Log: `.git/watcher/watcher.log` (plus one `claude_*.log` per run).
+- That session:
+  1. Records the batch in AI Studio exactly as `docs/briefs/<batch>/recording_message.md` says. Run the recordings back-to-back, and don't wait between them.
+  2. Saves `incoming/<batch>/r1.wav`, `r2.wav`, `r3.wav` and `manifest.txt`.
+  3. Sets the status to `recorded`, then commits and pushes immediately.
+  4. Finishes. It never starts a watcher, loop, Monitor, cron or wakeup, and never messages itself.
 
 ## Cloud session (this repo's builder): ON DEMAND, no fixed schedule
 - The user writes in the cloud session, for example «اعملي حلقة عن كذا». The cloud session then:

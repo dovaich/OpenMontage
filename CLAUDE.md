@@ -13,3 +13,9 @@ If the user asks for an episode/حلقة, a script, or anything about Om Hamada 
 read `docs/briefs/NEW_CHAT_START.md` FIRST (then `docs/briefs/SERIES_NOTES.md`). That series uses its own Three.js engine and
 the laptop recording queue, not the OpenMontage pipelines.
 
+## Local recorder on the laptop: no loops, no self-messages
+Waiting for new batches is done by `watcher.ps1` (a PowerShell script, outside Claude; started from `start-watcher.bat` on the Desktop).
+It runs `git fetch` every 2 minutes and, when a `queue/<batch>.status` says `record`, starts a fresh `claude -p` session to record it.
+A local session must NEVER start its own watcher, `/loop`, Monitor, cron, scheduled task or wakeup, and never send messages to itself.
+Record the batches you were given (see `docs/briefs/AUTOPILOT.md`), push, and finish.
+

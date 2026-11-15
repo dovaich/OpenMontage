@@ -1,0 +1,73 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude-in-chrome",
+
+      "Read(~/Downloads/**)",
+      "Edit(incoming/**)",
+      "Edit(queue/**)",
+
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git checkout ccr-3b18907e-5bki3m)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push origin ccr-3b18907e-5bki3m)",
+      "Bash(git push)",
+      "Bash(git -c user.name=Claude -c user.email=noreply@anthropic.com commit:*)",
+      "Bash(git rebase --continue)",
+      "Bash(git rebase --abort)",
+
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(find:*)",
+      "Bash(stat:*)",
+      "Bash(wc:*)",
+      "Bash(od:*)",
+      "Bash(xxd:*)",
+      "Bash(date:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+
+      "PowerShell(git fetch:*)",
+      "PowerShell(git pull:*)",
+      "PowerShell(git status:*)",
+      "PowerShell(git log:*)",
+      "PowerShell(git diff:*)",
+      "PowerShell(git show:*)",
+      "PowerShell(git add:*)",
+      "PowerShell(git commit:*)",
+      "PowerShell(git push origin ccr-3b18907e-5bki3m)",
+      "PowerShell(git push)",
+
+      "PowerShell(Get-ChildItem:*)",
+      "PowerShell(Get-Item:*)",
+      "PowerShell(Get-Content:*)",
+      "PowerShell(New-Item:*)",
+      "PowerShell(Move-Item:*)",
+      "PowerShell(Copy-Item:*)",
+      "PowerShell(Set-Content:*)"
+    ],
+    "deny": [
+      "PowerShell(git push --force:*)",
+      "PowerShell(git push -f:*)",
+      "PowerShell(git reset --hard:*)",
+      "PowerShell(git clean:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)"
+    ]
+  }
+}

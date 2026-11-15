@@ -27,8 +27,8 @@ Protocol: `LOCAL_RECORDER.md` + `AUTOPILOT.md`. In short:
    blocks in order — AI Studio alternates speaker 1/2 automatically, so merge consecutive lines of one speaker into one block with `[long pause]`).
 2. `echo record > queue/<batch>.status`, commit, push.
 3. Start a background watcher (Bash, run_in_background) that `git fetch`es every 20 s until `queue/<batch>.status` == `recorded`.
-4. The laptop session (already running a 20 s watcher) records, pushes `incoming/<batch>/r1.wav…` + `manifest.txt`, sets `recorded`.
-5. If the laptop never answers, the user may need to restart its session: paste the prompt from `AUTOPILOT.md`'s Local section.
+4. The laptop watcher (`watcher.ps1`, git fetch every 2 min) starts a `claude -p` session that records, pushes `incoming/<batch>/r1.wav…` + `manifest.txt`, sets `recorded`.
+5. If the laptop never answers, the user double-clicks `start-watcher.bat` on the laptop Desktop (it retries any batch still at `record`).
 Fallback for a single missing line: `tools/gemini38_line.py out.wav <Voice> "<style>" "<text>"` (Gemini key is a network secret; free tier ≈10 req/day).
 
 ## Building an episode (vertical template)
