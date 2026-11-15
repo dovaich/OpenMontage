@@ -129,12 +129,12 @@ s2.extrapolation = "HOLD"; s2.blend_type = "REPLACE"
 s2.scale = 1.6  # slower, cooler shrug
 
 # ---------------------------------------------------------------- materials
-SKIN = mat("Skin", (0.55, 0.36, 0.25), rough=0.55, spec=0.35, sss=0.08)
+SKIN = mat("Skin", (0.40, 0.235, 0.15), rough=0.55, spec=0.35, sss=0.08)
 LEATHER = mat("Leather", (0.018, 0.017, 0.017), rough=0.28, spec=0.6)
 KNIT = mat("Knit", (0.025, 0.025, 0.027), rough=0.9, spec=0.2)
 TROUSER = mat("Trouser", (0.16, 0.16, 0.165), rough=0.75, spec=0.3)
 SHOE = mat("Shoe", (0.01, 0.01, 0.01), rough=0.15, spec=0.8)
-HAIR = mat("Hair", (0.012, 0.01, 0.009), rough=0.55, spec=0.4)
+HAIR = mat("Hair", (0.010, 0.008, 0.007), rough=0.85, spec=0.25)
 METAL = mat("Metal", (0.6, 0.6, 0.6), rough=0.25, metal=1.0)
 EYEW = mat("EyeWhite", (0.75, 0.72, 0.68), rough=0.2)
 IRIS = mat("Iris", (0.05, 0.03, 0.02), rough=0.1)
@@ -160,11 +160,11 @@ parts.append((loft("Turtleneck", tors, KNIT, n=20, ref=V(0, 1, 0)), SPINE + ["He
 def open_front(i, ang):  # fwd axis = sin(ang)>0 points to -Y? we test both: gap where |x| small and in front
     return False
 jt = [(V(0, hip.y, hip.z - 0.06), 0.172, 0.122), (V(0, sp.y, sp.z), 0.168, 0.118),
-      (V(0, sp1.y, sp1.z), 0.172, 0.120), (V(0, sp2.y, sp2.z), 0.190, 0.128),
-      (V(0, sp2.y, nk.z - 0.035), 0.180, 0.118), (V(0, nk.y, nk.z + 0.01), 0.082, 0.078)]
+      (V(0, sp1.y, sp1.z), 0.172, 0.120), (V(0, sp2.y, sp2.z), 0.180, 0.126),
+      (V(0, sp2.y, nk.z - 0.035), 0.168, 0.116), (V(0, nk.y, nk.z + 0.01), 0.082, 0.078)]
 jacket = loft("JacketBody", jt, LEATHER, n=24, ref=V(0, 1, 0), cap0=False, cap1=False,
               skip=lambda i, ang: (math.sin(ang) < -0.93 and i < 4))
-parts.append((jacket, SPINE + ["LeftShoulder", "RightShoulder", "LeftArm", "RightArm"]))
+parts.append((jacket, SPINE + ["LeftShoulder", "RightShoulder"]))
 collar = loft("Collar", [(V(0, nk.y, nk.z + 0.0), 0.083, 0.080), (V(0, nk.y, nk.z + 0.055), 0.078, 0.075)],
               LEATHER, n=24, ref=V(0, 1, 0), cap0=False, cap1=False, skip=lambda i, ang: math.sin(ang) < -0.85)
 parts.append((collar, ["Neck", "Spine2"]))
@@ -172,11 +172,11 @@ parts.append((collar, ["Neck", "Spine2"]))
 for side in ("Left", "Right"):
     sh, ua, fa, hn = J(side + "Shoulder"), J(side + "Arm"), J(side + "ForeArm"), J(side + "Hand")
     sgn = 1 if side == "Left" else -1
-    sl = [(V(sh.x + sgn * 0.06, ua.y, ua.z + 0.01), 0.072, 0.070), (ua, 0.068, 0.066),
+    sl = [(ua - (fa - ua).normalized() * 0.03, 0.064, 0.062), (ua, 0.066, 0.064),
           (ua.lerp(fa, 0.5), 0.056, 0.054), (fa, 0.048, 0.046), (fa.lerp(hn, 0.6), 0.043, 0.040),
           (hn - (hn - fa).normalized() * 0.035, 0.044, 0.041)]
     parts.append((loft(side + "Sleeve", sl, LEATHER, n=16, ref=V(0, 0, 1), cap0=False, cap1=False),
-                  ["Spine2", side + "Shoulder", side + "Arm", side + "ForeArm", side + "Hand"]))
+                  [side + "Shoulder", side + "Arm", side + "ForeArm", side + "Hand"]))
     # cuff (turtleneck sleeve peeking) + hand
     parts.append((loft(side + "Cuff", [(hn - (hn - fa).normalized() * 0.03, 0.036, 0.033),
                                        (hn + (hn - fa).normalized() * 0.005, 0.034, 0.030)], KNIT, n=12, ref=V(0, 0, 1)),
@@ -199,11 +199,11 @@ parts.append((loft("Belt", [(V(0, hip.y, hip.z + 0.03), 0.153, 0.103), (V(0, hip
 for side in ("Left", "Right"):
     ul, lg, ft, toe, te = J(side + "UpLeg"), J(side + "Leg"), J(side + "Foot"), J(side + "ToeBase"), J(side + "Toe_End")
     leg = [(ul + V(0, 0, 0.03), 0.088, 0.088), (ul.lerp(lg, 0.45), 0.075, 0.075), (lg, 0.058, 0.060),
-           (lg.lerp(ft, 0.55), 0.052, 0.054), (ft + V(0, 0, 0.035), 0.050, 0.052)]
+           (lg.lerp(ft, 0.55), 0.052, 0.054), (ft + V(0, 0, 0.01), 0.052, 0.054)]
     parts.append((loft(side + "TrouserLeg", leg, TROUSER, n=16, ref=V(0, -1, 0), cap0=False),
                   ["Hips", side + "UpLeg", side + "Leg", side + "Foot"]))
     heel = V(ft.x, ft.y + 0.055, 0.035)
-    shoe = [(heel, 0.040, 0.032), (V(ft.x, ft.y, 0.045), 0.045, 0.042), (toe + V(0, 0, 0.02), 0.047, 0.030),
+    shoe = [(heel, 0.040, 0.032), (V(ft.x, ft.y, 0.06), 0.047, 0.050), (toe + V(0, 0, 0.02), 0.047, 0.030),
             (V(te.x, te.y + 0.01, 0.025), 0.040, 0.022)]
     parts.append((loft(side + "Shoe", shoe, SHOE, n=14, ref=V(0, 0, 1)), [side + "Foot", side + "ToeBase"]))
 
@@ -239,10 +239,10 @@ mouthO = sphere("MouthOpen", V(0, fy + 0.008, MZ), (0.020, 0.008, 0.0035), MOUTH
 lipU = sphere("LipUpper", V(0, fy + 0.006, MZ + 0.005), (0.022, 0.008, 0.0045), LIP, 16); head_objs.append(lipU)
 lipL = sphere("LipLower", V(0, fy + 0.006, MZ - 0.006), (0.020, 0.008, 0.005), LIP, 16); head_objs.append(lipL)
 # hair: short black, all one colour; cap over the top/back + a slightly swept front
-hair = loft("Hair", [(hc + V(0, 0.024, -0.035), 0.081, 0.088), (hc + V(0, 0.016, 0.004), 0.083, 0.104),
-                     (hc + V(0, 0.017, 0.055), 0.082, 0.104), (hc + V(0, 0.020, 0.098), 0.068, 0.086),
-                     (hc + V(0, 0.020, 0.128), 0.034, 0.046)], HAIR, n=24, ref=V(0, 1, 0), cap0=False,
-            skip=lambda i, ang: (i == 0 and math.sin(ang) < -0.2))
+hair = loft("Hair", [(hc + V(0, 0.022, -0.045), 0.0805, 0.090), (hc + V(0, 0.014, 0.010), 0.0815, 0.1035),
+                     (hc + V(0, 0.015, 0.048), 0.0800, 0.1020), (hc + V(0, 0.018, 0.088), 0.066, 0.084),
+                     (hc + V(0, 0.020, 0.118), 0.030, 0.040)], HAIR, n=24, ref=V(0, 1, 0), cap0=False,
+            skip=lambda i, ang: (i == 0 and math.sin(ang) < -0.35) or (i == 1 and math.sin(ang) < -0.75))
 head_objs.append(hair)
 for o in head_objs:
     parts.append((o, ["Head"]))
@@ -331,7 +331,7 @@ def windows_mat(seed):
 ASPH = asphalt_mat(); BRICK = brick_mat()
 SIDEW = mat("Sidewalk", (0.22, 0.21, 0.2), rough=0.6)
 SHUT = mat("Shutter", (0.22, 0.23, 0.24), rough=0.5, metal=0.6)
-WARM = mat("GarageGlow", (1, 0.6, 0.3), emit=(1.0, 0.62, 0.32), estr=3.0)
+WARM = mat("GarageGlow", (0.3, 0.2, 0.1), emit=(1.0, 0.55, 0.25), estr=0.9)
 NEON = mat("Neon", (1, 0.3, 0.1), emit=(1.0, 0.35, 0.08), estr=12.0)
 NEONB = mat("NeonBlue", (0.2, 0.5, 1), emit=(0.25, 0.55, 1.0), estr=10.0)
 POLE = mat("Pole", (0.05, 0.06, 0.05), rough=0.4, metal=0.7)
@@ -391,9 +391,9 @@ def light(name, kind, loc, energy, color, size=0.5, rot=None, spot=None):
     if rot: o.rotation_euler = rot
     return o
 light("Sodium", "POINT", (-1.15, -0.75, 4.9), 900, (1.0, 0.62, 0.3), size=0.3)
-light("Key", "AREA", (-1.6, -2.4, 2.3), 140, (1.0, 0.8, 0.62), size=1.2,
+light("Key", "AREA", (-1.6, -2.4, 2.3), 110, (1.0, 0.8, 0.62), size=1.2,
       rot=(math.radians(65), 0, math.radians(-35)))
-light("GarageSpill", "AREA", (0.2, 4.2, 1.6), 400, (1.0, 0.6, 0.3), size=4.0, rot=(math.radians(90), 0, math.radians(180)))
+light("GarageSpill", "AREA", (0.2, 4.2, 1.6), 90, (1.0, 0.6, 0.3), size=4.0, rot=(math.radians(90), 0, math.radians(180)))
 light("Rim", "SPOT", (1.8, 2.6, 2.6), 300, (0.45, 0.6, 1.0), size=0.2,
       rot=(math.radians(-60), 0, math.radians(145)), spot=math.radians(40))
 light("Moon", "SUN", (0, 0, 10), 0.6, (0.55, 0.65, 1.0), rot=(math.radians(50), 0, math.radians(200)))
@@ -411,7 +411,7 @@ W.node_tree.links.new(ramp.outputs["Color"], bg.inputs["Color"]); bg.inputs["Str
 fog = box("Smog", (0, 0, 6), (60, 60, 14), None)
 fm = bpy.data.materials.new("SmogVol"); fm.use_nodes = True; fnt = fm.node_tree
 fnt.nodes.remove(fnt.nodes["Principled BSDF"]); pv = fnt.nodes.new("ShaderNodeVolumePrincipled")
-pv.inputs["Density"].default_value = 0.022; inp(pv, ["Color"], (0.75, 0.62, 0.5, 1))
+pv.inputs["Density"].default_value = 0.006; inp(pv, ["Color"], (0.6, 0.55, 0.5, 1))
 fnt.links.new(pv.outputs[0], fnt.nodes["Material Output"].inputs["Volume"])
 fog.data.materials.append(fm)
 
@@ -440,9 +440,9 @@ ENGINE = os.environ.get("ALAMY_ENGINE", "EEVEE")
 if ENGINE == "EEVEE":
     S.render.engine = next(e for e in ("BLENDER_EEVEE_NEXT", "BLENDER_EEVEE") if e in engines)
     ee = S.eevee
-    for attr, val in (("taa_render_samples", 48), ("use_gtao", True), ("use_ssr", True), ("use_ssr_refraction", False),
+    for attr, val in (("taa_render_samples", 16), ("use_gtao", True), ("use_ssr", True), ("use_ssr_refraction", False),
                       ("use_bloom", True), ("bloom_intensity", 0.06), ("bloom_threshold", 1.2),
-                      ("use_soft_shadows", True), ("volumetric_tile_size", "4"), ("volumetric_samples", 64),
+                      ("use_soft_shadows", True), ("volumetric_tile_size", "8"), ("volumetric_samples", 32),
                       ("use_volumetric_shadows", True), ("shadow_cube_size", "2048"), ("shadow_cascade_size", "2048"),
                       ("use_raytracing", True)):
         if hasattr(ee, attr):
@@ -457,7 +457,7 @@ for vt in ("Filmic", "AgX"):
 for lk in ("Medium High Contrast", "AgX - Medium High Contrast", "Filmic - Medium High Contrast"):
     try: vs.look = lk; break
     except Exception: pass
-vs.exposure = 0.3
+vs.exposure = -0.2
 S.render.film_transparent = False
 
 def save_blend():
