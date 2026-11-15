@@ -1,0 +1,1 @@
+﻿alamy-gta4-blender preview r1: Blender failed at scene.py line 125 (NlaStrip has no attribute extend_mode in 3.6). No stills rendered. See preview.log.

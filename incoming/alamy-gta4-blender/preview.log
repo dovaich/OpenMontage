@@ -1,0 +1,10 @@
+﻿Blender 3.6.23 (hash e467db79ca8c built 2025-06-17 03:22:43)
+Error: Python: Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\user\OpenMontage\docs\briefs\alamy-gta4-blender\scene.py", line 125, in <module>
+    tr = ad.nla_tracks.new(); s1 = tr.strips.new("talk", 1, ACT_TALK); s1.extend_mode = "HOLD"
+AttributeError: 'NlaStrip' object has no attribute 'extend_mode'
+FBX version: 7700
+FBX version: 7700
+
+Blender quit
