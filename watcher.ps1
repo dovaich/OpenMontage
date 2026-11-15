@@ -1,6 +1,6 @@
 # watcher.ps1 - local recorder watcher for OpenMontage (no Claude while waiting)
 #
-# Every $IntervalSeconds: git fetch (no Claude). When the remote branch has a new
+# Every $IntervalSeconds (default 20): git fetch (no Claude). When the remote branch has a new
 # commit: git pull, and if any queue/*.status says "record", start ONE fresh
 # `claude -p` session that records those batches per docs/briefs/AUTOPILOT.md.
 # Afterwards it stores the remote commit, so Claude's own push does not trigger it again.
@@ -11,7 +11,7 @@
 param(
     [string]$Branch = "ccr-3b18907e-5bki3m",
     [string]$Remote = "origin",
-    [int]$IntervalSeconds = 120,
+    [int]$IntervalSeconds = 20,
     [string]$ClaudeExe = "",
     [switch]$NoChrome,     # for tests that don't need the browser
     [string]$Settings = "",  # extra settings file (tests in untrusted folders)

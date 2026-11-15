@@ -15,7 +15,7 @@ the laptop recording queue, not the OpenMontage pipelines.
 
 ## Local recorder on the laptop: no loops, no self-messages
 Waiting for new batches is done by `watcher.ps1` (a PowerShell script, outside Claude; started from `start-watcher.bat` on the Desktop).
-It runs `git fetch` every 2 minutes and, when a `queue/<batch>.status` says `record`, starts a fresh `claude -p` session to record it.
+It runs `git fetch` every 20 seconds and, when a `queue/<batch>.status` says `record`, starts a fresh `claude -p` session to record it.
 A local session must NEVER start its own watcher, `/loop`, Monitor, cron, scheduled task or wakeup, and never send messages to itself.
 Record the batches you were given (see `docs/briefs/AUTOPILOT.md`), push, and finish.
 

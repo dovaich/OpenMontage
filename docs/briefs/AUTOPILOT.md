@@ -9,7 +9,7 @@
 
 ## Local session (user's laptop, Claude in Chrome): started by watcher.ps1
 - Waiting is done by `watcher.ps1` in the repo root (started by `start-watcher.bat` on the Desktop), not by Claude.
-  It runs `git fetch origin ccr-3b18907e-5bki3m` every 2 minutes with no Claude running. When the branch has a new commit and any
+  It runs `git fetch origin ccr-3b18907e-5bki3m` every 20 seconds with no Claude running. When the branch has a new commit and any
   `queue/*.status` says `record`, it runs `git pull` and starts one fresh `claude -p --chrome` session for those batches.
   Log: `.git/watcher/watcher.log` (plus one `claude_*.log` per run).
 - That session:
