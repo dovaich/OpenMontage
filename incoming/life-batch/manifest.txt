@@ -1,0 +1,4 @@
+r1.wav 38.76 Recording 1 (single speaker): Orus (Ibrahim narrating his life story), 9 parts separated by [long pause]. Downloaded 05:47
+r2.wav 13.36 Recording 2 (multi-speaker): Speaker 1 Aoede (Teta, 1 line) + Speaker 2 Kore (Om Hamada, 3 parts with [long pause]). Downloaded 05:49
+r3.wav 6.96 Recording 3 (single speaker): Algenib (English announcer) "Life story unlocked. Balcony years: twenty-five." Downloaded 05:50
+Note: AI Studio writes byterate=96000 in the WAV header (mono 16-bit 24 kHz should be 48000); durations above are data bytes / 48000 and match the AI Studio player.
