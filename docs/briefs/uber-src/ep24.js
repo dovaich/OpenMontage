@@ -5,7 +5,7 @@
 room.visible = true;
 const lateDraw = [];
 const Lx = (i) => LINES[i - 1];
-const T_RW = Lx(1).t1 + 0.15, T_HOOK = T_RW + 0.6, T_ROAD = Lx(4).t0 - 0.6, T_BTN = Lx(7).t1 - 0.25, T_LAND = Lx(10).t0 + 0.6, T_ANNO = Lx(10).t0;
+const T_RW = Lx(1).t1 + 0.15, T_HOOK = T_RW + 0.6, T_ROAD = Lx(4).t0 - 0.6, T_BTN = Lx(11).t1 - 0.25, T_LAND = Lx(15).t0 + 0.6, T_ANNO = Lx(15).t0;
 function phase(t) { return t < T_RW + 0.6 ? 'sky' : t < T_ROAD ? 'home' : t < T_BTN + 1.2 ? 'road' : t < T_LAND - 1.0 ? 'sky' : 'market'; }
 
 // ---------- passengers ----------
@@ -26,16 +26,19 @@ const lapMelons = [0, 1].map(i => { const m = mesh(new THREE.SphereGeometry(0.2,
 const fallMelons = [0, 1, 2].map(i => { const m = mesh(new THREE.SphereGeometry(0.2, 7, 5), M(0xffffff, { map: melonT }), 0, 0, 0, scene); m.scale.set(1.3, 1, 1); return m; });
 
 // ---------- the car (Abu Samir's 128) + the red button + nuclear engine glow ----------
-const SC = makeSamirCar(scene); const car = SC.g; lateDraw.push(SC.late);
+const SC = makeSamirCar(scene, 1.25); const car = SC.g; lateDraw.push(SC.late);
 const carGlass = []; SC.body.children.forEach(o => { if (o.isMesh && o.position.y > 1.05) carGlass.push(o); });
-const redBtn = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 10), new THREE.MeshBasicMaterial({ color: 0xff2020 }), 0.74, 1.18, -0.12, car); redBtn.rotation.z = Math.PI / 2 - 0.4;
+const redBtn = SC.btn;
+const cabinLight = new THREE.PointLight(0xfff0d8, 0, 3.0, 1.2); cabinLight.position.set(0, 1.55, 0); car.add(cabinLight);
 const flameGrp = new THREE.Group(); flameGrp.position.set(-2.5, 0.54, 0); car.add(flameGrp);
 const carFlames = []; for (let i = 0; i < 6; i++) { const f = mesh(new THREE.ConeGeometry(0.16 - i * 0.015, 0.6 + i * 0.15, 6), new THREE.MeshBasicMaterial({ color: [0xffdd33, 0xff9a1a, 0xff5a10][i % 3], transparent: true, opacity: 0.85 - i * 0.1 }), -i * 0.18, 0, (i % 2 - 0.5) * 0.15, flameGrp); f.rotation.z = Math.PI / 2; carFlames.push(f); }
 const phoneD = new THREE.Group(); car.add(phoneD); phoneD.position.set(0.9, 1.34, -0.3); mesh(box(0.012, 0.15, 0.08), P(0x222222), 0, 0, 0, phoneD); mesh(new THREE.PlaneGeometry(0.07, 0.13), new THREE.MeshBasicMaterial({ color: 0x3df05a }), -0.007, 0, 0, phoneD).rotation.y = -Math.PI / 2;
-const SEATS = { dad: V(0.18, 0.08, -0.5), shehata: V(0.18, 0.08, 0.5), sayed: V(-1.0, 0.08, -0.25) };
+const SEATS = { dad: V(0.2, 0.14, -0.5), shehata: V(0.2, 0.14, 0.5), sayed: V(-1.05, 0.14, -0.25) };
+const SEAT_S = 0.86;
+function skirtOf(c) { return c.hips.children.find(o => o.isMesh && Math.abs(o.position.y + 0.25) < 0.01); }
 const HEADSIDE = { dad: -1, shehata: 1, sayed: -1 };
-function seatIn(c, key, extra = {}) { if (c.root.parent !== car) car.add(c.root); c.root.position.copy(SEATS[key]); c.root.rotation.set(0, Math.PI / 2, 0); return { ...POSE0, y: -0.42, lL: 1.45, lR: 1.45, aLx: 0.5, eL: 0.9, aRx: 0.5, eR: 0.9, hy: 0, ...extra }; }
-function outOf(c) { if (c.root.parent !== scene) scene.add(c.root); }
+function seatIn(c, key, extra = {}) { if (c.root.parent !== car) car.add(c.root); c.root.position.copy(SEATS[key]); c.root.rotation.set(0, Math.PI / 2, 0); c.root.scale.setScalar(SEAT_S); const sk = skirtOf(c); if (sk) { sk.scale.y = 0.22; sk.position.y = -0.04; } return { ...POSE0, y: -0.42, lL: 1.45, lR: 1.45, aLx: 0.5, eL: 0.9, aRx: 0.5, eR: 0.9, hy: 0, ...extra }; }
+function outOf(c) { if (c.root.parent !== scene) scene.add(c.root); c.root.scale.setScalar(1); const sk = skirtOf(c); if (sk) { sk.scale.y = 1; sk.position.y = -0.25; } }
 
 // ---------- ROAD (x = 400): street with shops on both sides ----------
 const RX = 400;
@@ -111,10 +114,10 @@ function stateAt(t) {
     const crashed = cp.crashed;
     let dp = seatIn(dad, 'dad', { aLx: 1.2, eL: 0.4, aRx: 1.2, eR: 0.4 }); // hands on the wheel
     if (inT(t, Lx(5).t0 - 0.2, Lx(5).t1 + 0.2)) { dp.aRx = 1.0; dp.eR = 0.9; dp.aRz = 0.5; } // covering the button
-    if (inT(t, T_BTN - 0.4, T_BTN + 0.2)) { dp.aRx = 1.3; dp.eR = 0.3; dp.aRz = 0.6; }
+    if (inT(t, T_BTN - 1.0, T_BTN + 0.3)) { const k = easeInOut(seg(t, T_BTN - 1.0, T_BTN - 0.1)); dp.aRx = lerp(1.2, 1.65, k); dp.eR = lerp(0.4, 0.05, k); dp.aRz = lerp(0, -0.45, k); dp.hy = -0.5 * k; }
     applyPose(dad, talkPose(dp, t, 'dad', 0.3));
     let de = 'smug', dm = talkMouth(t, 'dad', 'grin') || 'smile';
-    if (inT(t, Lx(5).t0 - 0.3, Lx(5).t1 + 0.3)) { de = 'side'; dm = talkMouth(t, 'dad') || 'clench'; } if (inT(t, Lx(7).t0, T_BTN + 1)) { de = 'sparkle'; dm = talkMouth(t, 'dad', 'grin') || 'grin'; }
+    if (inT(t, Lx(5).t0 - 0.3, Lx(5).t1 + 0.3)) { de = 'side'; dm = talkMouth(t, 'dad') || 'clench'; } if (inT(t, Lx(11).t0, T_BTN + 1)) { de = 'sparkle'; dm = talkMouth(t, 'dad', 'grin') || 'grin'; }
     if (ph === 'sky') { de = 'smug'; dm = talkMouth(t, 'dad', 'grin') || 'smile'; } if (crashed) { de = 'x'; dm = 'o'; }
     setFace(dad, de, dm, { stache: true });
     const scared = cp.fly || crashed;
@@ -122,10 +125,10 @@ function stateAt(t) {
     if (scared) { sp.aLz = 2.5 + Math.sin(t * 12) * 0.25; sp.aRz = 2.5 - Math.sin(t * 12) * 0.25; sp.aLx = sp.aRx = 0; sp.eL = sp.eR = 0.3; }
     applyPose(shehata, talkPose(sp, t, 'shehata', 0.3));
     setFace(shehata, scared ? 'wide' : 'angry', talkMouth(t, 'shehata', 'scream') || (scared ? 'scream' : 'frown'), { stache: true });
-    const zz = cp.fly && ph === 'sky';
+    const zz = cp.fly && ph === 'sky' && !inT(t, Lx(14).t0 - 0.3, T_LAND);
     let yp = seatIn(sayed, 'sayed', { aLx: 0.4, eL: 0.6, aRx: 0.4, eR: 0.6 }); if (inT(t, Lx(4).t0, Lx(4).t1)) { yp.aRx = 1.0; yp.eR = 0.3; yp.hx = 0.2; } if (zz || crashed) { yp.hz = 0.45; yp.hx = 0.2; }
     applyPose(sayed, talkPose(yp, t, 'sayed', 0.3));
-    setFace(sayed, zz || crashed ? 'closed' : inT(t, Lx(4).t0, Lx(4).t1) ? 'side' : 'tired', talkMouth(t, 'sayed') || ((zz || crashed) && Math.floor(t * 1.5) % 2 ? 'o' : 'smile'), { stache: true, stacheColor: '#dddddd' });
+    setFace(sayed, inT(t, Lx(14).t0 - 0.3, T_LAND) ? 'wide' : zz || crashed ? 'closed' : inT(t, Lx(4).t0, Lx(4).t1) ? 'side' : 'tired', talkMouth(t, 'sayed') || ((zz || crashed) && Math.floor(t * 1.5) % 2 ? 'o' : 'smile'), { stache: true, stacheColor: '#dddddd' });
     lapMelons.forEach((m, i) => { m.visible = !cp.fly && !crashed; if (m.visible) m.position.copy(V(0.62, 0.72 + i * 0.25, 0.5).applyMatrix4(car.matrixWorld)); });
     fallMelons.forEach((m, i) => { m.visible = ph === 'sky'; if (m.visible) { const a = ((t * 0.7 + i / 3) % 1); m.position.copy(car.position).add(V(-1 - a * 3, -a * a * 25, 1 + i * 0.4)); m.rotation.set(t * 5, t * 3, 0); } });
   } else { lapMelons.forEach(m => m.visible = false); fallMelons.forEach(m => m.visible = false); outOf(sayed); outOf(shehata); }
@@ -143,21 +146,28 @@ const phoneH = new THREE.Group(); scene.add(phoneH); mesh(box(0.08, 0.15, 0.012)
 
 function faceIn(c, side, fov = 56, far = 1) { carGlass.forEach(g => g.visible = false); const q = car.getWorldQuaternion(new THREE.Quaternion()); const r = V(0, 0, 1).applyQuaternion(q), f = V(1, 0, 0).applyQuaternion(q); const hd = headOf(c); cam(hd.clone().add(r.multiplyScalar(side * 1.25 * far)).add(f.multiplyScalar(1.1 * far)).add(V(0, 0.02, 0)), hd.clone().add(V(0, -0.1, 0)), fov); }
 function inCar(local, look, fov) { carGlass.forEach(g => g.visible = false); const p = local.clone().applyMatrix4(car.matrixWorld), l = look.clone().applyMatrix4(car.matrixWorld); cam(p, l, fov); }
+function insideCam(local, target, fov = 62) { const p = local.clone().applyMatrix4(SC.body.matrixWorld); cam(p, target, fov); }
+const CAM_DASH = V(0.66, 1.03, 0.0), CAM_MID = V(0.25, 1.2, 0.18), CAM_BACK = V(-0.5, 1.28, 0.2), CAM_BTN = V(0.18, 1.24, 0.22);
+function btnW() { return SC.btn.getWorldPosition(V(0, 0, 0)); }
+function speakerShot(t, shake2 = 0) {
+  const s = speakerAt(t) || 'dad'; const c = { dad, shehata, sayed }[s] || dad;
+  if (s === 'sayed') insideCam(CAM_MID, headOf(sayed).add(V(0, -0.08, 0)), 64); else { const sd = c === dad ? 1 : -1; insideCam(V(0.64, 1.12, sd * 0.64), headOf(c).add(V(0, -0.1, 0)), 66); }
+  if (shake2) camera.position.add(shake(t, shake2));
+}
 function shotAt(t) {
-  const ph = phase(t); carGlass.forEach(g => g.visible = true);
+  const ph = phase(t); carGlass.forEach(g => g.visible = true); cabinLight.intensity = 0;
   if (t < T_RW + 0.6) { const c = car.position; cam(c.clone().add(V(-4.5, 1.6, 4.2)).add(shake(t, 0.05)), c.clone().add(V(0.5, 0.6, 0)), 60); return; }
   if (ph === 'home') { if (speakerAt(t) === 'dad') faceCam(dad, 1.9, -0.35, 0.05, 58, 0.3); else faceCam(mom, 1.9, 0.35, 0.05, 58, 0.3); return; }
   if (ph === 'road') {
     if (t < Lx(4).t0 + 0.2) { const c = car.position; const k = easeOut(seg(t, T_ROAD, Lx(4).t0 + 0.2)); cam(c.clone().add(VL(V(6, 2.5, 5), V(4, 1.6, 3.6), k)), c.clone().add(V(0, 0.8, 0)), 60); return; }
-    if (t < Lx(5).t0 - 0.1) { faceIn(sayed, -1, 54); return; }   // Sayed in the back seat
-    if (t < Lx(6).t0 - 0.1) { faceIn(dad, -1); return; }  // Ibrahim
-    if (t < Lx(7).t0 - 0.1) { faceIn(shehata, 1); return; } // Shehata + melons
-    if (t < T_BTN) { faceIn(dad, -1); return; }
+    cabinLight.intensity = 1.4;
+    if (t < T_BTN - 1.0) { speakerShot(t); return; }
+    if (t < T_BTN - 0.25) { insideCam(CAM_BACK, btnW().add(V(-0.15, 0.05, 0)), 58); return; }   // over the shoulder: Ibrahim reaches for the button
+    if (t < T_BTN + 0.45) { insideCam(CAM_BTN, btnW().add(V(-0.05, 0, 0)), 56); camera.position.add(shake(t, t > T_BTN ? 0.02 : 0)); return; } // the finger on the button
     const c = car.position; cam(V(c.x - 6, 1.4, 4.5), c.clone().add(V(0, 0.6, 0)), 62); return;
   }
   if (ph === 'sky') {
-    if (t < Lx(9).t0 - 0.1) { faceIn(shehata, 1, 64, 1.5); camera.position.add(shake(t, 0.02)); return; }
-    if (t < T_ANNO) { faceIn(dad, -1, 64, 1.5); return; }
+    if (t < T_ANNO) { cabinLight.intensity = 1.4; speakerShot(t, speakerAt(t) === 'shehata' ? 0.02 : 0); return; }
     const c = car.position; cam(c.clone().add(V(-5, 2, 6)), c.clone().add(V(1, 0, 0)), 62); return;
   }
   // market
@@ -200,5 +210,6 @@ window.renderFrame = function (t) {
   return true;
 };
 window.frameData = () => out.toDataURL('image/png');
+window.fitTest = (side) => { stateAt(12); carGlass.forEach(g => g.visible = true); const c = car.position; const views = [V(0.2, 1.4, 7.0), V(7.5, 1.4, 0.2), V(-2.5, 3.2, 5.5)]; cam(c.clone().add(views[side]), c.clone().add(V(-0.2, 0.9, 0)), 50); renderer.render(scene, camera); ctx.clearRect(0, 0, W, H); ctx.drawImage(glCanvas, 0, 0); return out.toDataURL('image/png'); };
 window.DUR = DUR;
 document.fonts.load('10px PS2P').then(() => document.fonts.load('20px Lalezar', 'ع')).then(() => document.fonts.load('700 20px ReemKufi', 'ع')).then(() => { lateDraw.forEach(f => f()); window.READY = true; });

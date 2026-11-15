@@ -12,3 +12,12 @@ Use `samir_car.js` → `makeSamirCar(parent)` in every episode with the car. It 
 - **Gags available:**
   - The hood opens (`hood.rotation.z`), and the engine bay has duct-taped wiring.
   - The headlamps "cry": emit sweat drops from the lamp positions.
+
+## Interior («صالون», added in «أوبر إبراهيم»)
+The cabin is fully modelled:
+- Burgundy velour seats with gold dots, a rear bench and a rug floor.
+- A dashboard with two gauges, a green radio and a wood strip.
+- A steering wheel and column, a gear stick, burgundy door panels and a beige headliner with colourful tassels.
+- Prayer beads on the mirror and a fluffy pink tissue box on the rear shelf.
+- **THE RED BUTTON** (returned as `SC.btn`): a red dome on a yellow/black hazard plate on the dashboard top, with a «ممنوع اللمس» label.
+For seated passengers, use `SEATS` + `seatIn()` from `docs/briefs/uber-src/ep24.js`. It scales characters to 0.86 and shortens galabiya skirts while they sit. For in-car shots, use `insideCam()` with cameras from the dashboard corners (`CAM_*`). Hide the roof meshes only for exterior close-ups.

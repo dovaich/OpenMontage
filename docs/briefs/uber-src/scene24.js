@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 
 const W = 540, H = 960;
-const DUR = 36.0;
+const DUR = 52.9;
 const T_IMPACT = 999;
 
 // ---------- utils ----------
@@ -628,9 +628,51 @@ function makeSamirCar(parent, scale = 1.2) {
   mesh(box(0.7, 0.12, 1.1), M(0x2a2a2a), 0, 0, 0, bay); mesh(box(0.45, 0.16, 0.5), M(0x555555), -0.05, 0.1, 0, bay);
   const wires = []; for (let i = 0; i < 5; i++) wires.push(mesh(box(0.6, 0.025, 0.025), M([0xd8231b, 0xffd400, 0x1f5fd8, 0x3df05a, 0xffffff][i]), 0, 0.2, -0.3 + i * 0.15, bay));
   for (let i = 0; i < 3; i++) mesh(box(0.07, 0.04, 0.8), P(0xc9ccd1), -0.15 + i * 0.15, 0.22, 0, bay);
+  // ===== interior («صالون»): velour seats, dashboard, wheel, door panels, headliner with tassels =====
+  const D2 = (c, o = {}) => new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide, flatShading: true, ...o });
+  const velour = canvasTex(32, 32, (c) => { c.fillStyle = '#8a1a24'; c.fillRect(0, 0, 32, 32); c.fillStyle = '#b02a36'; for (let y = 0; y < 32; y += 8) c.fillRect(0, y, 32, 4); c.fillStyle = '#e8c070'; for (let x = 2; x < 32; x += 8) for (let y = 2; y < 32; y += 8) c.fillRect(x, y, 2, 2); }, [2, 2]);
+  const velM = new THREE.MeshLambertMaterial({ map: velour, flatShading: true });
+  const rug = canvasTex(32, 32, (c) => { c.fillStyle = '#3a2a22'; c.fillRect(0, 0, 32, 32); c.fillStyle = '#c8a040'; c.fillRect(0, 0, 32, 2); c.fillRect(0, 30, 32, 2); c.fillStyle = '#7a2a2a'; for (let i = 4; i < 32; i += 8) c.fillRect(i, 6, 3, 20); }, [3, 2]);
+  const floorI = mesh(new THREE.PlaneGeometry(2.3, 1.6), new THREE.MeshLambertMaterial({ map: rug, side: THREE.DoubleSide }), -0.2, 0.36, 0, g); floorI.rotation.x = -Math.PI / 2;
+  for (const z of [-0.4, 0.4]) { // front bucket seats
+    mesh(box(0.5, 0.1, 0.46), velM, 0.1, 0.36, z, g);
+    const bk = mesh(box(0.1, 0.55, 0.46), velM, -0.27, 0.66, z, g); bk.rotation.z = 0.12;
+    mesh(box(0.08, 0.16, 0.26), velM, -0.31, 1.02, z, g);
+  }
+  mesh(box(0.5, 0.1, 1.5), velM, -0.84, 0.36, 0, g); // rear bench
+  const rb = mesh(box(0.1, 0.55, 1.5), velM, -1.14, 0.66, 0, g); rb.rotation.z = 0.12;
+  mesh(box(0.2, 0.05, 1.5), D2(0x2a1a14), -1.26, 0.9, 0, g); // rear shelf
+  const tissue = new THREE.Group(); tissue.position.set(-1.25, 0.97, 0.45); g.add(tissue); mesh(box(0.18, 0.09, 0.11), M(0xff6ab0), 0, 0, 0, tissue); for (let i = 0; i < 10; i++) mesh(new THREE.IcosahedronGeometry(0.03, 0), M(0xffb0d8), -0.08 + (i % 5) * 0.04, 0.05, -0.04 + Math.floor(i / 5) * 0.08, tissue);
+  // dashboard
+  mesh(box(0.28, 0.24, 1.62), D2(0x2a1a14), 0.7, 0.8, 0, g);
+  mesh(box(0.3, 0.04, 1.64), D2(0x161010), 0.7, 0.93, 0, g);
+  mesh(box(0.02, 0.06, 1.4), D2(0x8a5a2b), 0.555, 0.78, 0, g); // wood strip
+  const gauge = canvasTex(32, 32, (c) => { c.fillStyle = '#111'; c.fillRect(0, 0, 32, 32); c.strokeStyle = '#eee'; c.lineWidth = 2; c.beginPath(); c.arc(16, 16, 13, 0, 7); c.stroke(); c.fillStyle = '#ff3a2a'; c.save(); c.translate(16, 16); c.rotate(0.8); c.fillRect(-1, -11, 2, 11); c.restore(); for (let i = 0; i < 8; i++) { c.save(); c.translate(16, 16); c.rotate(i * 0.7 - 2.4); c.fillStyle = '#eee'; c.fillRect(-0.5, -13, 1, 3); c.restore(); } });
+  for (const z of [-0.5, -0.3]) { const gg = mesh(new THREE.CircleGeometry(0.075, 14), new THREE.MeshBasicMaterial({ map: gauge }), 0.554, 0.86, z, g); gg.rotation.y = -Math.PI / 2; }
+  const radioT = canvasTex(32, 16, (c) => { c.fillStyle = '#222'; c.fillRect(0, 0, 32, 16); c.fillStyle = '#3df05a'; c.fillRect(4, 4, 14, 5); c.fillStyle = '#bbb'; c.fillRect(22, 4, 6, 6); });
+  const rad = mesh(new THREE.PlaneGeometry(0.26, 0.12), new THREE.MeshBasicMaterial({ map: radioT }), 0.554, 0.79, 0.12, g); rad.rotation.y = -Math.PI / 2;
+  // steering wheel + column
+  const wheelG = new THREE.Group(); wheelG.position.set(0.42, 0.88, -0.4); wheelG.rotation.set(0, Math.PI / 2, 0.45); g.add(wheelG);
+  mesh(new THREE.TorusGeometry(0.17, 0.025, 6, 16), D2(0x111111), 0, 0, 0, wheelG); for (let k = 0; k < 3; k++) mesh(box(0.02, 0.17, 0.02), D2(0x222222), 0, 0.08, 0, wheelG).rotation.z = k * 2.09;
+  const col = mesh(cyl(0.03, 0.03, 0.3, 6), D2(0x222222), 0.55, 0.83, -0.4, g); col.rotation.z = Math.PI / 2 - 0.45;
+  // gear stick
+  mesh(cyl(0.015, 0.02, 0.3, 6), D2(0x333333), 0.38, 0.5, 0.0, g); mesh(new THREE.SphereGeometry(0.04, 8, 6), P(0x111111, { shininess: 120 }), 0.38, 0.66, 0.0, g);
+  // THE RED BUTTON on the dashboard top, with a yellow/black hazard plate and a warning label
+  const hazard = canvasTex(16, 16, (c) => { c.fillStyle = '#ffd400'; c.fillRect(0, 0, 16, 16); c.fillStyle = '#111'; for (let i = -16; i < 32; i += 6) { c.beginPath(); c.moveTo(i, 0); c.lineTo(i + 3, 0); c.lineTo(i + 3 - 16, 16); c.lineTo(i - 16, 16); c.fill(); } });
+  mesh(box(0.2, 0.02, 0.2), new THREE.MeshLambertMaterial({ map: hazard }), 0.66, 0.96, 0.02, g);
+  const btn = mesh(new THREE.SphereGeometry(0.075, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff2020 }), 0.66, 0.97, 0.02, g);
+  const warnT = canvasTex(64, 20, (c) => { c.fillStyle = '#d8231b'; c.fillRect(0, 0, 64, 20); });
+  const warn = mesh(new THREE.PlaneGeometry(0.34, 0.1), new THREE.MeshBasicMaterial({ map: warnT }), 0.554, 0.9, 0.02, g); warn.rotation.y = -Math.PI / 2;
+  // door panels + headliner + tassels + mirror with prayer beads
+  for (const sz of [-1, 1]) mesh(new THREE.PlaneGeometry(2.0, 0.5), D2(0x5a1a20), -0.2, 0.64, sz * (Wd / 2 - 0.03), g);
+  const head = mesh(new THREE.PlaneGeometry(2.0, 1.6), D2(0xd8ccb0), -0.2, 1.37, 0, g); head.rotation.x = Math.PI / 2;
+  for (let i = 0; i < 16; i++) mesh(new THREE.ConeGeometry(0.025, 0.08, 4), M([0xffd400, 0xd8231b, 0x1f9e5a][i % 3]), 0.72, 1.31, -0.75 + i * 0.1, g).rotation.x = Math.PI;
+  mesh(box(0.03, 0.06, 0.22), P(0x222222), 0.74, 1.27, 0.05, g);
+  for (let i = 0; i < 9; i++) { const a = i / 8 * Math.PI; mesh(new THREE.SphereGeometry(0.014, 5, 4), P(0x1fae8a, { shininess: 80 }), 0.72, 1.2 - Math.sin(a) * 0.14, 0.05 + Math.cos(a) * 0.06, g); }
   const late = () => { const c1 = plateT.userData.g; c1.fillStyle = '#f0f0f0'; c1.fillRect(0, 5, 64, 15); c1.fillStyle = '#111'; c1.font = '12px Lalezar'; c1.textAlign = 'center'; c1.textBaseline = 'middle'; c1.direction = 'rtl'; c1.fillText('س م ر ١٩٨٠', 32, 13); plateT.needsUpdate = true;
-    const c2 = stickT.userData.g; c2.fillStyle = '#d8231b'; c2.fillRect(0, 0, 64, 20); c2.fillStyle = '#ffe14a'; c2.font = '13px Lalezar'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.direction = 'rtl'; c2.fillText('ما شاء الله', 32, 11); stickT.needsUpdate = true; };
-  return { g: root, body: g, scale, hood, bay, wires, wheels, lamps, late, L: L * scale, Wd: Wd * scale };
+    const c2 = stickT.userData.g; c2.fillStyle = '#d8231b'; c2.fillRect(0, 0, 64, 20); c2.fillStyle = '#ffe14a'; c2.font = '13px Lalezar'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.direction = 'rtl'; c2.fillText('ما شاء الله', 32, 11); stickT.needsUpdate = true;
+    const c3 = warnT.userData.g; c3.fillStyle = '#d8231b'; c3.fillRect(0, 0, 64, 20); c3.fillStyle = '#fff'; c3.font = '13px Lalezar'; c3.textAlign = 'center'; c3.textBaseline = 'middle'; c3.direction = 'rtl'; c3.fillText('ممنوع اللمس', 32, 11); warnT.needsUpdate = true; };
+  return { g: root, body: g, scale, btn, wheelG, hood, bay, wires, wheels, lamps, late, L: L * scale, Wd: Wd * scale };
 }
 
 // =====================================================================
@@ -779,7 +821,7 @@ function drawDialogueV(g, t) {
 room.visible = true;
 const lateDraw = [];
 const Lx = (i) => LINES[i - 1];
-const T_RW = Lx(1).t1 + 0.15, T_HOOK = T_RW + 0.6, T_ROAD = Lx(4).t0 - 0.6, T_BTN = Lx(7).t1 - 0.25, T_LAND = Lx(10).t0 + 0.6, T_ANNO = Lx(10).t0;
+const T_RW = Lx(1).t1 + 0.15, T_HOOK = T_RW + 0.6, T_ROAD = Lx(4).t0 - 0.6, T_BTN = Lx(11).t1 - 0.25, T_LAND = Lx(15).t0 + 0.6, T_ANNO = Lx(15).t0;
 function phase(t) { return t < T_RW + 0.6 ? 'sky' : t < T_ROAD ? 'home' : t < T_BTN + 1.2 ? 'road' : t < T_LAND - 1.0 ? 'sky' : 'market'; }
 
 // ---------- passengers ----------
@@ -800,16 +842,19 @@ const lapMelons = [0, 1].map(i => { const m = mesh(new THREE.SphereGeometry(0.2,
 const fallMelons = [0, 1, 2].map(i => { const m = mesh(new THREE.SphereGeometry(0.2, 7, 5), M(0xffffff, { map: melonT }), 0, 0, 0, scene); m.scale.set(1.3, 1, 1); return m; });
 
 // ---------- the car (Abu Samir's 128) + the red button + nuclear engine glow ----------
-const SC = makeSamirCar(scene); const car = SC.g; lateDraw.push(SC.late);
+const SC = makeSamirCar(scene, 1.25); const car = SC.g; lateDraw.push(SC.late);
 const carGlass = []; SC.body.children.forEach(o => { if (o.isMesh && o.position.y > 1.05) carGlass.push(o); });
-const redBtn = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 10), new THREE.MeshBasicMaterial({ color: 0xff2020 }), 0.74, 1.18, -0.12, car); redBtn.rotation.z = Math.PI / 2 - 0.4;
+const redBtn = SC.btn;
+const cabinLight = new THREE.PointLight(0xfff0d8, 0, 3.0, 1.2); cabinLight.position.set(0, 1.55, 0); car.add(cabinLight);
 const flameGrp = new THREE.Group(); flameGrp.position.set(-2.5, 0.54, 0); car.add(flameGrp);
 const carFlames = []; for (let i = 0; i < 6; i++) { const f = mesh(new THREE.ConeGeometry(0.16 - i * 0.015, 0.6 + i * 0.15, 6), new THREE.MeshBasicMaterial({ color: [0xffdd33, 0xff9a1a, 0xff5a10][i % 3], transparent: true, opacity: 0.85 - i * 0.1 }), -i * 0.18, 0, (i % 2 - 0.5) * 0.15, flameGrp); f.rotation.z = Math.PI / 2; carFlames.push(f); }
 const phoneD = new THREE.Group(); car.add(phoneD); phoneD.position.set(0.9, 1.34, -0.3); mesh(box(0.012, 0.15, 0.08), P(0x222222), 0, 0, 0, phoneD); mesh(new THREE.PlaneGeometry(0.07, 0.13), new THREE.MeshBasicMaterial({ color: 0x3df05a }), -0.007, 0, 0, phoneD).rotation.y = -Math.PI / 2;
-const SEATS = { dad: V(0.18, 0.08, -0.5), shehata: V(0.18, 0.08, 0.5), sayed: V(-1.0, 0.08, -0.25) };
+const SEATS = { dad: V(0.2, 0.14, -0.5), shehata: V(0.2, 0.14, 0.5), sayed: V(-1.05, 0.14, -0.25) };
+const SEAT_S = 0.86;
+function skirtOf(c) { return c.hips.children.find(o => o.isMesh && Math.abs(o.position.y + 0.25) < 0.01); }
 const HEADSIDE = { dad: -1, shehata: 1, sayed: -1 };
-function seatIn(c, key, extra = {}) { if (c.root.parent !== car) car.add(c.root); c.root.position.copy(SEATS[key]); c.root.rotation.set(0, Math.PI / 2, 0); return { ...POSE0, y: -0.42, lL: 1.45, lR: 1.45, aLx: 0.5, eL: 0.9, aRx: 0.5, eR: 0.9, hy: 0, ...extra }; }
-function outOf(c) { if (c.root.parent !== scene) scene.add(c.root); }
+function seatIn(c, key, extra = {}) { if (c.root.parent !== car) car.add(c.root); c.root.position.copy(SEATS[key]); c.root.rotation.set(0, Math.PI / 2, 0); c.root.scale.setScalar(SEAT_S); const sk = skirtOf(c); if (sk) { sk.scale.y = 0.22; sk.position.y = -0.04; } return { ...POSE0, y: -0.42, lL: 1.45, lR: 1.45, aLx: 0.5, eL: 0.9, aRx: 0.5, eR: 0.9, hy: 0, ...extra }; }
+function outOf(c) { if (c.root.parent !== scene) scene.add(c.root); c.root.scale.setScalar(1); const sk = skirtOf(c); if (sk) { sk.scale.y = 1; sk.position.y = -0.25; } }
 
 // ---------- ROAD (x = 400): street with shops on both sides ----------
 const RX = 400;
@@ -885,10 +930,10 @@ function stateAt(t) {
     const crashed = cp.crashed;
     let dp = seatIn(dad, 'dad', { aLx: 1.2, eL: 0.4, aRx: 1.2, eR: 0.4 }); // hands on the wheel
     if (inT(t, Lx(5).t0 - 0.2, Lx(5).t1 + 0.2)) { dp.aRx = 1.0; dp.eR = 0.9; dp.aRz = 0.5; } // covering the button
-    if (inT(t, T_BTN - 0.4, T_BTN + 0.2)) { dp.aRx = 1.3; dp.eR = 0.3; dp.aRz = 0.6; }
+    if (inT(t, T_BTN - 1.0, T_BTN + 0.3)) { const k = easeInOut(seg(t, T_BTN - 1.0, T_BTN - 0.1)); dp.aRx = lerp(1.2, 1.65, k); dp.eR = lerp(0.4, 0.05, k); dp.aRz = lerp(0, -0.45, k); dp.hy = -0.5 * k; }
     applyPose(dad, talkPose(dp, t, 'dad', 0.3));
     let de = 'smug', dm = talkMouth(t, 'dad', 'grin') || 'smile';
-    if (inT(t, Lx(5).t0 - 0.3, Lx(5).t1 + 0.3)) { de = 'side'; dm = talkMouth(t, 'dad') || 'clench'; } if (inT(t, Lx(7).t0, T_BTN + 1)) { de = 'sparkle'; dm = talkMouth(t, 'dad', 'grin') || 'grin'; }
+    if (inT(t, Lx(5).t0 - 0.3, Lx(5).t1 + 0.3)) { de = 'side'; dm = talkMouth(t, 'dad') || 'clench'; } if (inT(t, Lx(11).t0, T_BTN + 1)) { de = 'sparkle'; dm = talkMouth(t, 'dad', 'grin') || 'grin'; }
     if (ph === 'sky') { de = 'smug'; dm = talkMouth(t, 'dad', 'grin') || 'smile'; } if (crashed) { de = 'x'; dm = 'o'; }
     setFace(dad, de, dm, { stache: true });
     const scared = cp.fly || crashed;
@@ -896,10 +941,10 @@ function stateAt(t) {
     if (scared) { sp.aLz = 2.5 + Math.sin(t * 12) * 0.25; sp.aRz = 2.5 - Math.sin(t * 12) * 0.25; sp.aLx = sp.aRx = 0; sp.eL = sp.eR = 0.3; }
     applyPose(shehata, talkPose(sp, t, 'shehata', 0.3));
     setFace(shehata, scared ? 'wide' : 'angry', talkMouth(t, 'shehata', 'scream') || (scared ? 'scream' : 'frown'), { stache: true });
-    const zz = cp.fly && ph === 'sky';
+    const zz = cp.fly && ph === 'sky' && !inT(t, Lx(14).t0 - 0.3, T_LAND);
     let yp = seatIn(sayed, 'sayed', { aLx: 0.4, eL: 0.6, aRx: 0.4, eR: 0.6 }); if (inT(t, Lx(4).t0, Lx(4).t1)) { yp.aRx = 1.0; yp.eR = 0.3; yp.hx = 0.2; } if (zz || crashed) { yp.hz = 0.45; yp.hx = 0.2; }
     applyPose(sayed, talkPose(yp, t, 'sayed', 0.3));
-    setFace(sayed, zz || crashed ? 'closed' : inT(t, Lx(4).t0, Lx(4).t1) ? 'side' : 'tired', talkMouth(t, 'sayed') || ((zz || crashed) && Math.floor(t * 1.5) % 2 ? 'o' : 'smile'), { stache: true, stacheColor: '#dddddd' });
+    setFace(sayed, inT(t, Lx(14).t0 - 0.3, T_LAND) ? 'wide' : zz || crashed ? 'closed' : inT(t, Lx(4).t0, Lx(4).t1) ? 'side' : 'tired', talkMouth(t, 'sayed') || ((zz || crashed) && Math.floor(t * 1.5) % 2 ? 'o' : 'smile'), { stache: true, stacheColor: '#dddddd' });
     lapMelons.forEach((m, i) => { m.visible = !cp.fly && !crashed; if (m.visible) m.position.copy(V(0.62, 0.72 + i * 0.25, 0.5).applyMatrix4(car.matrixWorld)); });
     fallMelons.forEach((m, i) => { m.visible = ph === 'sky'; if (m.visible) { const a = ((t * 0.7 + i / 3) % 1); m.position.copy(car.position).add(V(-1 - a * 3, -a * a * 25, 1 + i * 0.4)); m.rotation.set(t * 5, t * 3, 0); } });
   } else { lapMelons.forEach(m => m.visible = false); fallMelons.forEach(m => m.visible = false); outOf(sayed); outOf(shehata); }
@@ -917,21 +962,28 @@ const phoneH = new THREE.Group(); scene.add(phoneH); mesh(box(0.08, 0.15, 0.012)
 
 function faceIn(c, side, fov = 56, far = 1) { carGlass.forEach(g => g.visible = false); const q = car.getWorldQuaternion(new THREE.Quaternion()); const r = V(0, 0, 1).applyQuaternion(q), f = V(1, 0, 0).applyQuaternion(q); const hd = headOf(c); cam(hd.clone().add(r.multiplyScalar(side * 1.25 * far)).add(f.multiplyScalar(1.1 * far)).add(V(0, 0.02, 0)), hd.clone().add(V(0, -0.1, 0)), fov); }
 function inCar(local, look, fov) { carGlass.forEach(g => g.visible = false); const p = local.clone().applyMatrix4(car.matrixWorld), l = look.clone().applyMatrix4(car.matrixWorld); cam(p, l, fov); }
+function insideCam(local, target, fov = 62) { const p = local.clone().applyMatrix4(SC.body.matrixWorld); cam(p, target, fov); }
+const CAM_DASH = V(0.66, 1.03, 0.0), CAM_MID = V(0.25, 1.2, 0.18), CAM_BACK = V(-0.5, 1.28, 0.2), CAM_BTN = V(0.18, 1.24, 0.22);
+function btnW() { return SC.btn.getWorldPosition(V(0, 0, 0)); }
+function speakerShot(t, shake2 = 0) {
+  const s = speakerAt(t) || 'dad'; const c = { dad, shehata, sayed }[s] || dad;
+  if (s === 'sayed') insideCam(CAM_MID, headOf(sayed).add(V(0, -0.08, 0)), 64); else { const sd = c === dad ? 1 : -1; insideCam(V(0.64, 1.12, sd * 0.64), headOf(c).add(V(0, -0.1, 0)), 66); }
+  if (shake2) camera.position.add(shake(t, shake2));
+}
 function shotAt(t) {
-  const ph = phase(t); carGlass.forEach(g => g.visible = true);
+  const ph = phase(t); carGlass.forEach(g => g.visible = true); cabinLight.intensity = 0;
   if (t < T_RW + 0.6) { const c = car.position; cam(c.clone().add(V(-4.5, 1.6, 4.2)).add(shake(t, 0.05)), c.clone().add(V(0.5, 0.6, 0)), 60); return; }
   if (ph === 'home') { if (speakerAt(t) === 'dad') faceCam(dad, 1.9, -0.35, 0.05, 58, 0.3); else faceCam(mom, 1.9, 0.35, 0.05, 58, 0.3); return; }
   if (ph === 'road') {
     if (t < Lx(4).t0 + 0.2) { const c = car.position; const k = easeOut(seg(t, T_ROAD, Lx(4).t0 + 0.2)); cam(c.clone().add(VL(V(6, 2.5, 5), V(4, 1.6, 3.6), k)), c.clone().add(V(0, 0.8, 0)), 60); return; }
-    if (t < Lx(5).t0 - 0.1) { faceIn(sayed, -1, 54); return; }   // Sayed in the back seat
-    if (t < Lx(6).t0 - 0.1) { faceIn(dad, -1); return; }  // Ibrahim
-    if (t < Lx(7).t0 - 0.1) { faceIn(shehata, 1); return; } // Shehata + melons
-    if (t < T_BTN) { faceIn(dad, -1); return; }
+    cabinLight.intensity = 1.4;
+    if (t < T_BTN - 1.0) { speakerShot(t); return; }
+    if (t < T_BTN - 0.25) { insideCam(CAM_BACK, btnW().add(V(-0.15, 0.05, 0)), 58); return; }   // over the shoulder: Ibrahim reaches for the button
+    if (t < T_BTN + 0.45) { insideCam(CAM_BTN, btnW().add(V(-0.05, 0, 0)), 56); camera.position.add(shake(t, t > T_BTN ? 0.02 : 0)); return; } // the finger on the button
     const c = car.position; cam(V(c.x - 6, 1.4, 4.5), c.clone().add(V(0, 0.6, 0)), 62); return;
   }
   if (ph === 'sky') {
-    if (t < Lx(9).t0 - 0.1) { faceIn(shehata, 1, 64, 1.5); camera.position.add(shake(t, 0.02)); return; }
-    if (t < T_ANNO) { faceIn(dad, -1, 64, 1.5); return; }
+    if (t < T_ANNO) { cabinLight.intensity = 1.4; speakerShot(t, speakerAt(t) === 'shehata' ? 0.02 : 0); return; }
     const c = car.position; cam(c.clone().add(V(-5, 2, 6)), c.clone().add(V(1, 0, 0)), 62); return;
   }
   // market
@@ -974,5 +1026,6 @@ window.renderFrame = function (t) {
   return true;
 };
 window.frameData = () => out.toDataURL('image/png');
+window.fitTest = (side) => { stateAt(12); carGlass.forEach(g => g.visible = true); const c = car.position; const views = [V(0.2, 1.4, 7.0), V(7.5, 1.4, 0.2), V(-2.5, 3.2, 5.5)]; cam(c.clone().add(views[side]), c.clone().add(V(-0.2, 0.9, 0)), 50); renderer.render(scene, camera); ctx.clearRect(0, 0, W, H); ctx.drawImage(glCanvas, 0, 0); return out.toDataURL('image/png'); };
 window.DUR = DUR;
 document.fonts.load('10px PS2P').then(() => document.fonts.load('20px Lalezar', 'ع')).then(() => document.fonts.load('700 20px ReemKufi', 'ع')).then(() => { lateDraw.forEach(f => f()); window.READY = true; });

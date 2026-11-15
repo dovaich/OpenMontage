@@ -5,7 +5,7 @@ import sys, wave, json
 import numpy as np
 
 SR = 44100
-ANC = [[0, 0], [36.0, 36.0]]
+ANC = [[0, 0], [52.9, 52.9]]
 def W(o):  # scene (old) time -> output time
     for (n0, o0), (n1, o1) in zip(ANC, ANC[1:]):
         if o <= o1: return n0 + (o - o0) * (n1 - n0) / max(1e-6, o1 - o0)
@@ -47,7 +47,7 @@ music = np.zeros(N); sfx = np.zeros(N); amb = np.zeros(N)
 r = np.random.RandomState(24)
 def jingle(t0, notes, step=0.07, g=0.08):
     for j, m in enumerate(notes): put(sfx, sq(note(m), 0.1, 0.25) * env_adsr(int(0.1 * SR)), t0 + j * step, g)
-T_RW = 3.05; T_HOOK = T_RW + 0.6; T_ROAD = 10.23; T_BTN = 20.62; T_LAND = 29.150000000000002
+T_RW = 3.05; T_HOOK = T_RW + 0.6; T_ROAD = 10.23; T_BTN = 32.83; T_LAND = 45.96
 def wind(a, b, g): tb = tt(b - a); put(amb, lp(noise(b - a), 0.04) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.5 * tb)), a, g)
 def roar(a, b, g): tb = tt(b - a); put(sfx, lp(noise(b - a), 0.25) * np.minimum(1, tb * 3), a, g)
 wind(0.0, T_RW + 0.3, 0.5); roar(0.0, T_RW + 0.3, 0.25)
@@ -66,6 +66,8 @@ while x < T_BTN:
     put(music, tri(note([45, 45, 48, 50][(i // 8) % 4]), step * 0.9) * env_adsr(int(step * 0.9 * SR)), x, 0.09, True)
     if i % 4 == 2: put(music, pluck(note([69, 72, 76][(i // 4) % 3]), 0.4), x, 0.07, True)
     x += step; i += 1
+# button click (finger close-up)
+put(sfx, lp(noise(0.04), 0.9) * np.exp(-tt(0.04) * 120), T_BTN - 0.02, 0.5)
 # red button: beep + rocket ignition + roar + whistle up
 for j, m in enumerate([88, 91]): put(sfx, sq(note(m), 0.08, 0.5) * env_adsr(int(0.08 * SR)), T_BTN - 0.2 + j * 0.1, 0.06)
 d = 1.2; tb = tt(d); put(sfx, np.sin(2 * np.pi * np.cumsum(np.linspace(90, 30, len(tb))) / SR) * np.exp(-tb * 3) + lp(noise(d), 0.15) * np.exp(-tb * 2), T_BTN, 0.8)
@@ -76,8 +78,8 @@ while x < T_LAND - 0.5: put(music, sq(note([72, 76, 79, 84, 79, 76][i % 6]), ste
 d = 1.4; tb = tt(d); put(sfx, np.sin(2 * np.pi * np.cumsum(np.linspace(80, 28, len(tb))) / SR) * np.exp(-tb * 2.5) + lp(noise(d), 0.12) * np.exp(-tb * 2.2), T_LAND, 0.9)
 for j in range(9): put(sfx, lp(noise(0.12), 0.2) * np.exp(-tt(0.12) * 25), T_LAND + 0.1 + j * 0.13 + r.rand() * 0.06, 0.35)
 # rating dropping: descending beeps
-for j in range(4): put(sfx, sq(note(76 - j * 4), 0.12, 0.5) * env_adsr(int(0.12 * SR)), 28.55 + 0.2 + j * 0.33, 0.06)
-for j, m in enumerate([74, 75, 78, 79]): put(sfx, pluck(note(m), 0.6), 33.1 + j * 0.16, 0.16, True)
+for j in range(4): put(sfx, sq(note(76 - j * 4), 0.12, 0.5) * env_adsr(int(0.12 * SR)), 45.36 + 0.2 + j * 0.33, 0.06)
+for j, m in enumerate([74, 75, 78, 79]): put(sfx, pluck(note(m), 0.6), 50.0 + j * 0.16, 0.16, True)
 # ---------- mix with ducking ----------
 w = wave.open(sys.argv[1]); dia = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float64) / 32768
 dia = np.pad(dia, (0, max(0, N - len(dia))))[:N]

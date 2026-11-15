@@ -57,7 +57,49 @@ function makeSamirCar(parent, scale = 1.2) {
   mesh(box(0.7, 0.12, 1.1), M(0x2a2a2a), 0, 0, 0, bay); mesh(box(0.45, 0.16, 0.5), M(0x555555), -0.05, 0.1, 0, bay);
   const wires = []; for (let i = 0; i < 5; i++) wires.push(mesh(box(0.6, 0.025, 0.025), M([0xd8231b, 0xffd400, 0x1f5fd8, 0x3df05a, 0xffffff][i]), 0, 0.2, -0.3 + i * 0.15, bay));
   for (let i = 0; i < 3; i++) mesh(box(0.07, 0.04, 0.8), P(0xc9ccd1), -0.15 + i * 0.15, 0.22, 0, bay);
+  // ===== interior («صالون»): velour seats, dashboard, wheel, door panels, headliner with tassels =====
+  const D2 = (c, o = {}) => new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide, flatShading: true, ...o });
+  const velour = canvasTex(32, 32, (c) => { c.fillStyle = '#8a1a24'; c.fillRect(0, 0, 32, 32); c.fillStyle = '#b02a36'; for (let y = 0; y < 32; y += 8) c.fillRect(0, y, 32, 4); c.fillStyle = '#e8c070'; for (let x = 2; x < 32; x += 8) for (let y = 2; y < 32; y += 8) c.fillRect(x, y, 2, 2); }, [2, 2]);
+  const velM = new THREE.MeshLambertMaterial({ map: velour, flatShading: true });
+  const rug = canvasTex(32, 32, (c) => { c.fillStyle = '#3a2a22'; c.fillRect(0, 0, 32, 32); c.fillStyle = '#c8a040'; c.fillRect(0, 0, 32, 2); c.fillRect(0, 30, 32, 2); c.fillStyle = '#7a2a2a'; for (let i = 4; i < 32; i += 8) c.fillRect(i, 6, 3, 20); }, [3, 2]);
+  const floorI = mesh(new THREE.PlaneGeometry(2.3, 1.6), new THREE.MeshLambertMaterial({ map: rug, side: THREE.DoubleSide }), -0.2, 0.36, 0, g); floorI.rotation.x = -Math.PI / 2;
+  for (const z of [-0.4, 0.4]) { // front bucket seats
+    mesh(box(0.5, 0.1, 0.46), velM, 0.1, 0.36, z, g);
+    const bk = mesh(box(0.1, 0.55, 0.46), velM, -0.27, 0.66, z, g); bk.rotation.z = 0.12;
+    mesh(box(0.08, 0.16, 0.26), velM, -0.31, 1.02, z, g);
+  }
+  mesh(box(0.5, 0.1, 1.5), velM, -0.84, 0.36, 0, g); // rear bench
+  const rb = mesh(box(0.1, 0.55, 1.5), velM, -1.14, 0.66, 0, g); rb.rotation.z = 0.12;
+  mesh(box(0.2, 0.05, 1.5), D2(0x2a1a14), -1.26, 0.9, 0, g); // rear shelf
+  const tissue = new THREE.Group(); tissue.position.set(-1.25, 0.97, 0.45); g.add(tissue); mesh(box(0.18, 0.09, 0.11), M(0xff6ab0), 0, 0, 0, tissue); for (let i = 0; i < 10; i++) mesh(new THREE.IcosahedronGeometry(0.03, 0), M(0xffb0d8), -0.08 + (i % 5) * 0.04, 0.05, -0.04 + Math.floor(i / 5) * 0.08, tissue);
+  // dashboard
+  mesh(box(0.28, 0.24, 1.62), D2(0x2a1a14), 0.7, 0.8, 0, g);
+  mesh(box(0.3, 0.04, 1.64), D2(0x161010), 0.7, 0.93, 0, g);
+  mesh(box(0.02, 0.06, 1.4), D2(0x8a5a2b), 0.555, 0.78, 0, g); // wood strip
+  const gauge = canvasTex(32, 32, (c) => { c.fillStyle = '#111'; c.fillRect(0, 0, 32, 32); c.strokeStyle = '#eee'; c.lineWidth = 2; c.beginPath(); c.arc(16, 16, 13, 0, 7); c.stroke(); c.fillStyle = '#ff3a2a'; c.save(); c.translate(16, 16); c.rotate(0.8); c.fillRect(-1, -11, 2, 11); c.restore(); for (let i = 0; i < 8; i++) { c.save(); c.translate(16, 16); c.rotate(i * 0.7 - 2.4); c.fillStyle = '#eee'; c.fillRect(-0.5, -13, 1, 3); c.restore(); } });
+  for (const z of [-0.5, -0.3]) { const gg = mesh(new THREE.CircleGeometry(0.075, 14), new THREE.MeshBasicMaterial({ map: gauge }), 0.554, 0.86, z, g); gg.rotation.y = -Math.PI / 2; }
+  const radioT = canvasTex(32, 16, (c) => { c.fillStyle = '#222'; c.fillRect(0, 0, 32, 16); c.fillStyle = '#3df05a'; c.fillRect(4, 4, 14, 5); c.fillStyle = '#bbb'; c.fillRect(22, 4, 6, 6); });
+  const rad = mesh(new THREE.PlaneGeometry(0.26, 0.12), new THREE.MeshBasicMaterial({ map: radioT }), 0.554, 0.79, 0.12, g); rad.rotation.y = -Math.PI / 2;
+  // steering wheel + column
+  const wheelG = new THREE.Group(); wheelG.position.set(0.42, 0.88, -0.4); wheelG.rotation.set(0, Math.PI / 2, 0.45); g.add(wheelG);
+  mesh(new THREE.TorusGeometry(0.17, 0.025, 6, 16), D2(0x111111), 0, 0, 0, wheelG); for (let k = 0; k < 3; k++) mesh(box(0.02, 0.17, 0.02), D2(0x222222), 0, 0.08, 0, wheelG).rotation.z = k * 2.09;
+  const col = mesh(cyl(0.03, 0.03, 0.3, 6), D2(0x222222), 0.55, 0.83, -0.4, g); col.rotation.z = Math.PI / 2 - 0.45;
+  // gear stick
+  mesh(cyl(0.015, 0.02, 0.3, 6), D2(0x333333), 0.38, 0.5, 0.0, g); mesh(new THREE.SphereGeometry(0.04, 8, 6), P(0x111111, { shininess: 120 }), 0.38, 0.66, 0.0, g);
+  // THE RED BUTTON on the dashboard top, with a yellow/black hazard plate and a warning label
+  const hazard = canvasTex(16, 16, (c) => { c.fillStyle = '#ffd400'; c.fillRect(0, 0, 16, 16); c.fillStyle = '#111'; for (let i = -16; i < 32; i += 6) { c.beginPath(); c.moveTo(i, 0); c.lineTo(i + 3, 0); c.lineTo(i + 3 - 16, 16); c.lineTo(i - 16, 16); c.fill(); } });
+  mesh(box(0.2, 0.02, 0.2), new THREE.MeshLambertMaterial({ map: hazard }), 0.66, 0.96, 0.02, g);
+  const btn = mesh(new THREE.SphereGeometry(0.075, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff2020 }), 0.66, 0.97, 0.02, g);
+  const warnT = canvasTex(64, 20, (c) => { c.fillStyle = '#d8231b'; c.fillRect(0, 0, 64, 20); });
+  const warn = mesh(new THREE.PlaneGeometry(0.34, 0.1), new THREE.MeshBasicMaterial({ map: warnT }), 0.554, 0.9, 0.02, g); warn.rotation.y = -Math.PI / 2;
+  // door panels + headliner + tassels + mirror with prayer beads
+  for (const sz of [-1, 1]) mesh(new THREE.PlaneGeometry(2.0, 0.5), D2(0x5a1a20), -0.2, 0.64, sz * (Wd / 2 - 0.03), g);
+  const head = mesh(new THREE.PlaneGeometry(2.0, 1.6), D2(0xd8ccb0), -0.2, 1.37, 0, g); head.rotation.x = Math.PI / 2;
+  for (let i = 0; i < 16; i++) mesh(new THREE.ConeGeometry(0.025, 0.08, 4), M([0xffd400, 0xd8231b, 0x1f9e5a][i % 3]), 0.72, 1.31, -0.75 + i * 0.1, g).rotation.x = Math.PI;
+  mesh(box(0.03, 0.06, 0.22), P(0x222222), 0.74, 1.27, 0.05, g);
+  for (let i = 0; i < 9; i++) { const a = i / 8 * Math.PI; mesh(new THREE.SphereGeometry(0.014, 5, 4), P(0x1fae8a, { shininess: 80 }), 0.72, 1.2 - Math.sin(a) * 0.14, 0.05 + Math.cos(a) * 0.06, g); }
   const late = () => { const c1 = plateT.userData.g; c1.fillStyle = '#f0f0f0'; c1.fillRect(0, 5, 64, 15); c1.fillStyle = '#111'; c1.font = '12px Lalezar'; c1.textAlign = 'center'; c1.textBaseline = 'middle'; c1.direction = 'rtl'; c1.fillText('س م ر ١٩٨٠', 32, 13); plateT.needsUpdate = true;
-    const c2 = stickT.userData.g; c2.fillStyle = '#d8231b'; c2.fillRect(0, 0, 64, 20); c2.fillStyle = '#ffe14a'; c2.font = '13px Lalezar'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.direction = 'rtl'; c2.fillText('ما شاء الله', 32, 11); stickT.needsUpdate = true; };
-  return { g: root, body: g, scale, hood, bay, wires, wheels, lamps, late, L: L * scale, Wd: Wd * scale };
+    const c2 = stickT.userData.g; c2.fillStyle = '#d8231b'; c2.fillRect(0, 0, 64, 20); c2.fillStyle = '#ffe14a'; c2.font = '13px Lalezar'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.direction = 'rtl'; c2.fillText('ما شاء الله', 32, 11); stickT.needsUpdate = true;
+    const c3 = warnT.userData.g; c3.fillStyle = '#d8231b'; c3.fillRect(0, 0, 64, 20); c3.fillStyle = '#fff'; c3.font = '13px Lalezar'; c3.textAlign = 'center'; c3.textBaseline = 'middle'; c3.direction = 'rtl'; c3.fillText('ممنوع اللمس', 32, 11); warnT.needsUpdate = true; };
+  return { g: root, body: g, scale, btn, wheelG, hood, bay, wires, wheels, lamps, late, L: L * scale, Wd: Wd * scale };
 }
