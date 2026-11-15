@@ -111,6 +111,22 @@ EP = {
   ("sayed", "r4", 13.68, 17.21, 0.6, "يا ابني... هو التكييف ده بيطيّر؟", "Son... does this AC make things fly?"),
   ("anno", "r3", 0.30, 4.76, 0.6, "", "Rating: one star. Ibrahim: grounded."),
  ]),
+ "life-story": ("حكاية المخترع العالمي", 3.0, [
+  ("dad", "r1", 0.18, 3.02, 0.15, "وعشان كده... أنا عايش على البلكونة.", "And that's why... I live on the balcony."),
+  ("dad", "r1", 4.01, 11.52, 1.25, "أنا إبراهيم... اتولدت سنة خمسة وسبعين... وأول كلمة قلتها مكانتش ماما... كانت: مفك.", "I'm Ibrahim... born in '75... and my first word wasn't mama... it was: screwdriver."),
+  ("teta", "r2", 0.25, 2.48, 0.3, "يا إبراهيم! فكّيت السرير تاني؟!", "Ibrahim! You took the crib apart again?!"),
+  ("dad", "r1", 12.43, 16.82, 0.45, "في المدرسة... عملت مشروع العلوم: بركان. المدرسة اتقفلت أسبوع.", "At school... my science project: a volcano. School closed for a week."),
+  ("dad", "r1", 17.82, 20.35, 0.45, "وفي الجامعة... قابلت أحلى بنت في الدنيا.", "At university... I met the prettiest girl in the world."),
+  ("mom", "r2", 3.30, 3.90, 0.3, "إنت مين؟", "Who are you?"),
+  ("dad", "r1", 21.28, 24.16, 0.3, "أنا المخترع العالمي... وده عصير اخترعته.", "I'm the world-famous inventor... and here's a juice I invented."),
+  ("mom", "r2", 4.89, 9.34, 0.5, "إنت مجنون... بس عاجبني.", "You're crazy... but I like you."),
+  ("dad", "r1", 25.00, 28.67, 0.45, "واتجوزنا... وفي الفرح عملت أول صواريخ نووية.", "We got married... and at the wedding I made my first nuclear fireworks."),
+  ("dad", "r1", 29.50, 32.25, 0.45, "وبعدين جه حمادة... وعملتله سرير هزاز تيربو.", "Then came Hamada... and I built him a turbo rocking crib."),
+  ("dad", "r1", 33.11, 36.47, 0.4, "ومن ساعتها... وأنا بخترع... وأم حمادة بتطلّعني البلكونة.", "Ever since... I keep inventing... and Om Hamada keeps sending me to the balcony."),
+  ("mom", "r2", 10.34, 13.11, 0.4, "إبراهيم! إنت بتحكي لمين؟!", "Ibrahim! Who are you talking to?!"),
+  ("dad", "r1", 37.45, 38.48, 0.3, "للمتابعين يا حبيبتي.", "To the followers, darling."),
+  ("anno", "r3", 0.34, 6.59, 0.5, "", "Life story unlocked. Balcony years: twenty-five."),
+ ]),
 }
 P0 = "/home/user/OpenMontage/projects/"
 name = sys.argv[1]; title, tail, L = EP[name]; P = P0 + name

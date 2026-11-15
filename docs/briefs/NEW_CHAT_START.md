@@ -67,6 +67,6 @@ globals (`flames`, `curtain`, `drawTV`, `hood`, `car`…) crash the page — ren
 ## Episodes made so far (sources in docs/briefs/*-src)
 Landscape 4:3 (older): jet-dishwasher-3000, shibshib-final-boss, wifi-booster-nuclear, shorout-el-rogoo, motor-hoda, mishwar-el-souq,
 el-diouf-gayeen, kashef-el-kedb, om-hamada-live, markaz-el-siana, ajel (news), dayf-mn-elsama, fein-eltoktok.
-Vertical 9:16: wifi-booster-2, sakhan, mobile-dryer, takyeef, natiga, abu-samir-car, vacuum, asly-work, asly-sharka, uber.
+Vertical 9:16: wifi-booster-2, sakhan, mobile-dryer, takyeef, natiga, abu-samir-car, vacuum, asly-work, asly-sharka, uber, life-story.
 Best performer so far: «مقوّي الواي فاي النووي» (3.8k views vs 100–1000) → everyday problem + «النووي ٣٠٠٠» invention + family.
 Ideas not done yet: water heater ✔ done, AC ✔, results site ✔ … still open: washing machine, Ramadan lantern, exam cheating device, gas cylinder, elevator.

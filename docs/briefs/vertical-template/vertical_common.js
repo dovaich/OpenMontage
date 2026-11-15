@@ -94,18 +94,19 @@ function drawEndV(g, t, a, head, ar, meters, dur) {
   if (t >= dur - 3.2) { const k = easeOut(seg(t, dur - 3.2, dur - 2.8)); g.fillStyle = `rgba(0,0,0,${0.7 * k})`; g.fillRect(0, 0, W, H); g.save(); g.translate(W / 2, H / 2 - 60); g.scale(k, k); arText(g, 'يُتبع...', 0, -40, 64, '#ffe14a', 'center', 'ReemKufi'); pxText(g, 'TO BE CONTINUED', 0, 40, 16, '#fff', 'center'); g.restore(); }
   if (t > dur - 0.8) { g.fillStyle = `rgba(0,0,0,${clamp((t - dur + 0.8) / 0.8)})`; g.fillRect(0, 0, W, H); }
 }
-const NAMES = { sayed: ['عم سيد', 'UNCLE SAYED', '#6b5a48'], shehata: ['شحاتة', 'SHEHATA', '#3a5aa8'], son: ['حمادة', 'HAMADA', '#d4141c'], dad: ['إبراهيم', 'IBRAHIM', '#c9a227'], mom: ['أم حمادة', 'OM HAMADA', '#1f9e5a'], samir: ['أبو سمير', 'ABU SAMIR', '#6a6f78'], bastam: ['بستم', 'BESTEM', '#2f5fb0'], alamy: ['العالمي', 'EL-ALAMY', '#151518'], asly: ['الأصلي', 'EL-ASLY', '#6a6a6a'], gazzar: ['الجزار', 'EL-GAZZAR', '#4a4a38'] };
+const NAMES = { teta: ['تيتة (أم إبراهيم)', 'TETA', '#7a4a2a'], sayed: ['عم سيد', 'UNCLE SAYED', '#6b5a48'], shehata: ['شحاتة', 'SHEHATA', '#3a5aa8'], son: ['حمادة', 'HAMADA', '#d4141c'], dad: ['إبراهيم', 'IBRAHIM', '#c9a227'], mom: ['أم حمادة', 'OM HAMADA', '#1f9e5a'], samir: ['أبو سمير', 'ABU SAMIR', '#6a6f78'], bastam: ['بستم', 'BESTEM', '#2f5fb0'], alamy: ['العالمي', 'EL-ALAMY', '#151518'], asly: ['الأصلي', 'EL-ASLY', '#6a6a6a'], gazzar: ['الجزار', 'EL-GAZZAR', '#4a4a38'] };
 function portrait(g, x, y, who, t, S = 64) {
   const u = S / 64; g.save(); g.translate(x, y); g.scale(u, u);
   g.fillStyle = '#123'; g.fillRect(0, 0, 64, 64); g.strokeStyle = '#fff'; g.lineWidth = 2; g.strokeRect(0, 0, 64, 64);
   g.beginPath(); g.rect(2, 2, 60, 60); g.clip();
-  const skin = { sayed: '#8a5a3a', shehata: '#9a6440', son: '#b98058', dad: '#b27448', mom: '#c98d5f', samir: '#c8946a', bastam: '#b07a50', alamy: '#c08a60', asly: '#a86a40', gazzar: '#a87048' }[who]; const shirt = { sayed: '#6b5a48', shehata: '#e8eef8', son: '#d4141c', dad: '#f3f0e3', mom: '#e86a8a', samir: '#8a8f96', bastam: '#2f5fb0', alamy: '#151518', asly: '#6a6a6a', gazzar: '#4a4a38' }[who];
+  const skin = { teta: '#c08a60', sayed: '#8a5a3a', shehata: '#9a6440', son: '#b98058', dad: '#b27448', mom: '#c98d5f', samir: '#c8946a', bastam: '#b07a50', alamy: '#c08a60', asly: '#a86a40', gazzar: '#a87048' }[who]; const shirt = { teta: '#7a4a2a', sayed: '#6b5a48', shehata: '#e8eef8', son: '#d4141c', dad: '#f3f0e3', mom: '#e86a8a', samir: '#8a8f96', bastam: '#2f5fb0', alamy: '#151518', asly: '#6a6a6a', gazzar: '#4a4a38' }[who];
   g.fillStyle = shirt; g.fillRect(8, 54, 48, 10);
   if (who === 'mom') { g.fillStyle = '#1f9e5a'; g.beginPath(); g.arc(32, 36, 25, 0, 7); g.fill(); }
   g.fillStyle = skin; g.beginPath(); g.arc(32, 36, 20, 0, 7); g.fill();
   if (who === 'mom') { g.fillStyle = '#1f9e5a'; g.beginPath(); g.arc(32, 30, 22, Math.PI, 0); g.fill(); }
   if (who === 'son') { g.fillStyle = '#17110c'; for (let i = 0; i < 6; i++) { g.beginPath(); g.arc(16 + i * 6.5, 19 + (i % 2) * 2, 6, 0, 7); g.fill(); } g.fillStyle = '#222'; g.fillRect(9, 30, 6, 12); g.fillRect(49, 30, 6, 12); }
   if (who === 'dad') { g.fillStyle = '#1b1410'; g.fillRect(10, 30, 5, 12); g.fillRect(49, 30, 5, 12); g.fillStyle = '#c9a227'; g.fillRect(14, 16, 36, 5); }
+  if (who === 'teta') { g.fillStyle = '#2a2a2a'; g.beginPath(); g.arc(32, 36, 25, 0, 7); g.fill(); g.fillStyle = '#c08a60'; g.beginPath(); g.arc(32, 36, 20, 0, 7); g.fill(); g.fillStyle = '#2a2a2a'; g.beginPath(); g.arc(32, 30, 22, Math.PI, 0); g.fill(); }
   if (who === 'sayed') { g.fillStyle = '#f4f2ea'; g.beginPath(); g.ellipse(32, 18, 22, 9, 0, 0, 7); g.fill(); }
   if (who === 'shehata') { g.fillStyle = '#f2f2f2'; g.beginPath(); g.arc(32, 26, 21, Math.PI, 0); g.fill(); }
   if (who === 'samir') { g.fillStyle = '#ffffff'; g.beginPath(); g.arc(32, 27, 21, Math.PI, 0); g.fill(); g.fillStyle = '#f2f2f2'; g.fillRect(10, 30, 5, 10); g.fillRect(49, 30, 5, 10); }
@@ -115,7 +116,7 @@ function portrait(g, x, y, who, t, S = 64) {
   if (who === 'gazzar') { g.fillStyle = '#120c08'; for (let i = 0; i < 6; i++) { g.beginPath(); g.arc(14 + i * 7, 18 + (i % 2) * 3, 8, 0, 7); g.fill(); } g.fillStyle = '#d8231b'; g.fillRect(10, 22, 44, 4); }
   const fc = document.createElement('canvas'); fc.width = 32; fc.height = 32; const fg = fc.getContext('2d');
   const e = envAt(t); const mouth = speakerAt(t) === who ? (e < 0.1 ? 'closed' : e < 0.4 ? 'talk1' : 'talk2') : 'closed';
-  drawFace(fg, 32, { sayed: 'tired', shehata: 'angry', son: 'tired', dad: 'smug', mom: 'angry', samir: 'angry', bastam: 'wide', alamy: 'smug', asly: 'angry', gazzar: 'tired' }[who] || 'default', mouth, { stache: who === 'dad' || who === 'samir' || who === 'asly' || who === 'sayed' || who === 'shehata', stacheColor: who === 'samir' || who === 'sayed' ? '#eeeeee' : undefined, fuzz: who === 'bastam' || who === 'gazzar' });
+  drawFace(fg, 32, { teta: 'angry', sayed: 'tired', shehata: 'angry', son: 'tired', dad: 'smug', mom: 'angry', samir: 'angry', bastam: 'wide', alamy: 'smug', asly: 'angry', gazzar: 'tired' }[who] || 'default', mouth, { stache: who === 'dad' || who === 'samir' || who === 'asly' || who === 'sayed' || who === 'shehata', stacheColor: who === 'samir' || who === 'sayed' ? '#eeeeee' : undefined, fuzz: who === 'bastam' || who === 'gazzar' });
   g.imageSmoothingEnabled = false; g.drawImage(fc, 14, 20, 36, 36); g.restore();
 }
 function drawDialogueV(g, t) {
