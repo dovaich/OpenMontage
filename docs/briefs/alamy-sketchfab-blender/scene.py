@@ -160,6 +160,105 @@ for o in [x for x in list(newobs) if x.type == "MESH"]:
             kill += comp
     bmesh.ops.delete(bm, geom=list(set(kill)), context="VERTS"); bm.to_mesh(o.data); bm.free()
     print("HOLSTER_VERTS_REMOVED", o.name, len(set(kill)))
+# ---- lip sync: the model has no jaw bone, so a "JawOpen" shape key rotates the lower lip/chin/lower teeth
+# about a hinge in front of the ears; its value follows mouth.json (made from vo.wav), like the old body.
+MOUTH_LINE, HINGE = 1.600, Vector((0, -0.01, 1.63))     # rest-pose world coords of the imported model
+JAW_DEG = 7.0
+def ramp(v, a, b):
+    t = max(0.0, min(1.0, (v - a) / (b - a))); return t * t * (3 - 2 * t)
+JAW_KEYS = []
+body_mesh = max([o for o in newobs if o.type == "MESH"], key=lambda o: len(o.data.vertices))
+for o in [x for x in newobs if x.type == "MESH" and x is not body_mesh]:
+    mw = o.matrix_world.copy(); inv3 = mw.inverted().to_3x3()
+    # cut the welded lips apart along the mouth line so the lower lip can separate from the upper one
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    def wz(f): return (mw @ f.calc_center_median()).z
+    import heapq
+    bm.verts.ensure_lookup_table()
+    W_ = {v.index: mw @ v.co for v in bm.verts}
+    reg = [v for v in bm.verts if abs(W_[v.index].z - MOUTH_LINE) < 0.008 and abs(W_[v.index].x) < 0.034
+           and W_[v.index].y < -0.100 and not v.is_boundary]
+    cut, LINE = [], []
+    if len(reg) > 6:
+        rs = set(v.index for v in reg)
+        def corner(sgn):
+            c = [v for v in reg if sgn * W_[v.index].x > 0.018 and abs(W_[v.index].z - MOUTH_LINE) < 0.004]
+            return max(c, key=lambda v: sgn * W_[v.index].x - 3 * abs(W_[v.index].z - MOUTH_LINE)) if c else None
+        a, b = corner(-1), corner(1)
+        if a and b:   # shortest path between the corners that hugs the mouth line
+            dist, prev, pq = {a.index: 0.0}, {}, [(0.0, a.index)]
+            while pq:
+                d, i = heapq.heappop(pq)
+                if i == b.index: break
+                if d > dist.get(i, 1e9): continue
+                for e in bm.verts[i].link_edges:
+                    j = e.other_vert(bm.verts[i]).index
+                    if j not in rs: continue
+                    pm = (W_[i] + W_[j]) / 2
+                    nd = d + (W_[i] - W_[j]).length * (1 + 400 * abs(pm.z - MOUTH_LINE))
+                    if nd < dist.get(j, 1e9): dist[j] = nd; prev[j] = i; heapq.heappush(pq, (nd, j))
+            if b.index in prev:
+                path = [b.index]
+                while path[-1] != a.index: path.append(prev[path[-1]])
+                # straighten the (triangulated, zig-zag) lip line: put its inner vertices on one gentle curve
+                zm = sum(W_[i].z for i in path) / len(path)
+                ilw = mw.inverted()
+                for i in path[1:-1]:
+                    p = W_[i].copy(); p.z = zm - 0.0025 * (p.x / 0.03) ** 2   # slight smile at the corners
+                    bm.verts[i].co = ilw @ p; W_[i] = p
+                LINE = sorted((W_[i].x, W_[i].z) for i in path)
+                for i, j in zip(path, path[1:]):
+                    e = bm.edges.get((bm.verts[i], bm.verts[j]))
+                    if e and len(e.link_faces) == 2: cut.append(e)
+                cut = cut[1:-1] if len(cut) > 2 else cut   # keep the corners closed
+    def line_z(x):
+        if not LINE: return MOUTH_LINE
+        if x <= LINE[0][0]: return LINE[0][1]
+        for (x0, z0), (x1, z1) in zip(LINE, LINE[1:]):
+            if x <= x1: return z0 + (z1 - z0) * ((x - x0) / max(x1 - x0, 1e-9))
+        return LINE[-1][1]
+    if cut: bmesh.ops.split_edges(bm, edges=cut)
+    side = {}
+    for v in bm.verts:   # which side of the mouth a (possibly split) vertex belongs to, relative to the cut line
+        p = mw @ v.co
+        if v.link_faces and abs(p.z - line_z(p.x)) < 0.0025 and abs(p.x) < 0.04:
+            side[v.index] = MOUTH_LINE + sum(wz(f) - line_z(p.x) for f in v.link_faces) / len(v.link_faces) * 3
+        elif abs(p.x) < 0.04:
+            side[v.index] = MOUTH_LINE + (p.z - line_z(p.x))
+    bm.to_mesh(o.data); bm.free(); o.data.update()
+    print("LIP_CUT_EDGES", o.name, len(cut), "line", [(round(x, 3), round(z, 3)) for x, z in LINE])
+    if not o.data.shape_keys: o.shape_key_add(name="Basis", from_mix=False)
+    sk = o.shape_key_add(name="JawOpen", from_mix=False)
+    rot = Matrix.Rotation(math.radians(JAW_DEG), 3, "X")
+    n = 0
+    for v in o.data.vertices:
+        p = mw @ v.co
+        sz = side.get(v.index, p.z)
+        w = (1 - ramp(sz, MOUTH_LINE - 0.003, MOUTH_LINE + 0.003)) * ramp(p.z, 1.505, 1.545) \
+            * (1 - ramp(abs(p.x), 0.030, 0.068)) * (1 - ramp(p.y, -0.03, 0.01))
+        if w <= 0: continue
+        q = HINGE + rot @ (p - HINGE)
+        sk.data[v.index].co = v.co + inv3 @ ((q - p) * w); n += 1
+    if n: JAW_KEYS.append(sk)
+    else: o.shape_key_remove(sk)
+    print("JAW_VERTS", o.name, n)
+MOUTH_JSON = os.path.join(HERE, "mouth.json")
+if os.path.exists(MOUTH_JSON) and JAW_KEYS:
+    op = json.load(open(MOUTH_JSON))["open"][:NF]
+    for k, v in enumerate(op):
+        for sk in JAW_KEYS:
+            sk.value = max(0.0, min(1.0, float(v))) if os.environ.get("ALAMY_JAW_TEST") != "1" else 1.0
+            sk.keyframe_insert("value", frame=k + 1)
+    print("LIPSYNC_FRAMES", len(op))
+# dark mouth cavity just behind the lips (shows as the opening when the jaw drops); rides on the head joint
+CAV = sphere("MouthCavity", (0, -0.098, MOUTH_LINE - 0.006), (0.020, 0.016, 0.016),
+             mat("MouthDark", (0.02, 0.005, 0.005), rough=0.9, spec=0.05), 16)
+bpy.context.view_layer.update()
+CAV.data.transform(CAV.matrix_world); CAV.matrix_world = Matrix.Identity(4)   # bake: mesh in model rest space
+CAV.parent = TA
+vg = CAV.vertex_groups.new(name="Joint e3849ea1c00d68")   # the model's head joint
+vg.add([v.index for v in CAV.data.vertices], 1.0, "REPLACE")
+CAV.modifiers.new("Arm", "ARMATURE").object = TA
 TA.rotation_mode = "XYZ"; TA.rotation_euler = (0, 0, 0)
 P = "Joint "
 TMAP = {  # mixamo bone -> sketchfab joint
