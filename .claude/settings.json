@@ -2,11 +2,9 @@
   "permissions": {
     "allow": [
       "mcp__claude-in-chrome",
-
       "Read(~/Downloads/**)",
       "Edit(incoming/**)",
       "Edit(queue/**)",
-
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
       "Bash(git status:*)",
@@ -23,7 +21,6 @@
       "Bash(git -c user.name=Claude -c user.email=noreply@anthropic.com commit:*)",
       "Bash(git rebase --continue)",
       "Bash(git rebase --abort)",
-
       "Bash(ls:*)",
       "Bash(cat:*)",
       "Bash(head:*)",
@@ -39,7 +36,6 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(cp:*)",
-
       "PowerShell(git fetch:*)",
       "PowerShell(git pull:*)",
       "PowerShell(git status:*)",
@@ -50,14 +46,17 @@
       "PowerShell(git commit:*)",
       "PowerShell(git push origin ccr-3b18907e-5bki3m)",
       "PowerShell(git push)",
-
       "PowerShell(Get-ChildItem:*)",
       "PowerShell(Get-Item:*)",
       "PowerShell(Get-Content:*)",
       "PowerShell(New-Item:*)",
       "PowerShell(Move-Item:*)",
       "PowerShell(Copy-Item:*)",
-      "PowerShell(Set-Content:*)"
+      "PowerShell(Set-Content:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File docs/briefs/blender-hello/run.ps1)",
+      "PowerShell(powershell -ExecutionPolicy Bypass -File docs/briefs/blender-hello/run.ps1)",
+      "Bash(powershell -ExecutionPolicy Bypass -File docs\\\\briefs\\\\blender-hello\\\\run.ps1)",
+      "PowerShell(powershell -ExecutionPolicy Bypass -File docs\\\\briefs\\\\blender-hello\\\\run.ps1)"
     ],
     "deny": [
       "PowerShell(git push --force:*)",
