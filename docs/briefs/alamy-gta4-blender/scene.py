@@ -122,10 +122,10 @@ def J(b, tail=False):
 
 # NLA: talking 1..180, then shrug (a "what can you do, I'm the best" beat) with a blend, then hold
 ad = ARM.animation_data; ad.action = None
-tr = ad.nla_tracks.new(); s1 = tr.strips.new("talk", 1, ACT_TALK); s1.extend_mode = "HOLD"
+tr = ad.nla_tracks.new(); s1 = tr.strips.new("talk", 1, ACT_TALK); s1.extrapolation = "HOLD"
 s1.action_frame_start, s1.action_frame_end = 1, 179
 tr2 = ad.nla_tracks.new(); s2 = tr2.strips.new("shrug", 168, ACT_BRAG); s2.blend_in = 18
-s2.extend_mode = "HOLD"; s2.blend_type = "REPLACE"
+s2.extrapolation = "HOLD"; s2.blend_type = "REPLACE"
 s2.scale = 1.6  # slower, cooler shrug
 
 # ---------------------------------------------------------------- materials
@@ -463,7 +463,9 @@ S.render.film_transparent = False
 def save_blend():
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, "alamy_gta4.blend"), compress=True)
 
-if MODE.startswith("stills"):
+if MODE == "check":
+    S.frame_set(200); print("CHECK_OK", len(bpy.data.objects))
+elif MODE.startswith("stills"):
     frames = [int(x) for x in MODE.split(":")[1].split(",")] if ":" in MODE else [1, 120, 240]
     S.render.image_settings.file_format = "PNG"
     for f in frames:
