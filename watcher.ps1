@@ -61,27 +61,37 @@ function BatchesToRecord {
 function RunClaude([string[]]$batches) {
     $list = $batches -join ", "
     $prompt = @"
-You were started by watcher.ps1 (the local recorder watcher) in a fresh, non-interactive session.
-Batches whose queue/<batch>.status on $Remote/$Branch says "record": $list
+You were started by watcher.ps1 (the laptop task watcher) in a fresh, non-interactive session on the user's laptop.
+Tasks whose queue/<task>.status on $Remote/$Branch says "record": $list
 
-For each batch, do the Local-session flow in docs/briefs/AUTOPILOT.md (and docs/briefs/LOCAL_RECORDER.md):
-follow docs/briefs/<batch>/recording_message.md exactly (its first line says whether it is voices, images, video or animations),
-save the files to incoming/<batch>/ with manifest.txt, set queue/<batch>.status to "recorded",
-commit as "Claude <noreply@anthropic.com>" and push to $Remote $Branch (pull --rebase and retry if the push is rejected).
+For each task, open docs/briefs/<task>/recording_message.md and do exactly what it says. It can be ANY job on this laptop:
+- browser work with Claude in Chrome (Google AI Studio voices, Gemini images, Google Flow video, mixamo.com, any other site),
+- Blender (G:\blender\blender.exe, Blender 3.6), PowerShell or other scripts, files, installs the brief asks for, anything else.
+For voice/image/video/animation batches, also follow the Local-session flow in docs/briefs/AUTOPILOT.md.
+Unless the brief says its own script does it: save the results to incoming/<task>/ (with manifest.txt), set queue/<task>.status
+to "recorded", commit, and push to $Remote $Branch (git pull --rebase and retry if the push is rejected).
+Git identity is already set in this repo (Claude <noreply@anthropic.com>), so a plain git commit works.
 
 Rules for this run:
 - Do NOT start a watcher, loop, Monitor, cron, scheduled task or wakeup, and do NOT message yourself. watcher.ps1 handles waiting.
-- Do NOT ask questions; nobody is watching. If something blocks a batch, leave its status as "record", and say why in your final message.
-- Finish with a short summary of what you recorded and pushed.
+- Do NOT ask questions; nobody is watching. Work around problems yourself. If something truly blocks a task, leave its status
+  as "record", write the reason to incoming/<task>/BLOCKED.txt, commit and push that, and say why in your final message.
+- Finish with a short summary of what you did and pushed.
 "@
     $runLog = Join-Path $StateDir ("claude_{0}.log" -f (Get-Date -Format "yyyyMMdd_HHmmss"))
-    $cliArgs = @("-p", "--permission-mode", "default")
+    $cliArgs = @("-p", "--permission-mode", "acceptEdits")
     if (-not $NoChrome) { $cliArgs += "--chrome" }
     if ($Settings) { $cliArgs += @("--settings", $Settings) }
     Log "Starting claude -p for: $list  (log: $runLog)"
-    $prompt | & $ClaudeExe @cliArgs 2>&1 | ForEach-Object { "$_" } | Tee-Object -FilePath $runLog
+    $prompt | & $ClaudeExe @cliArgs 2>&1 | ForEach-Object { $l = "$_"; Write-Host $l; Add-Content -Path $runLog -Value $l -Encoding UTF8 }
     Log "claude exited with code $LASTEXITCODE"
 }
+
+# Failed tasks are retried automatically: up to $MaxAttempts runs per task, $RetryMinutes apart
+$MaxAttempts = 3
+$RetryMinutes = 10
+$script:Attempts = @{}
+$script:RetryAt = $null
 
 function CheckOnce {
     git fetch -q $Remote $Branch 2>&1 | Out-Null
@@ -91,24 +101,32 @@ function CheckOnce {
     # On startup, also run if a batch is still "record" (retry after a failed run)
     $retry = $script:FirstCheck -and (@(BatchesToRecord).Count -gt 0)
     $script:FirstCheck = $false
+    if ($script:RetryAt -and (Get-Date) -ge $script:RetryAt) { $retry = $true; $script:RetryAt = $null }
     if (($remoteSha -eq $lastSha) -and -not $retry) { return }
 
-    Log "New remote commit: $remoteSha"
+    if ($remoteSha -ne $lastSha) { Log "New remote commit: $remoteSha" } else { Log "Retrying unfinished tasks" }
     $cur = (git rev-parse --abbrev-ref HEAD).Trim()
     if ($cur -ne $Branch) { git checkout -q $Branch 2>&1 | ForEach-Object { Log "$_" } }
-    git pull -q --rebase $Remote $Branch 2>&1 | ForEach-Object { Log "$_" }
+    # --autostash: leftovers from an earlier run don't block the pull (they are kept, not lost)
+    git pull -q --rebase --autostash $Remote $Branch 2>&1 | ForEach-Object { Log "$_" }
     if ($LASTEXITCODE -ne 0) {
-        Log "git pull failed (local changes?). Fix the working tree; watcher will retry."
+        Log "git pull failed. Will retry on the next check."
         git rebase --abort 2>$null | Out-Null
         return
     }
 
-    $batches = @(BatchesToRecord)
+    $batches = @(BatchesToRecord | Where-Object { [int]$script:Attempts[$_] -lt $MaxAttempts })
     if ($batches.Count -gt 0) {
+        foreach ($b in $batches) { $script:Attempts[$b] = [int]$script:Attempts[$b] + 1 }
         RunClaude $batches
         git fetch -q $Remote $Branch 2>&1 | Out-Null
-        $left = @(BatchesToRecord)
-        if ($left.Count -gt 0) { Log "WARNING: still 'record' after Claude ran: $($left -join ', '). Check the claude log; restart the watcher to retry." }
+        $left = @(BatchesToRecord | Where-Object { [int]$script:Attempts[$_] -lt $MaxAttempts })
+        if ($left.Count -gt 0) {
+            $script:RetryAt = (Get-Date).AddMinutes($RetryMinutes)
+            Log "WARNING: still 'record' after Claude ran: $($left -join ', '). Retrying at $($script:RetryAt.ToString('HH:mm'))."
+        }
+        $gaveUp = @(BatchesToRecord | Where-Object { [int]$script:Attempts[$_] -ge $MaxAttempts })
+        if ($gaveUp.Count -gt 0) { Log "GAVE UP after $MaxAttempts tries: $($gaveUp -join ', '). Restart the watcher to try again." }
     } else {
         Log "No batch waiting (no status 'record'). Claude not started."
     }
