@@ -582,7 +582,11 @@ function makeSamirCar(parent, scale = 1.2) {
   const glass = new THREE.MeshPhongMaterial({ color: 0x9fc8e0, transparent: true, opacity: 0.55, shininess: 120 });
   const L = 4.0, Wd = 1.75;
   // lower body (boxy 128 shape) + hood + trunk slopes
-  mesh(box(L, 0.55, Wd), body, 0, 0.6, 0, g);
+  // hollow body: solid engine block + trunk, open cabin tub (floor + thin side walls) so no orange shows inside
+  mesh(box(1.18, 0.55, Wd), body, 1.41, 0.6, 0, g);
+  mesh(box(0.64, 0.55, Wd), body, -1.68, 0.6, 0, g);
+  mesh(box(2.12, 0.06, Wd), M(0x2a1a14), -0.24, 0.31, 0, g);
+  for (const sz of [-1, 1]) mesh(box(2.12, 0.55, 0.04), body, -0.24, 0.6, sz * (Wd / 2 - 0.02), g);
   mesh(box(L - 0.1, 0.06, Wd - 0.05), M(0x2a2a2a), 0, 0.32, 0, g); // sill shadow
   // cabin
   mesh(box(2.0, 0.08, Wd - 0.12), roofC, -0.2, 1.42, 0, g);
@@ -633,7 +637,7 @@ function makeSamirCar(parent, scale = 1.2) {
   const velour = canvasTex(32, 32, (c) => { c.fillStyle = '#8a1a24'; c.fillRect(0, 0, 32, 32); c.fillStyle = '#b02a36'; for (let y = 0; y < 32; y += 8) c.fillRect(0, y, 32, 4); c.fillStyle = '#e8c070'; for (let x = 2; x < 32; x += 8) for (let y = 2; y < 32; y += 8) c.fillRect(x, y, 2, 2); }, [2, 2]);
   const velM = new THREE.MeshLambertMaterial({ map: velour, flatShading: true });
   const rug = canvasTex(32, 32, (c) => { c.fillStyle = '#3a2a22'; c.fillRect(0, 0, 32, 32); c.fillStyle = '#c8a040'; c.fillRect(0, 0, 32, 2); c.fillRect(0, 30, 32, 2); c.fillStyle = '#7a2a2a'; for (let i = 4; i < 32; i += 8) c.fillRect(i, 6, 3, 20); }, [3, 2]);
-  const floorI = mesh(new THREE.PlaneGeometry(2.3, 1.6), new THREE.MeshLambertMaterial({ map: rug, side: THREE.DoubleSide }), -0.2, 0.36, 0, g); floorI.rotation.x = -Math.PI / 2;
+  const floorI = mesh(new THREE.PlaneGeometry(2.3, 1.6), new THREE.MeshLambertMaterial({ map: rug, side: THREE.DoubleSide }), -0.24, 0.345, 0, g); floorI.rotation.x = -Math.PI / 2;
   for (const z of [-0.4, 0.4]) { // front bucket seats
     mesh(box(0.5, 0.1, 0.46), velM, 0.1, 0.36, z, g);
     const bk = mesh(box(0.1, 0.55, 0.46), velM, -0.27, 0.66, z, g); bk.rotation.z = 0.12;
@@ -664,7 +668,7 @@ function makeSamirCar(parent, scale = 1.2) {
   const warnT = canvasTex(64, 20, (c) => { c.fillStyle = '#d8231b'; c.fillRect(0, 0, 64, 20); });
   const warn = mesh(new THREE.PlaneGeometry(0.34, 0.1), new THREE.MeshBasicMaterial({ map: warnT }), 0.554, 0.9, 0.02, g); warn.rotation.y = -Math.PI / 2;
   // door panels + headliner + tassels + mirror with prayer beads
-  for (const sz of [-1, 1]) mesh(new THREE.PlaneGeometry(2.0, 0.5), D2(0x5a1a20), -0.2, 0.64, sz * (Wd / 2 - 0.03), g);
+  for (const sz of [-1, 1]) mesh(new THREE.PlaneGeometry(2.1, 0.55), D2(0x5a1a20), -0.24, 0.62, sz * (Wd / 2 - 0.05), g);
   const head = mesh(new THREE.PlaneGeometry(2.0, 1.6), D2(0xd8ccb0), -0.2, 1.37, 0, g); head.rotation.x = Math.PI / 2;
   for (let i = 0; i < 16; i++) mesh(new THREE.ConeGeometry(0.025, 0.08, 4), M([0xffd400, 0xd8231b, 0x1f9e5a][i % 3]), 0.72, 1.31, -0.75 + i * 0.1, g).rotation.x = Math.PI;
   mesh(box(0.03, 0.06, 0.22), P(0x222222), 0.74, 1.27, 0.05, g);
