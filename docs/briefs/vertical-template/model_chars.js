@@ -1,4 +1,5 @@
 // ---------- real 3D character models on the cartoon rig (opt-in, append after ep.js, before framing_check.js) ----------
+// EXPERIMENT (user rule): never call useModel() in an episode unless the user explicitly asked for the 3D models.
 // A GLB in T-pose (drawing -> Hunyuan3D-2 on Kaggle, see docs/briefs/model-chars/README.md) is skinned onto the engine's rig groups
 // (hips, torso, neck, head, arms, legs), so applyPose / poseAt and every existing ep.js pose keeps working. A jaw bone follows the voice.
 // In ep.js (anywhere):   useModel(dad, 'ibrahim', { h: 1.76 });  useModel(mom, 'om_hamada', { h: 1.62, robe: 1 });

@@ -1,4 +1,7 @@
-# Real 3D character models for the vertical engine (opt-in)
+# Real 3D character models for the vertical engine (EXPERIMENT)
+
+> **User rule: experimental. No chat uses these models in an episode unless the user explicitly asks for them.**
+> Episodes keep the normal low-poly cartoon characters.
 
 Drawing (T-pose) → Hunyuan3D-2 on Kaggle (free T4) → GLB → skinned in code onto the engine's own rig (`vertical-template/model_chars.js`).
 Every pose in ep.js (`poseAt`, `applyPose`), every camera (`faceCam`, distances × `MODEL_FACE_K`) and the jaw lip-sync keep working,

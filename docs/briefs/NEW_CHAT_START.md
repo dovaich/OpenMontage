@@ -71,7 +71,8 @@ globals (`flames`, `curtain`, `drawTV`, `hood`, `car`…) crash the page — ren
   for one id (young/old): `window.CAST = { teta: [a, b] }`. Props that may cover a face: `window.FRAME_IGNORE = [obj]`.
 - **Render:** `node render.cjs frames 15` now splits the frames over up to 4 browsers (`--jobs N`); `--range 300-420` re-renders only a part.
   (A full 54 s episode: ~80 s → ~65 s here; rendering was never the slow part.)
-- **Real 3D characters (opt-in):** `useModel(dad, 'ibrahim', { h: 1.76 })` in ep.js; see `docs/briefs/model-chars/README.md`.
+- **Real 3D characters: EXPERIMENT ONLY (user rule).** Do NOT use `useModel(...)` / `model_chars.js` in any episode unless the user explicitly
+  asks for the 3D models in that chat. Episodes keep the normal low-poly cartoon characters. Details: `docs/briefs/model-chars/README.md`.
 - **Flow cold open (only for the strongest episodes; Flow credits ≈ 40 clips/month):** queue one VIDEO batch clip from a still of the
   cold-open shot, then `python3 docs/briefs/tools/coldopen_flow.py <project> <clip.mp4>` → `renders/final_flow_coldopen.mp4`
   (our same voice aligned to Flow's lips, our dialogue box on top, then the episode from the REWIND on).

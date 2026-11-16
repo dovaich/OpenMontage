@@ -20,6 +20,7 @@ direction in the main agent.
 If the user asks for an episode/حلقة, a script, or anything about Om Hamada / Ibrahim / Hamada / the service center,
 read `docs/briefs/NEW_CHAT_START.md` FIRST (then `docs/briefs/SERIES_NOTES.md`). That series uses its own Three.js engine and
 the laptop recording queue, not the OpenMontage pipelines.
+The 3D character models (`useModel`, `docs/briefs/model-chars/`) are an EXPERIMENT: never use them in an episode unless the user asks for them.
 
 ## Local recorder on the laptop: no loops, no self-messages
 Waiting for new batches is done by `watcher.ps1` (a PowerShell script, outside Claude; started from `start-watcher.bat` on the Desktop).
