@@ -59,6 +59,23 @@ Engine notes: `engine8.js` = living room/hallway/balcony + mom/son/dad/samir (`m
 see `characters/samir-car/README.md`). Put different sets far apart on x (market x 200, door x 300, sky x 2000 …). Name clashes with engine
 globals (`flames`, `curtain`, `drawTV`, `hood`, `car`…) crash the page — rename (watch for `PAGEERR Identifier ... already declared`).
 
+## Faster build tools (Nov 2026; voices are still recorded on the laptop exactly as above)
+- **Line map, local:** `python3 docs/briefs/tools/map_takes.py <batch>` reads the batch brief + `incoming/<batch>/rN.wav`, runs Whisper
+  (faster-whisper large-v3-turbo on CPU, ~8 s per 20 s take, no quota, no 503) and prints ready `assemble_pair.py` tuples
+  (speaker, take, start, end, …, ar) in recording order, snapped to the measured voiced segments. Reorder into episode order, add `en`.
+  Lines marked `CHECK` had a weak match: listen, or fall back to `gemini_transcribe.py`. Matched the hand map of «حكاية المخترع العالمي» on all 14 lines.
+- **Framing check before the full render:** `node render.cjs check 5` (framing_check.js is appended by build.py). For every frame where
+  someone talks it reports the face out of shot, behind the dialogue box, turned away, or blocked (by a wall, roof, prop or another
+  character, with the object's position), plus a lens touching geometry. Report in `check/report.txt`, red-marked stills of the bad frames in `check/`.
+  Narration/voice-over lines show up as "talks but is hidden": skip them with `window.FRAME_SKIP = [[t0, t1]]` in ep.js. Several models
+  for one id (young/old): `window.CAST = { teta: [a, b] }`. Props that may cover a face: `window.FRAME_IGNORE = [obj]`.
+- **Render:** `node render.cjs frames 15` now splits the frames over up to 4 browsers (`--jobs N`); `--range 300-420` re-renders only a part.
+  (A full 54 s episode: ~80 s → ~65 s here; rendering was never the slow part.)
+- **Real 3D characters (opt-in):** `useModel(dad, 'ibrahim', { h: 1.76 })` in ep.js; see `docs/briefs/model-chars/README.md`.
+- **Flow cold open (only for the strongest episodes; Flow credits ≈ 40 clips/month):** queue one VIDEO batch clip from a still of the
+  cold-open shot, then `python3 docs/briefs/tools/coldopen_flow.py <project> <clip.mp4>` → `renders/final_flow_coldopen.mp4`
+  (our same voice aligned to Flow's lips, our dialogue box on top, then the episode from the REWIND on).
+
 ## Deliver
 - `SendUserFile` the MP4 + cover (+ new invention card and the updated cards cover).
 - Copy sources to `docs/briefs/<name>-src/` (ep, scene, build, sfx, lines.json, cover, README), set `queue/<batch>.status` to `done`, commit, push.
