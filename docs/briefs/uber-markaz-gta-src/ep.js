@@ -12,8 +12,8 @@ const alamy = makeAlamy(scene);
 scene.add(samir.root); scene.add(dad.root);
 // the cartoon cars of the garage set → GTA-era cars
 sedan.visible = false; car2.visible = false;
-const cLift = makeGtaCar(scene, { color: 0x3a3d42, interior: false, plate: 'ط ر ٤٤١' }); cLift.g.position.set(G - 3.6, 1.72, -2.4); cLift.g.scale.setScalar(0.8); lateDraw.push(cLift.late); gtaCarModel(cLift, 'sedan_grey', { len: 4.5 });
-const cRed = makeGtaCar(scene, { color: 0x7a1418, interior: false, plate: 'م ص ٧٢١' }); cRed.g.position.set(G + 3.6, 0, -3.6); cRed.g.rotation.y = 0.25; lateDraw.push(cRed.late); gtaCarModel(cRed, 'sedan_red', { len: 4.5 });
+const cLift = makeGtaCar(scene, { color: 0x3a3d42, interior: false, plate: 'ط ر ٤٤١' }); cLift.g.position.set(G - 3.6, 1.72, -2.4); cLift.g.scale.setScalar(0.8); lateDraw.push(cLift.late); gtaCarModel(cLift, 'sedan_grey', { len: 4.5, rotY: Math.PI });
+const cRed = makeGtaCar(scene, { color: 0x7a1418, interior: false, plate: 'م ص ٧٢١' }); cRed.g.position.set(G + 3.6, 0, -3.6); cRed.g.rotation.y = 0.25; lateDraw.push(cRed.late); gtaCarModel(cRed, 'sedan_red', { len: 4.5, rotY: Math.PI });
 // Abu Samir's 128 (the crashed Uber), with the red button
 const SC = makeGtaCar(scene, { style: '128', plate: 'س م ر ١٩٨٠' }); const car = SC.g; lateDraw.push(SC.late); gtaCarModel(SC, 'samir128', { len: 4.25 });
 const melonT = canvasTex(16, 16, (g) => { g.fillStyle = '#3f8a2f'; g.fillRect(0, 0, 16, 16); g.fillStyle = '#1f5a1f'; for (let i = 0; i < 16; i += 4) g.fillRect(i, 0, 2, 16); });
@@ -34,15 +34,15 @@ scene.background = new THREE.Color(0x9fd0ff);
 const Lx = (i) => LINES[i - 1];
 const T_RW = Lx(1).t1 + 0.15, T_HOOK = T_RW + 0.6, T_SW = Lx(10).t1 + 0.08, T_BTN = T_SW + 0.85, T_ANNO = Lx(14).t0;
 const CAR0 = V(G + 0.3, 0, -1.2);
-function launchA(t) { return t < T_RW + 0.6 ? t * 0.85 + 0.75 : t - T_BTN; }
+function launchA(t) { return t < T_RW + 0.6 ? t * 0.75 + 0.25 : t - T_BTN; }
 function carState(t) {
   if (t >= T_RW + 0.6 && t < Lx(2).t1 + 0.2) { const k = easeOut(seg(t, Lx(2).t0 - 0.3, Lx(2).t1)); return { p: V(lerp(G + 6.8, CAR0.x, k), 0, CAR0.z), rz: 0, fly: false }; }
   const a = launchA(t);
   if (a <= 0) { const rum = t > T_BTN - 0.2 ? 0.02 : 0; return { p: CAR0.clone().add(V(noise1(t * 40) * rum, Math.abs(noise1(t * 33)) * rum, 0)), rz: 0, fly: false }; }
-  const y = Math.min(3.4 * a * a, 26 + a * 3); return { p: CAR0.clone().add(V(a * 0.15, y, 0)), rz: Math.min(0.35, a * 0.4), fly: true };
+  const y = Math.min(1.7 * a * a, 26 + a * 3); return { p: CAR0.clone().add(V(a * 0.15, y, 0)), rz: Math.min(0.35, a * 0.4), fly: true };
 }
-const T_ROOF = T_BTN + Math.sqrt(4.4 / 3.4);
-const holeOpen = (t) => (t < T_RW + 0.6 && launchA(t) > Math.sqrt(4.4 / 3.4)) || t >= T_ROOF;
+const A_ROOF = Math.sqrt(4.4 / 1.7), T_ROOF = T_BTN + A_ROOF;
+const holeOpen = (t) => (t < T_RW + 0.6 && launchA(t) > A_ROOF) || t >= T_ROOF;
 
 // ---------- seating Bestem in the 128 ----------
 function seatIn(c, extra = {}) { if (c.root.parent !== SC.body) SC.body.add(c.root); c.root.position.copy(SC.seats.driver); c.root.rotation.set(0, Math.PI / 2, 0); return { ...POSE0, y: 0.5 - c.cfg.hipY, lL: 1.45, lR: 1.45, aLx: 1.2, eL: 0.4, aRx: 1.2, eR: 0.4, ...extra }; }
@@ -94,7 +94,7 @@ function inCar(local, target, fov = 62) { SC.setExterior(false); cam(local.clone
 function shotAt(t) {
   SC.setExterior(true); SC.glass.forEach(g => g.visible = true);
   if (t < T_RW + 0.6) { // cold open: from under the roof hole, the car punches out with Bestem screaming
-    cam(V(CAR0.x + 1.3, 0.6, CAR0.z + 2.2), car.position.clone().add(V(0, 0.6, 0)), 64); camera.position.add(shake(t, 0.03)); return; }
+    if (launchA(t) < A_ROOF + 0.35) cam(V(CAR0.x - 3.2, 1.1, CAR0.z + 5.4), car.position.clone().add(V(0, 0.7, 0)), 64); else cam(V(CAR0.x + 1.3, 0.6, CAR0.z + 2.2), car.position.clone().add(V(0, 0.6, 0)), 64); camera.position.add(shake(t, 0.03)); return; }
   if (t < Lx(2).t1 + 0.2) { const k = easeInOut(seg(t, T_RW + 0.6, Lx(2).t1)); cam(VL(V(G - 2.8, 1.7, 3.9), V(G - 1.8, 1.5, 3.3), k), V(G + 3.2, 0.9, -0.8), 58); return; }
   if (t < Lx(3).t1 + 0.15) { faceShot(bastam, 2.6, -0.5, 0.05, 40, 0.12); return; }
   if (t < Lx(4).t1 + 0.15) { faceShot(alamy, 2.8, 0.6, 0.05, 40, 0.2); return; }
@@ -107,7 +107,7 @@ function shotAt(t) {
   if (t < T_SW) { faceShot(dad, 2.0, -0.3, 0.02, 42, 0.1); camera.position.add(shake(t, 0.015)); return; }
   if (t < T_BTN - 0.25) { cam(V(G + 2.4, 1.5, 4.2), V(G + 1.4, 1.0, 0.2), 56); return; }               // the swing, Ibrahim ducks
   if (t < T_BTN + 0.35) { SC.glass.forEach(g => g.visible = false); const b = SC.btn.getWorldPosition(V(0, 0, 0)); fist.visible = true; fist.position.copy(b).add(V(0.02, 0.06, lerp(0.5, 0.06, easeIn(seg(t, T_BTN - 0.25, T_BTN))))); inCar(V(0.2, 1.2, -0.05), b, 46); camera.position.add(shake(t, t > T_BTN ? 0.02 : 0)); return; }
-  if (t < Lx(11).t1 + 0.3) { const a = t - T_BTN; if (a < 0.9) cam(V(CAR0.x + 3.6, 1.0, CAR0.z + 4.6), car.position.clone().add(V(0, 0.8, 0)), 62); else cam(V(CAR0.x + 1.3, 0.6, CAR0.z + 2.2), car.position.clone().add(V(0, 0.6, 0)), 64); camera.position.add(shake(t, 0.04)); return; }
+  if (t < Lx(11).t1 + 0.3) { const a = t - T_BTN; if (a < A_ROOF + 0.35) cam(V(CAR0.x - 3.2, 1.1, CAR0.z + 5.4), car.position.clone().add(V(0, 0.7, 0)), 64); else cam(V(CAR0.x + 1.3, 0.6, CAR0.z + 2.2), car.position.clone().add(V(0, 0.6, 0)), 64); camera.position.add(shake(t, 0.04)); return; }
   if (t < Lx(12).t1 + 0.15) { const hd = headOf(samir); cam(hd.clone().add(V(-2.1, -0.15, 0.9)), hd.clone().add(V(0, -0.15, 0)), 44); return; }
   if (t < T_ANNO) { faceShot(dad, 2.3, 0.35, -0.05, 42, 0.0); return; }
   const k = easeInOut(seg(t, T_ANNO, DUR - 2)); cam(V(CAR0.x + 1.0, lerp(1.2, 0.8, k), CAR0.z + 2.4), V(CAR0.x, 5.2, CAR0.z - 0.3), 74);

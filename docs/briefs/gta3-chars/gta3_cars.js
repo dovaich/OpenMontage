@@ -117,11 +117,16 @@ function gtaCarModel(C, file, o = {}) {
   C.shell = C.body.children.filter(ch => ch.isMesh || ch.isGroup); // everything procedural (wheels too); interior is re-shown for in-car shots
   new GLTFLoader().load('gta/models/' + file + '.glb', (gl) => {
     gl.scene.updateMatrixWorld(true); let src = null; gl.scene.traverse(m => { if (m.isMesh && !src) src = m; });
-    const geo = src.geometry.clone(); geo.applyMatrix4(src.matrixWorld); if (o.rotY) geo.rotateY(o.rotY);
+    const geo = src.geometry.clone(); geo.applyMatrix4(src.matrixWorld);
+    { // align the car's long axis with x (the drawing was a 3/4 view, so the mesh comes out rotated)
+      const p = geo.attributes.position; let mx = 0, mz = 0; for (let i = 0; i < p.count; i++) { mx += p.getX(i); mz += p.getZ(i); } mx /= p.count; mz /= p.count;
+      let cxx = 0, czz = 0, cxz = 0; for (let i = 0; i < p.count; i++) { const dx = p.getX(i) - mx, dz = p.getZ(i) - mz; cxx += dx * dx; czz += dz * dz; cxz += dx * dz; }
+      const ang = 0.5 * Math.atan2(2 * cxz, cxx - czz); geo.rotateY(ang); }
+    if (o.rotY) geo.rotateY(o.rotY);
     geo.computeBoundingBox(); const b = geo.boundingBox; const k = (o.len || 4.3) / (b.max.x - b.min.x);
     geo.translate(-(b.max.x + b.min.x) / 2, -b.min.y, -(b.max.z + b.min.z) / 2); geo.scale(k, k, k); geo.computeVertexNormals();
     const map = src.material.map; if (map) { map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 4; }
-    const mat = new THREE.MeshPhongMaterial({ map, shininess: 70, specular: 0x555555, envMap: GTA_ENV, reflectivity: 0.18, combine: THREE.MixOperation });
+    const mat = new THREE.MeshPhongMaterial({ map, shininess: 60, specular: 0x3a3a3a, envMap: GTA_ENV, reflectivity: 0.06, combine: THREE.MixOperation });
     C.model = new THREE.Mesh(geo, mat); C.body.add(C.model);
     C.setExterior = (on) => { C.model.visible = on; C.shell.forEach(m => m.visible = !on); };
     C.setExterior(true); res();
