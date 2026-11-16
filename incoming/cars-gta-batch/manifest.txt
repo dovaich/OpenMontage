@@ -1,0 +1,4 @@
+cars-gta-batch - Gemini web app (gemini.google.com), one chat, 2026-11-16. All images 2400x1792 (4:3 landscape), downloaded full size (JPEG) and converted to PNG. Gemini corner mark may be present.
+samir128.png - tries: 1 - mustard-orange boxy 1980 sedan, white roof, roof rack, chrome bumpers/grille, round headlights, whitewalls, dusty/dented. Front three-quarter from above, whole car in frame, no text.
+sedan_grey.png - tries: 1 - gunmetal grey 4-door, chrome rectangular grille, rectangular headlights with orange corners, tinted windows, 5-spoke silver alloys, small rear spoiler. Front three-quarter, whole car in frame, no text.
+sedan_red.png - tries: 1 - dark cherry red 4-door, black grille, rectangular headlights, tinted windows, silver alloys. Front three-quarter, whole car in frame, no text.
