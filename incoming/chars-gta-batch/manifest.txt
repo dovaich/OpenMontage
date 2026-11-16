@@ -1,0 +1,6 @@
+﻿chars-gta-batch - Gemini web app (gemini.google.com), one chat, 2026-11-16. All images 1792x2400 (3:4), downloaded full size (JPEG) and converted to PNG. Gemini corner mark may be present.
+bastam.png - tries: 3 - WARNING: arms still slope down ~20 deg (A-pose-ish) after 3 tries; best of the 3 kept (try 3). Otherwise full body, front view, no text.
+asly.png - tries: 1 - T-pose OK, arms horizontal; fingertips close to the frame edges but not cropped.
+gazzar.png - tries: 1 - T-pose OK, arms horizontal.
+alamy.png - tries: 3 - tries 1-2 were A-pose; try 3 (fresh prompt) T-pose OK, arms horizontal.
+samir.png - tries: 1 - T-pose OK, arms horizontal; legs hidden by the ankle-length galabiya (as described).

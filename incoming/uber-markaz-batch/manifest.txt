@@ -1,0 +1,12 @@
+uber-markaz-batch — «العربية في المركز» (test episode). Google AI Studio, Gemini 3.8 Flash TTS, recorded 2026-11-16.
+Durations estimated from file size (24 kHz, 16-bit mono WAV).
+
+r1.wav  ~24.0 s  multi-speaker: Speaker 1 = Orus (Ibrahim), Speaker 2 = Sadachbia (Bestem)
+        blocks: Ibrahim, Bestem, Ibrahim (4 parts with [long pause]), Bestem
+r2.wav  ~26.4 s  multi-speaker: Speaker 1 = Rasalgethi (El-Alamy), Speaker 2 = Umbriel (El-Gazzar)
+        blocks: El-Alamy (2 parts with [long pause]), El-Gazzar
+r3.wav  ~6.2 s   multi-speaker: Speaker 1 = Alnilam (El-Asly), Speaker 2 = Gacrux (Abu Samir)
+        blocks: El-Asly, Abu Samir
+r4.wav  ~7.0 s   single speaker: Algenib (English announcer) — "Car status: airborne. Repair bill: five thousand."
+
+Each recording was one run (no retakes). Texts and styles exactly as in docs/briefs/uber-markaz-batch/recording_message.md.
