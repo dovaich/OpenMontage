@@ -4,3 +4,7 @@ Not a main-series episode: it tests a new look.
 - Characters: real 3D models (T-pose drawing → Hunyuan3D-2 on Kaggle → GLB) skinned onto the engine rig (`../gta3-chars/gta3_models.js`). The procedural fallback is in `gta3_chars.js`.
 - Cars: `../gta3-chars/gta3_cars.js` (glossy paint with a fake reflection, tinted glass, alloy wheels, textured lamps; `style: '128'` for Abu Samir's car).
 - Voices: uber-markaz-batch (laptop, AI Studio). Line map: `vertical-template/assemble_pair.py` entry `uber-markaz-gta`.
+
+## Old-style version (the series' normal low-poly look)
+Same voices, story and shots: `ep_old.js` + `build_old.py` (engine8's own characters, `makeSamirCar`, the cartoon garage cars) and `encode_old.sh` (the usual CRT finish).
+Delivered while the GTA look keeps being refined.
