@@ -93,9 +93,8 @@ function faceShot(c, dist, side = 0.3, up = 0.02, fov = 40, ld = 0.05) { faceCam
 function inCar(local, target, fov = 62) { SC.setExterior(false); cam(local.clone().applyMatrix4(SC.body.matrixWorld), target, fov); }
 function shotAt(t) {
   SC.setExterior(true); SC.glass.forEach(g => g.visible = true);
-  if (t < T_RW + 0.6) { // cold open: Bestem screaming inside the rising car, then the car through the roof
-    if (t < 1.1) { SC.glass.forEach(g => g.visible = false); inCar(V(0.25, 1.05, 0.5), headOf(bastam).add(V(0, -0.02, 0)), 58); camera.position.add(shake(t, 0.015)); return; }
-    cam(V(CAR0.x + 4.0, 1.0, CAR0.z + 5.2), car.position.clone().add(V(0, 0.8, 0)), 62); camera.position.add(shake(t, 0.03)); return; }
+  if (t < T_RW + 0.6) { // cold open: from under the roof hole, the car punches out with Bestem screaming
+    cam(V(CAR0.x + 1.3, 0.6, CAR0.z + 2.2), car.position.clone().add(V(0, 0.6, 0)), 64); camera.position.add(shake(t, 0.03)); return; }
   if (t < Lx(2).t1 + 0.2) { const k = easeInOut(seg(t, T_RW + 0.6, Lx(2).t1)); cam(VL(V(G - 2.8, 1.7, 3.9), V(G - 1.8, 1.5, 3.3), k), V(G + 3.2, 0.9, -0.8), 58); return; }
   if (t < Lx(3).t1 + 0.15) { faceShot(bastam, 2.6, -0.5, 0.05, 40, 0.12); return; }
   if (t < Lx(4).t1 + 0.15) { faceShot(alamy, 2.8, 0.6, 0.05, 40, 0.2); return; }
@@ -108,7 +107,7 @@ function shotAt(t) {
   if (t < T_SW) { faceShot(dad, 2.0, -0.3, 0.02, 42, 0.1); camera.position.add(shake(t, 0.015)); return; }
   if (t < T_BTN - 0.25) { cam(V(G + 2.4, 1.5, 4.2), V(G + 1.4, 1.0, 0.2), 56); return; }               // the swing, Ibrahim ducks
   if (t < T_BTN + 0.35) { SC.glass.forEach(g => g.visible = false); const b = SC.btn.getWorldPosition(V(0, 0, 0)); fist.visible = true; fist.position.copy(b).add(V(0.02, 0.06, lerp(0.5, 0.06, easeIn(seg(t, T_BTN - 0.25, T_BTN))))); inCar(V(0.2, 1.2, -0.05), b, 46); camera.position.add(shake(t, t > T_BTN ? 0.02 : 0)); return; }
-  if (t < Lx(11).t1 + 0.3) { cam(V(CAR0.x + 4.2, 0.6, CAR0.z + 5.6), car.position.clone().add(V(0, 0.7, 0)), 64); camera.position.add(shake(t, 0.04)); return; }
+  if (t < Lx(11).t1 + 0.3) { const a = t - T_BTN; if (a < 0.9) cam(V(CAR0.x + 3.6, 1.0, CAR0.z + 4.6), car.position.clone().add(V(0, 0.8, 0)), 62); else cam(V(CAR0.x + 1.3, 0.6, CAR0.z + 2.2), car.position.clone().add(V(0, 0.6, 0)), 64); camera.position.add(shake(t, 0.04)); return; }
   if (t < Lx(12).t1 + 0.15) { const hd = headOf(samir); cam(hd.clone().add(V(-2.1, -0.15, 0.9)), hd.clone().add(V(0, -0.15, 0)), 44); return; }
   if (t < T_ANNO) { faceShot(dad, 2.3, 0.35, -0.05, 42, 0.0); return; }
   const k = easeInOut(seg(t, T_ANNO, DUR - 2)); cam(V(CAR0.x + 1.0, lerp(1.2, 0.8, k), CAR0.z + 2.4), V(CAR0.x, 5.2, CAR0.z - 0.3), 74);
@@ -116,7 +115,7 @@ function shotAt(t) {
 function particles(t) {
   const pf = [], st = [], sw = [];
   if (t < Lx(6).t1 && t > T_RW + 0.6) { const p = V(1.9, 0.95, 0).applyMatrix4(SC.body.matrixWorld); for (let i = 0; i < 4; i++) { const k = (t * 0.6 + i / 4) % 1; pf.push({ pos: p.clone().add(V(k * 0.3, k * 1.4, (hash(i) - .5) * 0.4)), size: 0.25 + k * 0.6, op: 0.45 * (1 - k), color: 0x8a8a8a }); } } // radiator smoke
-  if (carState(t).fly) { const base = car.position.clone(); for (let i = 0; i < 10; i++) { const k = (t * 3 + i / 10) % 1; pf.push({ pos: base.clone().add(V((hash(i) - .5) * 1.6, -k * 2.2, (hash(i + 4) - .5) * 1.0)), size: 0.5 + k, op: 0.8 * (1 - k), color: k < 0.3 ? 0xffa030 : 0xcccccc }); } }
+  if (carState(t).fly) { const base = car.position.clone(); for (let i = 0; i < 8; i++) { const k = (t * 3 + i / 8) % 1; pf.push({ pos: base.clone().add(V((hash(i) - .5) * 1.4, -0.2 - k * 1.1, (hash(i + 4) - .5) * 0.9)), size: 0.25 + k * 0.45, op: 0.75 * (1 - k), color: k < 0.3 ? 0xffa030 : 0xcccccc }); } }
   if (inT(t, T_BTN, T_BTN + 0.7)) { const p = SC.btn.getWorldPosition(V(0, 0, 0)); for (let i = 0; i < 6; i++) { const a = (t - T_BTN) * 3; st.push({ pos: p.clone().add(V(Math.cos(i) * a * 0.3, 0.1 + a * 0.2, Math.sin(i) * a * 0.3)), size: 0.08, color: 0xffe14a }); } }
   if (t >= Lx(13).t0) { const hd = headOf(dad); for (let i = 0; i < 2; i++) { const k = (t * 1.2 + i / 2) % 1; sw.push({ pos: hd.clone().add(V((i - 0.5) * 0.18, 0.08 - k * 0.15, 0.08)), size: 0.05, color: 0xffffff }); } }
   emit(pf, puffPool); emit(st, starPool); emit(sw, sweatPool); emit([], trailPool);

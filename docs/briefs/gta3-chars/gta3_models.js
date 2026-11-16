@@ -31,8 +31,8 @@ function gtaSkin(c, sceneObj, M) {
   const slope = na > 10 ? (na * sxy - sx * sy) / (na * sxx - sx * sx) : 0, icpt = (sy - slope * sx) / Math.max(1, na);
   const armAng = Math.atan(-Math.min(0, slope)); // radians below horizontal
   const armAt = (ax) => icpt + slope * ax;
-  const armY0 = armAt(half * 0.45); let torsoW = 0; for (let i = 0; i < n; i++) { const y = Y(i), ax = Math.abs(X(i)); if (y > armY0 - 0.34 && y < armY0 - 0.2 && ax < half * 0.4) torsoW = Math.max(torsoW, ax); }
-  const shX = Math.max(0.12, torsoW - 0.035), elX = shX + (half - shX) * 0.46; const armY = armAt(shX) + 0.03;
+  const armY0 = armAt(half * 0.45); const chest = []; for (let i = 0; i < n; i++) { const y = Y(i), ax = Math.abs(X(i)); if (y > armY0 - 0.3 && y < armY0 - 0.2 && ax < 0.3) chest.push(ax); } chest.sort((a, b) => a - b); const torsoW = chest.length ? chest[Math.floor(chest.length * 0.97)] : 0.18;
+  const shX = clamp(torsoW * 1.0, 0.15, 0.27), elX = shX + (half - shX) * 0.46; const armY = armAt(shX) + 0.03;
   let crotch = 0; for (let y = 0.35 * M.h; y < 0.62 * M.h; y += 0.005) { let hit = false; for (let i = 0; i < n; i++) if (Math.abs(X(i)) < 0.02 && Math.abs(Y(i) - y) < 0.006) { hit = true; break; } if (hit) { crotch = y; break; } }
   if (M.robe || crotch < 0.3 * M.h) crotch = 0.46 * M.h;
   const hipY = crotch + 0.07;
@@ -49,7 +49,7 @@ function gtaSkin(c, sceneObj, M) {
   const jaw = new THREE.Group(); c.head.add(jaw); jaw.position.set(0, mouthY + 0.012 - headY, -0.035); c.jaw = jaw;
   // dark mouth cavity behind the lips (shows when the jaw drops)
   let zf = 0; for (let i = 0; i < n; i++) if (Math.abs(Y(i) - mouthY) < 0.01 && Math.abs(X(i)) < 0.02) zf = Math.max(zf, P.getZ(i));
-  const cav = mesh(new THREE.SphereGeometry(0.022, 10, 6), new THREE.MeshBasicMaterial({ color: 0x1a0606 }), 0, mouthY - headY - 0.004, zf - 0.016, c.head); cav.scale.set(1.25, 0.7, 0.6); c.mouthCav = cav;
+  const cav = null;
   // the procedural body goes away (keep the shadow blob)
   c.root.traverse(o => { if (o.isMesh && o !== c.blob && o !== cav) o.visible = false; });
   const saved = [c.root.position.clone(), c.root.rotation.clone(), c.root.scale.clone()];
@@ -59,9 +59,11 @@ function gtaSkin(c, sceneObj, M) {
   const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4);
   for (let i = 0; i < n; i++) {
     const x = X(i), y = Y(i), ax = Math.abs(x), s = x >= 0 ? 0 : 1; const w = new Float32Array(bones.length);
-    const yl = armAt(ax) + 0.03; const armBand = y > yl - 0.14 && y < yl + 0.14 && y > armY - 0.5;
-    const wArm = armBand ? sstep(shX - 0.09, shX + 0.06, ax) : 0;
-    const wFore = sstep(elX - 0.05, elX + 0.05, ax);
+    const dx = Math.cos(armAng), dy = -Math.sin(armAng); const vx = ax - shX, vy = y - armY;
+    const proj = vx * dx + vy * dy, perp = Math.abs(vx * dy - vy * dx);
+    const L1 = (elX - shX) / Math.cos(armAng); const rad = 0.105 + 0.03 * (1 - clamp(proj / 0.15));
+    const wArm = sstep(-0.07, 0.05, proj) * (1 - sstep(rad, rad + 0.05, perp)) * (y > armY - 0.75 ? 1 : 0);
+    const wFore = sstep(L1 - 0.05, L1 + 0.05, proj);
     const wLeg = sstep(hipY - 0.02, crotch - 0.09, y) * (M.robe ? 0.35 : 1);
     const wHead = sstep(neckY + 0.02, neckY + 0.11, y);
     const wTor = sstep(hipY - 0.04, hipY + 0.14, y);
@@ -98,4 +100,4 @@ function gtaSkin(c, sceneObj, M) {
 }
 
 // lip sync: open the jaw with the speaker's voice envelope
-function gtaLipSync(t, cast) { for (const who in cast) { const c = cast[who]; if (!c || !c.jaw) continue; const e = speakerAt(t) === who ? envAt(t) : 0; c.jaw.rotation.x = Math.min(0.32, e * 0.36); } }
+function gtaLipSync(t, cast) { for (const who in cast) { const c = cast[who]; if (!c || !c.jaw) continue; const e = speakerAt(t) === who ? envAt(t) : 0; c.jaw.rotation.x = Math.min(0.14, e * 0.16); } }

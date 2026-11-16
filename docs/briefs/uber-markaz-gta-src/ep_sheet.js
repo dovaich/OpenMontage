@@ -23,7 +23,7 @@ window.renderFrame = function (t) {
   setFace(dad, ...EX[(k + 0) % 6], { stache: true }); setFace(bastam, ...EX[(k + 1) % 6], { fuzz: true }); setFace(asly, ...EX[(k + 2) % 6], { stache: true });
   setFace(gazzar, ...EX[(k + 3) % 6], { fuzz: true }); setFace(alamy, ...EX[(k + 4) % 6], ALAMY_FACE); setFace(samir, ...EX[(k + 5) % 6], { stache: true, stacheColor: '#eeeeee' });
   if (t < 1) cam(V(G, 1.5, 6.4), V(G, 1.1, 1.0), 50);
-  else if (t < 7) faceCam(cast[(Math.floor(t) - 1) % 6], 7.5, 1.2, -0.75, 40, 0.75);
+  else if (t < 7) faceCam(cast[(Math.floor(t) - 1) % 6], 9.0, 1.5, -0.7, 40, 0.75);
   else if (t < 8) faceCam(dad, 1.4, 0.35, 0.0, 40, 0.02);
   else faceCam(asly, 1.4, -0.35, 0.0, 40, 0.02);
   renderer.render(scene, camera);
