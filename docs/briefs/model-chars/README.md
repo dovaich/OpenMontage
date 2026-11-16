@@ -17,7 +17,7 @@ The cartoon body is moved to layer 1 (never drawn), so ep.js toggling hair/goggl
 |---|---|---|
 | ibrahim.glb | Ibrahim | Gemini drawing (incoming/ibrahim-3d-a) → Hunyuan3D-2 (v2 run, branch ccr-f712767a-hufj5z) |
 | alamy, bastam, asly, gazzar, samir | service-center cast, Abu Samir | FLUX T-pose → Hunyuan3D-2 (same branch) |
-| om_hamada, hamada | Om Hamada, Hamada | queued: laptop image batch `family-3d-img` (Gemini web app) → Kaggle |
+| om_hamada, hamada | Om Hamada, Hamada | laptop image batch `family-3d-img` (Gemini web app) → Hunyuan3D-2 on Kaggle (kernel hy3d-family, ~14 min) |
 
 ## Making a new model
 1. Drawing: an IMAGE batch for the laptop (Gemini web app, strict T-pose, front view, plain grey background; see
