@@ -3,6 +3,22 @@
 import json, wave, sys, numpy as np
 SR = 44100
 EP = {
+ "uber-markaz-gta": ("العربية في المركز (تجربة شكل GTA)", 3.0, [
+  ("bastam", "r1", 21.64, 23.80, 0.15, "يا أصلي! العربية طالعة لفوق!", "El-Asly! The car's going up!"),
+  ("dad", "r1", 0.18, 3.02, 1.0, "بسرعة يا رجالة... قبل ما أبو سمير يصحى!", "Quick, guys... before Abu Samir wakes up!"),
+  ("bastam", "r1", 3.75, 7.45, 0.3, "يا جزار! يا عالمي! زبون مستعجل!", "Gazzar! Alamy! Customer in a hurry!"),
+  ("alamy", "r2", 0.21, 2.29, 0.3, "إيه اللي حصل للعربية دي؟", "What happened to this car?"),
+  ("dad", "r1", 8.17, 11.33, 0.3, "ولا حاجة... كانت شغالة أوبر... وطارت شوية.", "Nothing... it was doing Uber... and flew a bit."),
+  ("gazzar", "r2", 18.95, 26.06, 0.4, "العربية مش زعلانة المرة دي... العربية عايزة تطير تاني.", "The car isn't sad this time... the car wants to fly again."),
+  ("asly", "r3", 0.15, 2.86, 0.4, "مين اللي ركّب الزرار الأحمر ده؟! أنا هضربه!", "Who installed this red button?! I'll hit him!"),
+  ("dad", "r1", 12.09, 14.57, 0.3, "أنا! المخترع العالمي!", "Me! The world-famous inventor!"),
+  ("alamy", "r2", 10.81, 18.21, 0.3, "العالمي هنا واحد بس... أنا. والفاتورة خمس تلاف.", "There's only one 'world-famous' here... me. And the bill is five thousand."),
+  ("dad", "r1", 15.29, 17.88, 0.3, "خمس تلاف؟! ده أبو سمير جايبها بألفين!", "Five thousand?! Abu Samir bought it for two!"),
+  ("bastam", "r1", 21.64, 23.80, 1.7, "يا أصلي! العربية طالعة لفوق!", "El-Asly! The car's going up!"),
+  ("samir", "r3", 3.51, 5.89, 0.9, "إبراهيم!... فين عربيتي؟!", "Ibrahim!... Where's my car?!"),
+  ("dad", "r1", 18.67, 21.02, 0.4, "في... في الجو يا أبو سمير... أوبر بريميوم.", "In... in the sky, Abu Samir... Uber Premium."),
+  ("anno", "r4", 0.11, 6.66, 0.6, "", "Car status: airborne. Repair bill: five thousand."),
+ ]),
  "sakhan": ("السخان النووي", 3.4, [
   ("mom", "r3", 0.23, 3.26, 0.15, "إبراهيم! الشقة كلها بقت حمّام بخار!", "Ibrahim! The whole flat turned into a steam bath!"),
   ("son", "r1", 0.02, 3.38, 1.25, "بابا! السخان بايظ... والمية تلج!", "Dad! The water heater's broken... the water's ice!"),
