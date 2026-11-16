@@ -1,0 +1,477 @@
+{
+ "title": "مركز الصيانة",
+ "voice_source": "Google AI Studio via Claude-in-Chrome (Sadachbia=Bastam, Orus=Ibrahim, Rasalgethi=El-Alamy, Alnilam=El-Asly, Umbriel=El-Gazzar, Algenib=announcer); mapped by gemini-3.5-flash-lite transcript",
+ "dur": 76.0,
+ "lines": [
+  {
+   "id": "L01",
+   "s": "bastam",
+   "t0": 1.0,
+   "t1": 4.66,
+   "src": [
+    "r1",
+    0.03,
+    3.69
+   ],
+   "gain": 0.84,
+   "ar": "يا جزاااار! يا أصلييي! حد يرد عليا!",
+   "en": "Gazzaaar! Asliii! Somebody answer me!",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     1.0,
+     1.82
+    ],
+    [
+     2.43,
+     3.24
+    ],
+    [
+     3.81,
+     4.63
+    ]
+   ]
+  },
+  {
+   "id": "L02",
+   "s": "dad",
+   "t0": 5.9,
+   "t1": 9.68,
+   "src": [
+    "r1",
+    4.45,
+    8.23
+   ],
+   "gain": 0.95,
+   "ar": "السلام عليكم... التوكتوك ده محتاج صيانة وتيونينج.",
+   "en": "Peace be upon you... this tuk-tuk needs servicing and tuning.",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     5.91,
+     6.72
+    ],
+    [
+     7.21,
+     9.66
+    ]
+   ]
+  },
+  {
+   "id": "L03",
+   "s": "bastam",
+   "t0": 10.0,
+   "t1": 12.84,
+   "src": [
+    "r1",
+    8.68,
+    11.52
+   ],
+   "gain": 0.96,
+   "ar": "تيونينج؟ ... ده بيتحط مع الزيت ولا مع البنزين؟",
+   "en": "Tuning? ...Does that go in with the oil or the petrol?",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     10.0,
+     10.47
+    ],
+    [
+     10.88,
+     12.72
+    ]
+   ]
+  },
+  {
+   "id": "L04",
+   "s": "dad",
+   "t0": 13.15,
+   "t1": 15.52,
+   "src": [
+    "r1",
+    12.23,
+    14.6
+   ],
+   "gain": 0.99,
+   "ar": "... إنت مدير الفنيين هنا؟",
+   "en": "...You're the head technician here?",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     13.15,
+     15.51
+    ]
+   ]
+  },
+  {
+   "id": "L05",
+   "s": "bastam",
+   "t0": 15.85,
+   "t1": 19.29,
+   "src": [
+    "r1",
+    15.19,
+    18.63
+   ],
+   "gain": 0.81,
+   "ar": "أيوه! ... يا عالمييي! تعالى شوف الراجل ده!",
+   "en": "Yes! ...Alamyyy! Come see this guy!",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     15.85,
+     16.22
+    ],
+    [
+     16.93,
+     17.61
+    ],
+    [
+     18.46,
+     19.28
+    ]
+   ]
+  },
+  {
+   "id": "L06",
+   "s": "dad",
+   "t0": 19.6,
+   "t1": 21.01,
+   "src": [
+    "r1",
+    19.45,
+    20.86
+   ],
+   "gain": 0.71,
+   "ar": "قوله المخترع العالمي إبراهيم جه.",
+   "en": "Tell him the world-famous inventor Ibrahim is here.",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     19.6,
+     20.99
+    ]
+   ]
+  },
+  {
+   "id": "L07",
+   "s": "alamy",
+   "t0": 21.4,
+   "t1": 28.23,
+   "src": [
+    "r2",
+    0.08,
+    6.91
+   ],
+   "gain": 1.14,
+   "ar": "العالمي ده أنا. ... وبعدين مين اللي ركّب حلة ضغط مكان الكمبيوتر؟!",
+   "en": "I'm El-Alamy. ...And who installed a pressure cooker instead of the computer?!",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     21.4,
+     22.3
+    ],
+    [
+     22.91,
+     23.14
+    ],
+    [
+     24.49,
+     27.02
+    ],
+    [
+     27.43,
+     28.18
+    ]
+   ]
+  },
+  {
+   "id": "L08",
+   "s": "dad",
+   "t0": 28.55,
+   "t1": 31.97,
+   "src": [
+    "r2",
+    7.81,
+    11.23
+   ],
+   "gain": 1.08,
+   "ar": "أنا! دي تكنولوجيا يابانية بلمسة مصرية!",
+   "en": "Me! Japanese technology with an Egyptian touch!",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     28.55,
+     28.83
+    ],
+    [
+     29.24,
+     30.69
+    ],
+    [
+     30.98,
+     31.89
+    ]
+   ]
+  },
+  {
+   "id": "L09",
+   "s": "alamy",
+   "t0": 32.3,
+   "t1": 36.94,
+   "src": [
+    "r2",
+    12.3,
+    16.94
+   ],
+   "gain": 1.49,
+   "ar": "لمسة مصرية؟ ده السيستم كاتب: أبو سمير، ممنوع السرقة!",
+   "en": "Egyptian touch? The system says: Abu Samir, NO STEALING!",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     32.3,
+     33.19
+    ],
+    [
+     34.01,
+     36.93
+    ]
+   ]
+  },
+  {
+   "id": "L10",
+   "s": "dad",
+   "t0": 37.25,
+   "t1": 39.25,
+   "src": [
+    "r2",
+    17.73,
+    19.73
+   ],
+   "gain": 0.97,
+   "ar": "آه... ده الواي فاي. سيبك منه.",
+   "en": "Ah... that's the Wi-Fi. Never mind.",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     37.25,
+     37.53
+    ],
+    [
+     37.81,
+     38.53
+    ],
+    [
+     38.73,
+     39.22
+    ]
+   ]
+  },
+  {
+   "id": "L11",
+   "s": "alamy",
+   "t0": 39.6,
+   "t1": 40.99,
+   "src": [
+    "r2",
+    20.89,
+    22.28
+   ],
+   "gain": 2.48,
+   "ar": "يا جماعة إنتوا ليه مبتفهموش حاجة؟",
+   "en": "Why don't you people understand ANYTHING?",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     39.6,
+     40.98
+    ]
+   ]
+  },
+  {
+   "id": "L12",
+   "s": "dad",
+   "t0": 41.3,
+   "t1": 44.23,
+   "src": [
+    "r2",
+    22.81,
+    25.74
+   ],
+   "gain": 1.24,
+   "ar": "أنا فاهم كل حاجة... بس مش فاكرها.",
+   "en": "I understand everything... I just don't remember it.",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     41.3,
+     42.46
+    ],
+    [
+     43.01,
+     44.2
+    ]
+   ]
+  },
+  {
+   "id": "L13",
+   "s": "asly",
+   "t0": 44.6,
+   "t1": 48.88,
+   "src": [
+    "r3",
+    0.23,
+    4.51
+   ],
+   "gain": 0.8,
+   "ar": "مين اللي عمل التوصيلات دي بشريط لزق وخرطوم مطافي؟! أنا هضربه!",
+   "en": "Who wired this with duct tape and a fire hose?! I'll beat him up!",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     44.61,
+     47.69
+    ],
+    [
+     48.0,
+     48.87
+    ]
+   ]
+  },
+  {
+   "id": "L14",
+   "s": "gazzar",
+   "t0": 49.2,
+   "t1": 54.28,
+   "src": [
+    "r3",
+    5.25,
+    10.33
+   ],
+   "gain": 1.53,
+   "ar": "اهدى يا أصلي... الدنيا حلوة... سيبهولي بس أظبط مزاجي.",
+   "en": "Easy, Asly... life is beautiful... leave it to me, just let me get in the mood.",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     49.2,
+     50.18
+    ],
+    [
+     50.86,
+     51.85
+    ],
+    [
+     52.38,
+     54.27
+    ]
+   ]
+  },
+  {
+   "id": "L15",
+   "s": "asly",
+   "t0": 54.6,
+   "t1": 56.78,
+   "src": [
+    "r3",
+    11.22,
+    13.4
+   ],
+   "gain": 0.76,
+   "ar": "إنت هتصلّحه إزاي وإنت مش شايف قدامك؟!",
+   "en": "How will you fix it when you can't even see straight?!",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     54.6,
+     56.77
+    ]
+   ]
+  },
+  {
+   "id": "L16",
+   "s": "gazzar",
+   "t0": 57.1,
+   "t1": 60.01,
+   "src": [
+    "r3",
+    14.19,
+    17.1
+   ],
+   "gain": 1.9,
+   "ar": "أنا مش بشوف... أنا بحس.",
+   "en": "I don't see... I FEEL.",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     57.1,
+     58.05
+    ],
+    [
+     59.04,
+     59.95
+    ]
+   ]
+  },
+  {
+   "id": "L17",
+   "s": "bastam",
+   "t0": 63.4,
+   "t1": 64.83,
+   "src": [
+    "r1",
+    21.39,
+    22.82
+   ],
+   "gain": 1.01,
+   "ar": "يا جزاااااار!",
+   "en": "GAZZAAAAAR!",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     63.4,
+     64.8
+    ]
+   ]
+  },
+  {
+   "id": "L18",
+   "s": "anno",
+   "t0": 65.4,
+   "t1": 74.04,
+   "src": [
+    "r4",
+    0.23,
+    8.87
+   ],
+   "gain": 1.41,
+   "ar": "",
+   "en": "New area unlocked: the service center. Bastam: still flying.",
+   "gap_after": 0.3,
+   "vox": [
+    [
+     65.4,
+     66.04
+    ],
+    [
+     66.16,
+     67.86
+    ],
+    [
+     68.37,
+     70.01
+    ],
+    [
+     70.63,
+     71.57
+    ],
+    [
+     72.19,
+     73.64
+    ]
+   ]
+  }
+ ]
+}

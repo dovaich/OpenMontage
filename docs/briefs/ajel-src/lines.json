@@ -1,0 +1,611 @@
+{
+ "title": "عاجل!",
+ "voice_source": "Google AI Studio via Claude-in-Chrome (Despina=Nashwa, Orus=Ibrahim, Enceladus=Sayed, Charon=Shehata, Sadachbia=Bastam, Rasalgethi=El-Alamy, Kore=Om Hamada, Algenib=announcer); mapped by gemini-3.5-flash transcript",
+ "dur": 132.9,
+ "lines": [
+  {
+   "id": "L01",
+   "s": "nashwa",
+   "t0": 2.6,
+   "t1": 9.26,
+   "src": [
+    "r1",
+    0.24,
+    6.82
+   ],
+   "gain": 0.91,
+   "ar": "مساء الخير... معاكم نشوى، ودي نشرة «عاجل جدًا». أهم أخبار المنطقة النهارده.",
+   "en": "Good evening... I'm Nashwa, and this is 'Very Urgent News'. Tonight's top local stories.",
+   "vox": [
+    [
+     2.64,
+     3.44
+    ],
+    [
+     4.21,
+     4.97
+    ],
+    [
+     5.4,
+     7.3
+    ],
+    [
+     7.6,
+     9.21
+    ]
+   ],
+   "gap_after": 0.5
+  },
+  {
+   "id": "L02",
+   "s": "nashwa",
+   "t0": 9.76,
+   "t1": 18.84,
+   "src": [
+    "r1",
+    8.59,
+    17.59
+   ],
+   "gain": 1.16,
+   "ar": "الخبر الأول: انفجار غامض في مطبخ في الدور التالت... والمصادر بتقول إن السبب: غسالة مواعين نفاثة!",
+   "en": "First: a mysterious explosion in a third-floor kitchen... sources blame a jet-powered dishwasher!",
+   "vox": [
+    [
+     9.8,
+     10.74
+    ],
+    [
+     11.64,
+     12.66
+    ],
+    [
+     12.9,
+     14.44
+    ],
+    [
+     15.12,
+     16.66
+    ],
+    [
+     17.3,
+     18.79
+    ]
+   ],
+   "gap_after": 2.6
+  },
+  {
+   "id": "L03",
+   "s": "sayed",
+   "t0": 21.44,
+   "t1": 28.07,
+   "src": [
+    "r2",
+    0.24,
+    6.79
+   ],
+   "gain": 1.71,
+   "ar": "أنا شُفت كل حاجة... بس الذاكرة تعبانة شوية... الشاي بيفكّرني.",
+   "en": "I saw everything... but my memory's a bit weak... tea helps me remember.",
+   "vox": [
+    [
+     21.48,
+     23.17
+    ],
+    [
+     23.4,
+     23.74
+    ],
+    [
+     23.88,
+     26.09
+    ],
+    [
+     26.79,
+     28.03
+    ]
+   ],
+   "gap_after": 0.4
+  },
+  {
+   "id": "L04",
+   "s": "nashwa",
+   "t0": 28.47,
+   "t1": 41.29,
+   "src": [
+    "r1",
+    26.25,
+    38.99
+   ],
+   "gain": 1.08,
+   "ar": "حد يجيب لعم سيد شاي... الخبر التاني: الكهربا قطعت عن المنطقة كلها، والسبب طاسة محشي!... وفي نفس اليوم، توكتوك طاير وقع على فرشة بطيخ.",
+   "en": "Someone get Uncle Sayed a tea... Next: a blackout over the whole area, caused by a stuffed-veggies pan!... Same day, a flying tuk-tuk crashed into a melon stall.",
+   "vox": [
+    [
+     28.51,
+     30.37
+    ],
+    [
+     31.36,
+     32.19
+    ],
+    [
+     32.85,
+     34.72
+    ],
+    [
+     35.17,
+     35.77
+    ],
+    [
+     36.35,
+     37.06
+    ],
+    [
+     37.85,
+     38.63
+    ],
+    [
+     39.1,
+     41.25
+    ]
+   ],
+   "gap_after": 2.2
+  },
+  {
+   "id": "L05",
+   "s": "shehata",
+   "t0": 43.49,
+   "t1": 50.56,
+   "src": [
+    "r2",
+    7.55,
+    14.54
+   ],
+   "gain": 0.99,
+   "ar": "البطيخ المستورد بتاعي اتكسر! والست اشترته اتنين بخمسة... وطلبت توصيل كمان!",
+   "en": "My imported melons got smashed! And the lady bought them two for five... and asked for delivery!",
+   "vox": [
+    [
+     43.54,
+     43.83
+    ],
+    [
+     43.95,
+     45.62
+    ],
+    [
+     45.93,
+     46.49
+    ],
+    [
+     46.96,
+     49.0
+    ],
+    [
+     49.39,
+     50.52
+    ]
+   ],
+   "gap_after": 0.6
+  },
+  {
+   "id": "L06",
+   "s": "nashwa",
+   "t0": 51.16,
+   "t1": 57.01,
+   "src": [
+    "r1",
+    42.42,
+    48.19
+   ],
+   "gain": 1.04,
+   "ar": "ومعانا في الاستوديو المتهم الأول... قصدي الضيف... المخترع العالمي إبراهيم.",
+   "en": "With us in the studio, the prime suspect... I mean, our guest... the world-famous inventor, Ibrahim.",
+   "vox": [
+    [
+     51.21,
+     53.62
+    ],
+    [
+     53.9,
+     56.97
+    ]
+   ],
+   "gap_after": 0.4
+  },
+  {
+   "id": "L07",
+   "s": "dad",
+   "t0": 57.41,
+   "t1": 64.53,
+   "src": [
+    "r1",
+    18.52,
+    25.56
+   ],
+   "gain": 1.09,
+   "ar": "أنا بنفي كل الاتهامات. الانفجار ده كان تجربة ناجحة جدًا... المطبخ هو اللي ماكانش جاهز.",
+   "en": "I deny all charges. That explosion was a very successful test... the kitchen just wasn't ready.",
+   "vox": [
+    [
+     57.46,
+     59.24
+    ],
+    [
+     59.82,
+     62.08
+    ],
+    [
+     62.76,
+     64.49
+    ]
+   ],
+   "gap_after": 0.4
+  },
+  {
+   "id": "L08",
+   "s": "nashwa",
+   "t0": 64.93,
+   "t1": 66.56,
+   "src": [
+    "r1",
+    52.52,
+    54.07
+   ],
+   "gain": 0.9,
+   "ar": "والكهربا يا أستاذ إبراهيم؟",
+   "en": "And the blackout, Mr. Ibrahim?",
+   "vox": [
+    [
+     64.97,
+     66.51
+    ]
+   ],
+   "gap_after": 0.35
+  },
+  {
+   "id": "L09",
+   "s": "dad",
+   "t0": 66.91,
+   "t1": 69.52,
+   "src": [
+    "r1",
+    39.2,
+    41.73
+   ],
+   "gain": 1.68,
+   "ar": "الكهربا كانت تعبانة... راحت تاخد بريك.",
+   "en": "The power was tired... it went on a break.",
+   "vox": [
+    [
+     66.95,
+     68.28
+    ],
+    [
+     68.54,
+     69.48
+    ]
+   ],
+   "gap_after": 0.9
+  },
+  {
+   "id": "L10",
+   "s": "alamy",
+   "t0": 70.42,
+   "t1": 77.89,
+   "src": [
+    "r3",
+    12.42,
+    19.81
+   ],
+   "gain": 0.99,
+   "ar": "ألو؟ معاكم العالمي. عايز بس أوضّح حاجة: لقب «العالمي» ده بتاعي... الأستاذ ده واخده من غير إذن.",
+   "en": "Hello? El-Alamy here. Just one correction: the title 'El-Alamy' is mine... this gentleman took it without permission.",
+   "vox": [
+    [
+     70.46,
+     70.77
+    ],
+    [
+     71.49,
+     72.31
+    ],
+    [
+     73.37,
+     74.37
+    ],
+    [
+     74.77,
+     75.91
+    ],
+    [
+     76.51,
+     77.82
+    ]
+   ],
+   "gap_after": 0.35
+  },
+  {
+   "id": "L11",
+   "s": "dad",
+   "t0": 78.24,
+   "t1": 81.34,
+   "src": [
+    "r1",
+    48.97,
+    51.99
+   ],
+   "gain": 1.3,
+   "ar": "من غير إذن إزاي؟! أنا عالمي من قبل ما إنت تتولد!",
+   "en": "Without permission?! I was world-famous before you were born!",
+   "vox": [
+    [
+     78.28,
+     79.21
+    ],
+    [
+     79.58,
+     81.3
+    ]
+   ],
+   "gap_after": 0.5
+  },
+  {
+   "id": "L12",
+   "s": "nashwa",
+   "t0": 81.84,
+   "t1": 87.25,
+   "src": [
+    "r1",
+    58.47,
+    63.8
+   ],
+   "gain": 0.99,
+   "ar": "خبر أخير وعاجل جدًا... معانا على التليفون: بستم... من السما.",
+   "en": "One last urgent story... on the phone with us: Bastam... from the sky.",
+   "vox": [
+    [
+     81.88,
+     82.87
+    ],
+    [
+     83.05,
+     83.86
+    ],
+    [
+     84.4,
+     85.48
+    ],
+    [
+     85.75,
+     86.21
+    ],
+    [
+     86.77,
+     87.21
+    ]
+   ],
+   "gap_after": 0.7
+  },
+  {
+   "id": "L13",
+   "s": "bastam",
+   "t0": 87.95,
+   "t1": 92.37,
+   "src": [
+    "r3",
+    0.11,
+    4.45
+   ],
+   "gain": 0.76,
+   "ar": "ألوووو! أنا لسه طاير! حد يقول للجزار ينزّلني!",
+   "en": "Hellooo! I'm still flying! Someone tell El-Gazzar to get me down!",
+   "vox": [
+    [
+     88.08,
+     88.85
+    ],
+    [
+     89.17,
+     90.29
+    ],
+    [
+     90.46,
+     92.32
+    ]
+   ],
+   "gap_after": 0.35
+  },
+  {
+   "id": "L14",
+   "s": "nashwa",
+   "t0": 92.72,
+   "t1": 94.68,
+   "src": [
+    "r1",
+    64.83,
+    66.71
+   ],
+   "gain": 1.01,
+   "ar": "بستم... إنت فين بالظبط دلوقتي؟",
+   "en": "Bastam... where exactly are you right now?",
+   "vox": [
+    [
+     92.76,
+     94.64
+    ]
+   ],
+   "gap_after": 0.35
+  },
+  {
+   "id": "L15",
+   "s": "bastam",
+   "t0": 95.03,
+   "t1": 100.43,
+   "src": [
+    "r3",
+    5.91,
+    11.23
+   ],
+   "gain": 0.72,
+   "ar": "فوق الأهرامات!... لا لا لا... دي إسكندرية!... يا جزاااار!",
+   "en": "Over the pyramids!... no no no... that's Alexandria!... Gazzaaar!",
+   "vox": [
+    [
+     95.09,
+     95.8
+    ],
+    [
+     96.95,
+     98.39
+    ],
+    [
+     99.03,
+     100.33
+    ]
+   ],
+   "gap_after": 0.6
+  },
+  {
+   "id": "L16",
+   "s": "nashwa",
+   "t0": 101.03,
+   "t1": 106.81,
+   "src": [
+    "r1",
+    68.26,
+    73.96
+   ],
+   "gain": 0.89,
+   "ar": "ونروح للنشرة الجوية: الجو صحو، مع احتمال سقوط بستم على القاهرة الكبرى.",
+   "en": "Now the weather: clear skies, with a chance of Bastam falling over Greater Cairo.",
+   "vox": [
+    [
+     101.07,
+     102.59
+    ],
+    [
+     103.22,
+     103.92
+    ],
+    [
+     104.34,
+     106.54
+    ]
+   ],
+   "gap_after": 0.6
+  },
+  {
+   "id": "L17",
+   "s": "dad",
+   "t0": 107.41,
+   "t1": 110.9,
+   "src": [
+    "r1",
+    54.55,
+    57.96
+   ],
+   "gain": 1.23,
+   "ar": "ثانية واحدة... أنا هقوّي إرسال الاستوديو بالمقوّي النووي!",
+   "en": "One second... I'll boost the studio signal with the nuclear booster!",
+   "vox": [
+    [
+     107.45,
+     107.92
+    ],
+    [
+     108.25,
+     110.86
+    ]
+   ],
+   "gap_after": 0.3
+  },
+  {
+   "id": "L18",
+   "s": "nashwa",
+   "t0": 111.2,
+   "t1": 113.27,
+   "src": [
+    "r1",
+    75.27,
+    77.26
+   ],
+   "gain": 0.6,
+   "ar": "لا لا لا! يا أستاذ إبراهيم، الفيشة لأ!",
+   "en": "No no no! Mr. Ibrahim, not the plug!",
+   "vox": [
+    [
+     111.25,
+     111.6
+    ],
+    [
+     111.72,
+     113.22
+    ]
+   ],
+   "gap_after": 3.6
+  },
+  {
+   "id": "L19",
+   "s": "mom",
+   "t0": 116.87,
+   "t1": 119.77,
+   "src": [
+    "r4",
+    0.11,
+    2.93
+   ],
+   "gain": 0.73,
+   "ar": "النور قطع تاني؟... إبراهيييييم!",
+   "en": "Power's out again?... IBRAHIIIM!",
+   "vox": [
+    [
+     116.91,
+     117.85
+    ],
+    [
+     118.99,
+     119.72
+    ]
+   ],
+   "gap_after": 0.9
+  },
+  {
+   "id": "L20",
+   "s": "anno",
+   "t0": 120.67,
+   "t1": 128.66,
+   "src": [
+    "r4",
+    3.87,
+    11.78
+   ],
+   "gain": 1.28,
+   "ar": "",
+   "en": "Broadcast lost. Signal: zero percent. Please stay tuned... from the balcony.",
+   "vox": [
+    [
+     120.71,
+     122.28
+    ],
+    [
+     122.82,
+     123.39
+    ],
+    [
+     123.83,
+     125.04
+    ],
+    [
+     125.7,
+     126.95
+    ],
+    [
+     127.81,
+     128.61
+    ]
+   ],
+   "gap_after": 0.4
+  }
+ ]
+}

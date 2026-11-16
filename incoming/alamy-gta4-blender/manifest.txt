@@ -1,0 +1,8 @@
+﻿alamy-gta4-blender r3 (Blender 3.6.23)
+still_0001.png
+still_0090.png
+still_0180.png
+still_0235.png
+preview.log  (STILLS_DONE [1, 90, 180, 235])
+alamy_raw_0001-0300.mp4  (10 s, 540x960, VIDEO_DONE)
+video.log

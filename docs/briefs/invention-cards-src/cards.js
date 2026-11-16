@@ -136,6 +136,107 @@ function lieDetector(s) {
   return { g, cam: [V(1.6, 1.35, 2.4), V(0, 0.45, 0.1)] };
 }
 
+function pedalGenerator(s) {
+  const g = new THREE.Group(); s.add(g);
+  const frameM = P(0x1f6fd8, { shininess: 80 });
+  for (const x of [-0.5, 0.5]) { const w = new THREE.Group(); w.position.set(x, 0.38, 0); g.add(w); mesh(new THREE.TorusGeometry(0.3, 0.035, 5, 14), M(0x111111), 0, 0, 0, w); for (let k = 0; k < 3; k++) mesh(box(0.56, 0.015, 0.015), M(0xaaaaaa), 0, 0, 0, w).rotation.z = k * Math.PI / 3; }
+  for (const [x, y, l, rz] of [[0, 0.55, 0.9, 0], [-0.22, 0.48, 0.45, 1.1], [0.25, 0.5, 0.42, -1.0], [-0.45, 0.62, 0.5, 0.25]]) mesh(box(l, 0.04, 0.04), frameM, x, y, 0, g).rotation.z = rz;
+  mesh(box(0.2, 0.05, 0.1), M(0x111111), -0.12, 0.82, 0, g); mesh(box(0.04, 0.04, 0.45), P(0xcccccc), 0.5, 0.9, 0, g); mesh(box(0.04, 0.3, 0.04), frameM, 0.48, 0.76, 0, g);
+  mesh(box(0.3, 0.14, 0.5), M(0x555555), -0.5, 0.07, 0, g);
+  mesh(box(0.14, 0.14, 0.12), P(0xd8231b), -0.5, 0.3, 0.16, g); mesh(box(0.5, 0.03, 0.03), P(0xc9ccd1), -0.5, 0.36, 0.18, g);
+  const fan = new THREE.Group(); fan.position.set(1.0, 0, -0.35); g.add(fan);
+  mesh(cyl(0.16, 0.18, 0.05, 8), M(0x2a8a8a), 0, 0.03, 0, fan); mesh(cyl(0.03, 0.03, 0.9, 6), M(0x2a8a8a), 0, 0.48, 0, fan);
+  const head = new THREE.Group(); head.position.set(0, 0.98, 0); head.rotation.y = -0.5; fan.add(head);
+  mesh(new THREE.TorusGeometry(0.24, 0.015, 4, 14), M(0xdddddd), 0, 0, 0.04, head);
+  for (let k = 0; k < 3; k++) { const b = mesh(box(0.08, 0.2, 0.01), M(0x8fd0ff), 0, 0, 0, head); b.position.set(Math.sin(k * 2.09) * 0.1, Math.cos(k * 2.09) * 0.1, 0); b.rotation.z = -k * 2.09; }
+  mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshBasicMaterial({ color: 0xfff0a0 }), 0.0, 1.35, 0.1, g); mesh(box(0.012, 0.3, 0.012), M(0x111111), 0, 1.55, 0.1, g);
+  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(-0.5, 0.3, 0.22), V(0.2, 0.05, 0.3), V(0.8, 0.1, 0.0), V(1.0, 0.9, -0.35)]), 16, 0.012, 4), M(0x111111), 0, 0, 0, g);
+  // sparks from the dynamo
+  for (let i = 0; i < 6; i++) mesh(new THREE.OctahedronGeometry(0.03, 0), new THREE.MeshBasicMaterial({ color: 0x9fd0ff }), -0.5 + Math.cos(i) * 0.15, 0.45 + i * 0.04, 0.25 + Math.sin(i) * 0.08, g);
+  g.position.set(-0.15, 0, 0); g.rotation.y = 0.35;
+  return { g, cam: [V(1.3, 1.45, 2.9), V(0.1, 0.6, 0)] };
+}
+
+function passwordStethoscope(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(cyl(0.025, 0.025, 2.0, 6), M(0x8a5a2b), 0, 1.0, 0, g);
+  const pan = new THREE.Group(); pan.position.y = 2.02; g.add(pan);
+  mesh(cyl(0.22, 0.18, 0.06, 12), P(0x1d1d1f, { shininess: 80 }), 0, 0, 0, pan); mesh(box(0.05, 0.03, 0.34), P(0x111111), 0, -0.01, 0.34, pan);
+  mesh(cyl(0.08, 0.08, 0.03, 12), P(0xc8ced6, { shininess: 110, specular: 0xffffff }), 0, 0.045, 0, pan);
+  for (let i = 0; i < 3; i++) mesh(box(0.46, 0.03, 0.03), P(0xc9ccd1), 0, 1.5 - i * 0.12, 0.03, g);
+  const tub = (pts) => mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 20, 0.014, 5), M(0x111111), 0, 0, 0, g);
+  tub([V(0, 2.0, 0.05), V(0.25, 1.6, 0.3), V(0.35, 1.15, 0.2)]); tub([V(0, 2.0, 0.05), V(-0.25, 1.6, 0.3), V(-0.35, 1.15, 0.2)]);
+  for (const sx of [-1, 1]) mesh(new THREE.SphereGeometry(0.04, 6, 4), P(0xc8ced6), sx * 0.35, 1.12, 0.2, g);
+  // ceiling slab + sound waves
+  mesh(box(1.6, 0.1, 1.0), M(0xb08a58), 0, 2.12, 0, g);
+  for (let i = 0; i < 3; i++) mesh(new THREE.TorusGeometry(0.15 + i * 0.12, 0.01, 4, 16, Math.PI), new THREE.MeshBasicMaterial({ color: 0x5ab8ff }), 0, 2.25 + i * 0.04, 0, g).rotation.x = -Math.PI / 2;
+  g.position.set(0, -0.25, 0); g.rotation.y = 0.4;
+  return { g, cam: [V(1.6, 1.4, 2.8), V(0, 1.15, 0)] };
+}
+
+function nuclearHeater(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(1.4, 1.8, 0.08), M(0xdfeef4), 0, 1.1, -0.35, g);
+  const h = new THREE.Group(); h.position.set(0, 1.35, -0.05); g.add(h);
+  mesh(cyl(0.3, 0.3, 0.9, 14), P(0xf4f4f4, { shininess: 60 }), 0, 0, 0, h);
+  mesh(cyl(0.305, 0.305, 0.91, 14, true), new THREE.MeshBasicMaterial({ color: 0xff3a10, transparent: true, opacity: 0.35, side: THREE.DoubleSide }), 0, 0, 0, h);
+  mesh(new THREE.CircleGeometry(0.08, 10), M(0xffffff), 0, 0.12, 0.301, h); mesh(box(0.014, 0.07, 0.01), M(0xd8231b), 0.02, 0.14, 0.31, h).rotation.z = -1.2;
+  const k = new THREE.Group(); k.position.set(-0.34, -0.58, 0.14); h.add(k); mesh(cyl(0.12, 0.14, 0.24, 10), P(0xd8d8e0, { shininess: 100 }), 0, 0, 0, k); mesh(cyl(0.02, 0.03, 0.15, 5), P(0xd8d8e0), 0.15, 0.04, 0, k).rotation.z = -1.0;
+  const d = new THREE.Group(); d.position.set(0.28, -0.52, 0.2); h.add(d); mesh(cyl(0.07, 0.08, 0.3, 8), P(0xff5fa8), 0, 0, 0, d).rotation.z = Math.PI / 2; mesh(box(0.06, 0.18, 0.06), P(0xff5fa8), -0.06, -0.12, 0, d);
+  mesh(cyl(0.2, 0.16, 0.05, 10), P(0x1d1d1f, { shininess: 80 }), 0, -0.5, 0.25, h).rotation.x = 1.2;
+  for (let i = 0; i < 3; i++) mesh(box(0.66, 0.04, 0.02), P(0xc9ccd1), 0, -0.2 - i * 0.16, 0.31, h);
+  mesh(box(0.16, 0.16, 0.06), new THREE.MeshBasicMaterial({ color: 0xd8231b }), 0.45, 0.6, -0.28, g);
+  for (let i = 0; i < 6; i++) mesh(new THREE.IcosahedronGeometry(0.1 + i * 0.03, 0), new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 - i * 0.1 }), Math.sin(i * 2) * 0.25, 1.9 + i * 0.12, 0.1, g);
+  g.rotation.y = -0.3; return { g, cam: [V(1.2, 1.5, 2.6), V(0, 1.1, 0)] };
+}
+function phoneDryer(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.8, 0.9, 0.6), P(0xdedede), 0, 0.45, 0, g); for (let i = 0; i < 4; i++) mesh(cyl(0.09, 0.09, 0.02, 8), M(0x222222), -0.18 + (i % 2) * 0.36, 0.91, -0.13 + Math.floor(i / 2) * 0.26, g);
+  const p = new THREE.Group(); p.position.set(0, 0.93, 0); g.add(p);
+  mesh(cyl(0.24, 0.22, 0.28, 12), P(0xc8ced6, { shininess: 110 }), 0, 0.14, 0, p); mesh(cyl(0.25, 0.25, 0.03, 12), P(0xb8bec6, { shininess: 110 }), 0.05, 0.4, 0, p).rotation.z = 0.25;
+  const d = new THREE.Group(); d.position.set(0.27, 0.17, 0.06); p.add(d); mesh(cyl(0.06, 0.07, 0.26, 8), P(0xff5fa8), 0, 0, 0, d).rotation.z = Math.PI / 2; mesh(box(0.05, 0.16, 0.05), P(0xff5fa8), 0.04, -0.1, 0, d);
+  mesh(box(0.5, 0.03, 0.02), P(0xc9ccd1), 0, 0.12, 0.225, p);
+  const ph = new THREE.Group(); ph.position.set(-0.05, 0.47, 0.02); ph.rotation.set(-0.4, 0, 0.3); p.add(ph); mesh(box(0.1, 0.18, 0.015), P(0x222222), 0, 0, 0, ph); mesh(new THREE.PlaneGeometry(0.085, 0.15), new THREE.MeshBasicMaterial({ color: 0x9fd0ff }), 0, 0, 0.009, ph);
+  mesh(new THREE.SphereGeometry(0.2, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), M(0xf4ecd8), 0, 0.3, 0, p).scale.y = 0.4;
+  const fl = [0xffdd33, 0xff9a1a, 0x4a8aff]; for (let i = 0; i < 8; i++) { const a = i / 8 * 6.28; mesh(new THREE.ConeGeometry(0.05, 0.3, 5), new THREE.MeshBasicMaterial({ color: fl[i % 3] }), Math.cos(a) * 0.18, 0.98, Math.sin(a) * 0.18, g); }
+  g.rotation.y = 0.35; return { g, cam: [V(1.1, 1.75, 1.9), V(0, 1.0, 0)] };
+}
+
+const hash = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function fanRig(g, x, z, ry) { const f = new THREE.Group(); f.position.set(x, 0, z); f.rotation.y = ry; g.add(f); mesh(cyl(0.18, 0.2, 0.05, 8), M(0x2a8a8a), 0, 0.03, 0, f); mesh(cyl(0.03, 0.03, 0.9, 6), M(0x2a8a8a), 0, 0.48, 0, f);
+  const h = new THREE.Group(); h.position.set(0, 1.0, 0); f.add(h); mesh(new THREE.TorusGeometry(0.26, 0.015, 4, 14), M(0xdddddd), 0, 0, 0.04, h); for (let k = 0; k < 3; k++) { const b = mesh(box(0.08, 0.22, 0.01), M(0x8fd0ff), 0, 0, 0, h); b.position.set(Math.sin(k * 2.09) * 0.11, Math.cos(k * 2.09) * 0.11, 0); b.rotation.z = -k * 2.09; } return h; }
+function nuclearAC(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.8, 1.9, 0.7), P(0xf0f0f0), 0.2, 0.95, -0.4, g); mesh(new THREE.PlaneGeometry(0.7, 1.7), new THREE.MeshBasicMaterial({ color: 0xd8f0ff }), 0.2, 0.95, -0.049, g);
+  const d = mesh(box(0.78, 1.88, 0.05), P(0xf4f4f4), -0.55, 0.95, 0.15, g); d.rotation.y = 1.2;
+  fanRig(g, 0.0, 0.6, 0.0);
+  for (let i = 0; i < 10; i++) mesh(new THREE.OctahedronGeometry(0.05, 0), new THREE.MeshBasicMaterial({ color: 0xffffff }), (hash(i) - .5) * 1.4, 0.6 + hash(i + 2) * 1.2, 0.8 + hash(i + 4) * 0.6, g);
+  g.rotation.y = 0.3; return { g, cam: [V(1.4, 1.5, 2.9), V(0, 0.95, 0)] };
+}
+function websiteBooster(s) {
+  const g = new THREE.Group(); s.add(g);
+  const h = fanRig(g, 0, 0, 0);
+  const r = new THREE.Group(); r.position.set(0, 0, 0.16); h.add(r); mesh(box(0.3, 0.07, 0.2), P(0x222222), 0, 0, 0, r); for (const sx of [-1, 1]) mesh(cyl(0.01, 0.01, 0.25, 4), P(0x222222), sx * 0.1, 0.15, -0.05, r);
+  for (let i = 0; i < 4; i++) mesh(box(0.03, 0.015, 0.01), new THREE.MeshBasicMaterial({ color: i % 2 ? 0x3df05a : 0xff3a2a }), -0.09 + i * 0.06, 0, 0.105, r);
+  for (let i = 0; i < 2; i++) mesh(box(0.34, 0.03, 0.02), P(0xc9ccd1), 0, -0.02 + i * 0.04, 0.12, r);
+  const lp = new THREE.Group(); lp.position.set(-0.7, 0.4, 0.3); lp.rotation.y = 0.5; g.add(lp); mesh(box(0.5, 0.4, 0.5), M(0x6a4220), 0, -0.2, 0, lp); mesh(box(0.42, 0.025, 0.3), P(0x3a3a44), 0, 0.01, 0, lp); const ld = mesh(box(0.42, 0.28, 0.015), P(0x3a3a44), 0, 0.16, -0.15, lp); ld.rotation.x = -0.35; mesh(new THREE.PlaneGeometry(0.38, 0.24), new THREE.MeshBasicMaterial({ color: 0xffe14a }), 0, 0.16, -0.14, lp).rotation.x = -0.35;
+  for (let i = 0; i < 8; i++) mesh(new THREE.OctahedronGeometry(0.04, 0), new THREE.MeshBasicMaterial({ color: [0x5ab8ff, 0x3df05a, 0xffe14a][i % 3] }), -0.2 - i * 0.08, 1.0 + Math.sin(i) * 0.1, 0.3 + i * 0.03, g);
+  g.rotation.y = -0.3; return { g, cam: [V(1.2, 1.5, 2.6), V(-0.2, 0.85, 0)] };
+}
+
+function nuclearVacuum(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.6, 0.55, 0.55), P(0xf2f2f2), 0, 0.28, 0, g); mesh(new THREE.CircleGeometry(0.18, 12), P(0x8fb8d0), 0, 0.3, 0.276, g); mesh(new THREE.TorusGeometry(0.18, 0.02, 4, 12), P(0xcccccc), 0, 0.3, 0.28, g);
+  mesh(cyl(0.26, 0.23, 0.32, 12), P(0xc8ced6, { shininess: 110 }), 0, 0.72, 0, g); for (const sx of [-1, 1]) mesh(box(0.08, 0.03, 0.05), M(0x222222), sx * 0.29, 0.82, 0, g);
+  mesh(cyl(0.025, 0.025, 1.3, 6), M(0x8a5a2b), -0.28, 1.0, -0.15, g).rotation.z = 0.25;
+  for (let i = 0; i < 2; i++) mesh(box(0.66, 0.04, 0.03), P(0xc9ccd1), 0, 0.12 + i * 0.27, 0.28, g);
+  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(-0.22, 0.8, 0.05), V(-0.6, 0.3, 0.4), V(-0.3, 0.15, 0.9), V(0.3, 0.3, 1.0)]), 24, 0.05, 6), new THREE.MeshLambertMaterial({ color: 0x2f7fc8 }), 0, 0, 0, g);
+  mesh(cyl(0.09, 0.06, 0.18, 10), P(0x2f6fd8), 0.35, 0.32, 1.0, g).rotation.set(0, 0, Math.PI / 2);
+  for (let i = 0; i < 8; i++) mesh(new THREE.IcosahedronGeometry(0.03 + i * 0.008, 0), new THREE.MeshBasicMaterial({ color: 0xdfe6ee, transparent: true, opacity: 0.8 }), 0.5 + i * 0.09, 0.32 + Math.sin(i) * 0.05, 1.0 + Math.cos(i) * 0.06, g);
+  const sock = mesh(box(0.12, 0.2, 0.06), M(0xff5577), 0.85, 0.35, 1.0, g); sock.rotation.z = 0.8;
+  g.rotation.y = -0.4; return { g, cam: [V(1.3, 1.4, 2.6), V(0.1, 0.55, 0.3)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -150,6 +251,27 @@ const CARDS = [
   { file: 'card_lie_detector', build: lieDetector, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'كاشف الكدب ٣٠٠٠', en: 'LIE DETECTOR 3000',
     stats: [['ACCURACY', 'الدقة', 5], ['VOLUME', 'الصفير', 5], ['SAFETY', 'الأمان', 1], ['SAFE ANSWERS', 'إجابات آمنة', 0]],
     parts: 'حلة ضغط + ريموت + مصفاة + لمبة حمرا', quote: '«أي حد يكدب... الحلة تصفّر»', result: 'النتيجة: إبراهيم في البلكونة', ep: 'كاشف الكدب ٣٠٠٠' },
+  { file: 'card_pedal_generator', build: pedalGenerator, rarity: ['COMMON', 'عادي', '#7fd07f', '#0f2a10'], ar: 'مولّد البدّال ٣٠٠٠', en: 'PEDAL GENERATOR 3000',
+    stats: [['POWER', 'القوة', 1], ['SWEAT', 'العرق', 5], ['SAFETY', 'الأمان', 2], ['CHARGE', 'الشحن', 1]],
+    parts: 'عجلة حمادة + مروحة + دينامو + شريط لزق', quote: '«دوّس يا حمادة! كل لفة بتنوّر اللمبة!»', result: 'النتيجة: الموبايل شحن ١٪ بس', ep: 'ضيف من السما' },
+  { file: 'card_password_stethoscope', build: passwordStethoscope, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'سمّاعة الباسورد ٣٠٠٠', en: 'PASSWORD STETHOSCOPE 3000',
+    stats: [['HEARING', 'السمع', 5], ['STEALTH', 'التخفّي', 1], ['LEGALITY', 'القانونية', 0], ['NEIGHBOR ANGER', 'غضب الجيران', 5]],
+    parts: 'سمّاعة دكتور + طاسة + عصاية مقشة + شريط لزق', quote: '«بتسمع أبو سمير وهو بيكتب الباسورد... ششش!»', result: 'النتيجة: النت وصل للشارع كله', ep: 'مقوّي الواي فاي النووي ٢' },
+  { file: 'card_nuclear_heater', build: nuclearHeater, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'السخان النووي ٣٠٠٠', en: 'NUCLEAR WATER HEATER 3000',
+    stats: [['HEAT', 'السخونية', 5], ['CONTROL', 'التحكم', 0], ['SAFETY', 'الأمان', 0], ['STEAM', 'البخار', 5]],
+    parts: 'كاتل + سشوار + طاسة + زرار تيربو', quote: '«ادخل استحمى... وأنا هدوس على التوربو»', result: 'النتيجة: الشقة بقت سبا', ep: 'السخان النووي' },
+  { file: 'card_phone_dryer', build: phoneDryer, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'مجفف الموبايلات النووي ٣٠٠٠', en: 'NUCLEAR PHONE DRYER 3000',
+    stats: [['DRYING', 'التنشيف', 4], ['FLAVOR', 'الطعم', 5], ['SAFETY', 'الأمان', 1], ['GUEST SHOCK', 'صدمة الضيوف', 5]],
+    parts: 'حلة الرز + سشوار + نار البوتاجاز', quote: '«الرز بيشفط المية... وأنا هزوّد عليه نار»', result: 'النتيجة: الرز بيرن', ep: 'مجفف الموبايلات النووي' },
+  { file: 'card_nuclear_ac', build: nuclearAC, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'التكييف النووي ٣٠٠٠', en: 'NUCLEAR AC 3000',
+    stats: [['COOLING', 'التبريد', 5], ['BILL', 'الفاتورة', 5], ['SAFETY', 'الأمان', 1], ['ICE', 'التلج', 5]],
+    parts: 'تلاجة مفتوحة + مروحة + شريط لزق', quote: '«هوا التلاجة بالمروحة... يبقى تكييف»', result: 'النتيجة: فاتورة ٥٠٠٠ جنيه', ep: 'التكييف النووي' },
+  { file: 'card_website_booster', build: websiteBooster, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'مسرّع المواقع النووي ٣٠٠٠', en: 'NUCLEAR WEBSITE BOOSTER 3000',
+    stats: [['SPEED', 'السرعة', 5], ['SERVER DAMAGE', 'تدمير السيرفر', 5], ['SAFETY', 'الأمان', 1], ['GRADE', 'المجموع', 2]],
+    parts: 'راوتر + مروحة + شريط لزق', quote: '«المروحة بتزق النت... والنت بيجري»', result: 'النتيجة: الموقع وقع للمحافظة', ep: 'موقع النتيجة' },
+  { file: 'card_nuclear_vacuum', build: nuclearVacuum, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'المكنسة النووية ٣٠٠٠', en: 'NUCLEAR VACUUM 3000',
+    stats: [['SUCTION', 'الشفط', 6], ['CONTROL', 'التحكم', 0], ['SAFETY', 'الأمان', 0], ['MOM\'S POT', 'حلة ماما', 5]],
+    parts: 'موتور الغسالة + خرطوم المية + حلة ماما', quote: '«كل اختراع عظيم... بيبدأ بحلة أمك»', result: 'النتيجة: شفطت حمادة', ep: 'المكنسة النووية' },
 ];
 
 // ---------- 2D card ----------
@@ -214,7 +336,7 @@ window.drawCardN = (i) => { drawCard(i, renderArt(i)); return card.toDataURL('im
 window.CARD_FILES = CARDS.map(c => c.file);
 document.fonts.load('20px PS2P').then(() => document.fonts.load('20px Lalezar', 'ع')).then(() => document.fonts.load('700 20px ReemKufi', 'ع')).then(() => { window.READY = true; });
 
-// ---------- album cover: all four cards ----------
+// ---------- album cover: all the cards ----------
 window.drawCover = async () => {
   const load = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.src = src; });
   const ims = await Promise.all(CARDS.map(c => load(c.file + '.png')));
@@ -223,7 +345,7 @@ window.drawCover = async () => {
   g.save(); g.translate(CW / 2, CH / 2 + 60); for (let k = 0; k < 24; k++) { g.rotate(Math.PI / 12); g.fillStyle = k % 2 ? 'rgba(255,225,74,0.06)' : 'rgba(0,0,0,0)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(1200, -160); g.lineTo(1200, 160); g.fill(); } g.restore();
   ar('اختراعات إبراهيم', CW / 2, 20, 84, '#ffe14a', 'center', 'ReemKufi');
   px('COLLECT THEM ALL!', CW / 2, 132, 26, '#ffffff', 'center');
-  const cw = 452, ch = 565; const pos = [[70, 190], [558, 190], [70, 772], [558, 772]]; const rot = [-0.035, 0.03, 0.03, -0.03];
+  const cw = 200, ch = 250; const pos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => [30 + (i % 4) * 258, 210 + Math.floor(i / 4) * 280]); const rot = pos.map((_, i) => (i % 2 ? 0.025 : -0.025));
   ims.forEach((im, i) => { g.save(); g.translate(pos[i][0] + cw / 2, pos[i][1] + ch / 2); g.rotate(rot[i]); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(-cw / 2 + 10, -ch / 2 + 14, cw, ch); g.drawImage(im, -cw / 2, -ch / 2, cw, ch); g.restore(); });
   for (let y = 0; y < CH; y += 4) { g.fillStyle = 'rgba(0,0,0,0.06)'; g.fillRect(0, y, CW, 1); }
   return card.toDataURL('image/png');

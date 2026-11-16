@@ -79,3 +79,66 @@
 ## Invention cards (page posts)
 - `docs/briefs/invention-cards-src/` makes the collectible cards and the "collect them all" cover. When Ibrahim builds a new invention in an episode,
   add a card for it there, so the set keeps growing with the series.
+
+## Service-center cast (introduced in "The Service Center")
+| Character | Age | Traits | AI Studio voice |
+|---|---|---|---|
+| Bestem (بستم) | 29 | Technicians' foreman. Always shouting someone's name, understands nothing about technology | Sadachbia |
+| El-Alamy (العالمي) | 28 | Center manager. Handles the computer, tuning and admin. Everyone loves him, but he thinks nobody understands anything | Rasalgethi |
+
+**El-Alamy's look (user request, applies to every episode after "The Service Center"):** NO glasses. A handsome, sharp-dressed young man:
+black moto leather jacket (band collar with a snap, quilted shoulders) worn open over a black turtleneck, slim grey trousers, polished black shoes, short black hair all one colour (no beard, no moustache, no bow tie). Model: docs/briefs/characters/el-alamy/alamy.js.
+He is a genius: confident, calm, smart eyes (not the tired face). Drop the `glasses` face option and the plain polo model used in "The Service Center".
+| El-Asly (الأصلي) | 43 | Heavy electrician. Always shouting and wants to hit someone | Alnilam |
+| El-Gazzar (الجزار) | 30 | Brilliant mechanic, always "spaced out". Keep it implicit: no drug imagery, for platform safety | Umbriel |
+- Running gag: Ibrahim calls himself "the world-famous inventor" (المخترع العالمي), which clashes with El-Alamy's name.
+- More characters will be added later. Record each new one here with their voice.
+
+## News cast (introduced in «عاجل!»)
+| Character | Traits | AI Studio voice |
+|---|---|---|
+| Nashwa (نشوى) | News anchor of the local channel «عاجل جدًا». Calm and formal, but loses it with every story. Red blazer, white blouse, dark bob | Despina |
+- The channel «عاجل جدًا» can come back: field reporter interviews, archive recaps, the weather map, NO SIGNAL gags.
+
+
+## TikTok format rules (standing, from the «مقوّي الواي فاي النووي» analytics, Nov 2026)
+Data for that episode:
+- 3,837 views, 97.1% from For You and 0% from Following. The algorithm gave it one push on day 1, then views stopped.
+- The biggest drop-off is at 0:02; only 54% are left at 0:05.
+- Average watch time 18.9 s of 47.5 s (40%), and 13.4% watched to the end.
+- 102 likes, 21 saves, 13 new followers.
+
+Rules for every episode from now on:
+1. **Vertical 9:16 (1080×1920) is the main delivery.**
+   - The 4:3 frame shown small in the middle of black bars loses people in the first 2 s.
+   - Frame the scene so it fills most of the height (zoomed/re-framed cameras, not a letterbox).
+   - Put a large dialogue box at the bottom.
+   - Keep the 4:3 version only as an extra.
+2. **Hook text, first 3 s:** a large Egyptian-Arabic line on screen that states the situation, readable with the sound off. Example: «لما النت يفصل قبل امتحان الأونلاين بـ٥ دقايق 😭».
+3. **Cold open:** start with the funniest or biggest moment, then go back to the start of the story (REWIND).
+   The cold-open line must be **complete**, never cut mid-sentence (user feedback on «مقوّي الواي فاي النووي ٢»).
+   Plan about 2.5–4 s for it: use the whole voiced line, or a short line that ends on its own. The hook text comes right after the rewind.
+4. **Length target 30–45 s.** Cut dead air and long pauses between lines.
+5. **No episode numbers anywhere, the cover included.** The cover shows the hook line plus Ibrahim's face or the invention, never «الحلقة N».
+6. **Content that worked:**
+   - An everyday Egyptian problem anyone recognises.
+   - Ibrahim's invention with «نووي» or «٣٠٠٠» in the name.
+   - The core family only (Om Hamada, Ibrahim, Hamada).
+   - A disaster ending.
+   - The episode works on its own, without having seen any other.
+   - Side characters (Bestem, El-Alamy, Hoda...) appear briefly inside family episodes instead of carrying whole episodes.
+7. **Ideas in that vein:**
+   - «مقوّي الواي فاي النووي ٢» (Abu Samir changes the password).
+   - The water heater breaks in winter.
+   - The AC in a heat wave, and the electricity bill.
+   - The results website crashes on results day.
+   - The phone falls in the toilet.
+- Abu Samir's AI Studio voice (from «مقوّي الواي فاي النووي ٢»): **Gacrux**.
+- The vertical template is `docs/briefs/wifi-booster-2-src/`: engine8 at W = 540, H = 960, `drawDialogueV`, and the 1080×1920 ffmpeg chain.
+
+## Posting schedule (user decision)
+- **Two NEW episodes every day:** one at 7 PM and one at 12 AM (midnight), Cairo time. No reposts or remasters of old episodes.
+- Produce them in pairs. Write both scripts at once, and record both in one AI Studio batch: share recordings by speaker pair across the two episodes, and merge the single-speaker lines with [long pause].
+- Keep each one to the vertical format rules above, 30–45 s, family core cast, works on its own.
+- **Abu Samir's car** (recurring, introduced in «عربية أبو سمير»): the mustard 1980 «١٢٨». Model: `docs/briefs/characters/samir-car/samir_car.js`. The car is "sad" and "needs love", so future car episodes can build on that.
+- Teta (Ibrahim's mother, introduced in «حكاية المخترع العالمي»): AI Studio voice **Aoede**. Young/baby versions of the cast: see `life-story-src/ep.js` (`woman()`, `kid()`).

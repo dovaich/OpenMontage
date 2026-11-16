@@ -1,0 +1,11 @@
+yelling.fbx Yelling not offered
+angry_point.fbx Angry Point not offered
+arguing.fbx Standing Arguing not offered
+talking.fbx Talking (the 2nd "Talking" result: standing, hand gestures; the 1st is a seated pose) not offered
+bragging.fbx Victory not offered
+shrug.fbx Shrugging not offered
+facepalm.fbx Disappointed (alt term; "Face Palm" had no results and "Facepalm" only returned a sitting pose) not offered
+scared.fbx Terrified not offered
+fall_back.fbx Falling Back Death not offered
+silly_dance.fbx Silly Dancing not offered
+# All on X Bot. FBX Binary (.fbx), Without Skin, 30 fps, Keyframe Reduction none, default sliders.
