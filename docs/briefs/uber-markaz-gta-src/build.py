@@ -10,6 +10,7 @@ e = e.replace('cam(h.clone().add(f.multiplyScalar(dist))', 'cam(h.clone().add(f.
 e = e.replace("antialias: false", "antialias: true")
 vc = open('vertical_common.js').read().replace('function portrait(', 'function portraitOld(')
 p = open(ep).read().replace('${GARAGE}', open('garage_block.js').read()).replace('${CREW}', open('crew_def.js').read())
+e = e.replace("import * as THREE from 'three';", "import * as THREE from 'three';\nwindow.GTA_TPOSE_BB = null;", 1)
 open('scene.js', 'w').write(e + '\n' + open('alamy.js').read() + '\n' + open('samir_car.js').read() + '\n' + open('gta3_cars.js').read() + '\n' + vc + '\n' + p)
 r = open('render.cjs').read(); r = re.sub(r'Math\.ceil\([0-9.]+ \* fps\)', f'Math.ceil({dur} * fps)', r); open('render.cjs', 'w').write(r)
 print('DUR', dur)

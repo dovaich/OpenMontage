@@ -12,10 +12,10 @@ const alamy = makeAlamy(scene);
 scene.add(samir.root); scene.add(dad.root);
 // the cartoon cars of the garage set → GTA-era cars
 sedan.visible = false; car2.visible = false;
-const cLift = makeGtaCar(scene, { color: 0x3a3d42, interior: false, plate: 'ط ر ٤٤١' }); cLift.g.position.set(G - 3.6, 1.72, -2.4); cLift.g.scale.setScalar(0.8); lateDraw.push(cLift.late);
-const cRed = makeGtaCar(scene, { color: 0x7a1418, interior: false, plate: 'م ص ٧٢١' }); cRed.g.position.set(G + 3.6, 0, -3.6); cRed.g.rotation.y = 0.25; lateDraw.push(cRed.late);
+const cLift = makeGtaCar(scene, { color: 0x3a3d42, interior: false, plate: 'ط ر ٤٤١' }); cLift.g.position.set(G - 3.6, 1.72, -2.4); cLift.g.scale.setScalar(0.8); lateDraw.push(cLift.late); gtaCarModel(cLift, 'sedan_grey', { len: 4.5 });
+const cRed = makeGtaCar(scene, { color: 0x7a1418, interior: false, plate: 'م ص ٧٢١' }); cRed.g.position.set(G + 3.6, 0, -3.6); cRed.g.rotation.y = 0.25; lateDraw.push(cRed.late); gtaCarModel(cRed, 'sedan_red', { len: 4.5 });
 // Abu Samir's 128 (the crashed Uber), with the red button
-const SC = makeGtaCar(scene, { style: '128', plate: 'س م ر ١٩٨٠' }); const car = SC.g; lateDraw.push(SC.late);
+const SC = makeGtaCar(scene, { style: '128', plate: 'س م ر ١٩٨٠' }); const car = SC.g; lateDraw.push(SC.late); gtaCarModel(SC, 'samir128', { len: 4.25 });
 const melonT = canvasTex(16, 16, (g) => { g.fillStyle = '#3f8a2f'; g.fillRect(0, 0, 16, 16); g.fillStyle = '#1f5a1f'; for (let i = 0; i < 16; i += 4) g.fillRect(i, 0, 2, 16); });
 for (let i = 0; i < 7; i++) { const m = mesh(new THREE.TetrahedronGeometry(0.09 + hash(i) * 0.07, 0), new THREE.MeshLambertMaterial({ color: i % 3 ? 0xe8303a : 0x2f7a2f }), 0, 0, 0, SC.body); m.position.set(-0.6 + hash(i + 3) * 2.6, i < 4 ? 1.45 : 0.93, (hash(i + 7) - .5) * 1.2); m.rotation.set(i, i * 2, 0); }
 const crack = mesh(new THREE.PlaneGeometry(0.5, 0.35), new THREE.MeshBasicMaterial({ transparent: true, map: canvasTex(64, 48, (g) => { g.strokeStyle = 'rgba(255,255,255,0.85)'; g.lineWidth = 1; for (let i = 0; i < 9; i++) { g.beginPath(); g.moveTo(30, 22); let x = 30, y = 22; for (let k = 0; k < 4; k++) { x += Math.cos(i * 0.7 + k) * 7; y += Math.sin(i * 0.7 + k * 0.5) * 6; g.lineTo(x, y); } g.stroke(); } }) }), 1.05, 1.18, 0.25, SC.body); crack.rotation.y = Math.PI / 2; crack.rotation.x = -0.6;
@@ -90,9 +90,9 @@ function stateAt(t) {
   { const a = cold ? -1 : t - T_ROOF; debris.forEach((o, i) => { o.d.visible = a > 0 && a < 2.4; if (o.d.visible) { const tt = a; o.d.position.set(CAR0.x + o.v.x * tt * 0.4, Math.max(0.03, 5 + o.v.y * tt * 0.6 - 4.9 * tt * tt), CAR0.z + o.v.z * tt * 0.4); o.d.rotation.set(tt * 7 + i, tt * 5, 0); } }); }
 }
 function faceShot(c, dist, side = 0.3, up = 0.02, fov = 40, ld = 0.05) { faceCam(c, dist, side, up, fov, ld); }
-function inCar(local, target, fov = 62) { cam(local.clone().applyMatrix4(SC.body.matrixWorld), target, fov); }
+function inCar(local, target, fov = 62) { SC.setExterior(false); cam(local.clone().applyMatrix4(SC.body.matrixWorld), target, fov); }
 function shotAt(t) {
-  SC.glass.forEach(g => g.visible = true);
+  SC.setExterior(true); SC.glass.forEach(g => g.visible = true);
   if (t < T_RW + 0.6) { // cold open: Bestem screaming inside the rising car, then the car through the roof
     if (t < 1.1) { SC.glass.forEach(g => g.visible = false); inCar(V(0.25, 1.05, 0.5), headOf(bastam).add(V(0, -0.02, 0)), 58); camera.position.add(shake(t, 0.015)); return; }
     cam(V(CAR0.x + 4.0, 1.0, CAR0.z + 5.2), car.position.clone().add(V(0, 0.8, 0)), 62); camera.position.add(shake(t, 0.03)); return; }
@@ -146,7 +146,7 @@ function drawCards(g, t) {
     arText(g, 'فاتورة مركز العالمي', 0, -62, 24, '#111', 'center'); arText(g, '٥٠٠٠ جنيه', 0, -18, 44, '#c11', 'center'); pxText(g, 'BILL: 5000 EGP', 0, 50, 9, '#111', 'center', false); });
 }
 window.renderFrame = function (t) {
-  stateAt(t); shotAt(t); particles(t);
+  stateAt(t); gtaLipSync(t, PORT); shotAt(t); particles(t);
   renderer.render(scene, camera);
   ctx.clearRect(0, 0, W, H); ctx.drawImage(glCanvas, 0, 0);
   h.clearRect(0, 0, W, H);

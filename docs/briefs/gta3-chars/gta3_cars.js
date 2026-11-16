@@ -108,3 +108,23 @@ function makeGtaCar(parent, opts = {}) {
   const late = () => { const c = plateTex.userData.canvas.getContext('2d'); c.fillStyle = '#111'; c.font = '17px Lalezar'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.direction = 'rtl'; c.fillText(plateTex.userData.txt, 48, 21); plateTex.needsUpdate = true; };
   return { g, body, wheels, glass, btn, seats, late, paint, roof };
 }
+
+// ===== image → Hunyuan3D car models. The procedural car stays underneath for interior shots (seats, wheel, red button). =====
+// gtaCarModel(carObj, file, { len, rotY }) → normalises the GLB to `len` metres along x (front = +x), wheels on the ground.
+// carObj.setExterior(true) shows the model and hides the procedural shell; false shows the procedural car (for in-car close-ups).
+function gtaCarModel(C, file, o = {}) {
+  let res; GTA_LOADS.push(new Promise(r => res = r));
+  C.shell = C.body.children.filter(ch => ch.isMesh || ch.isGroup); // everything procedural (wheels too); interior is re-shown for in-car shots
+  new GLTFLoader().load('gta/models/' + file + '.glb', (gl) => {
+    gl.scene.updateMatrixWorld(true); let src = null; gl.scene.traverse(m => { if (m.isMesh && !src) src = m; });
+    const geo = src.geometry.clone(); geo.applyMatrix4(src.matrixWorld); if (o.rotY) geo.rotateY(o.rotY);
+    geo.computeBoundingBox(); const b = geo.boundingBox; const k = (o.len || 4.3) / (b.max.x - b.min.x);
+    geo.translate(-(b.max.x + b.min.x) / 2, -b.min.y, -(b.max.z + b.min.z) / 2); geo.scale(k, k, k); geo.computeVertexNormals();
+    const map = src.material.map; if (map) { map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 4; }
+    const mat = new THREE.MeshPhongMaterial({ map, shininess: 70, specular: 0x555555, envMap: GTA_ENV, reflectivity: 0.18, combine: THREE.MixOperation });
+    C.model = new THREE.Mesh(geo, mat); C.body.add(C.model);
+    C.setExterior = (on) => { C.model.visible = on; C.shell.forEach(m => m.visible = !on); };
+    C.setExterior(true); res();
+  }, undefined, () => { C.setExterior = () => {}; res(); });
+  C.setExterior = () => {};
+}

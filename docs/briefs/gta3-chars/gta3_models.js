@@ -26,30 +26,40 @@ function gtaSkin(c, sceneObj, M) {
   // 2) landmarks from the T-pose
   const half = Math.max(-bb.min.x, bb.max.x);
   const armYs = []; for (let i = 0; i < n; i++) if (Math.abs(X(i)) > half * 0.6) armYs.push(Y(i)); armYs.sort((a, b) => a - b);
-  const armY = armYs[armYs.length >> 1];
-  let torsoW = 0; for (let i = 0; i < n; i++) { const y = Y(i); if (y > armY - 0.26 && y < armY - 0.14) torsoW = Math.max(torsoW, Math.abs(X(i))); }
-  const shX = Math.max(0.12, torsoW - 0.035), elX = shX + (half - shX) * 0.46;
+  // arm line: fit y = a + b·|x| on the outer arm (handles A-poses too)
+  let sx = 0, sy = 0, sxx = 0, sxy = 0, na = 0; for (let i = 0; i < n; i++) { const ax = Math.abs(X(i)); if (ax > half * 0.55 && ax < half * 0.9) { const y = Y(i); sx += ax; sy += y; sxx += ax * ax; sxy += ax * y; na++; } }
+  const slope = na > 10 ? (na * sxy - sx * sy) / (na * sxx - sx * sx) : 0, icpt = (sy - slope * sx) / Math.max(1, na);
+  const armAng = Math.atan(-Math.min(0, slope)); // radians below horizontal
+  const armAt = (ax) => icpt + slope * ax;
+  const armY0 = armAt(half * 0.45); let torsoW = 0; for (let i = 0; i < n; i++) { const y = Y(i), ax = Math.abs(X(i)); if (y > armY0 - 0.34 && y < armY0 - 0.2 && ax < half * 0.4) torsoW = Math.max(torsoW, ax); }
+  const shX = Math.max(0.12, torsoW - 0.035), elX = shX + (half - shX) * 0.46; const armY = armAt(shX) + 0.03;
   let crotch = 0; for (let y = 0.35 * M.h; y < 0.62 * M.h; y += 0.005) { let hit = false; for (let i = 0; i < n; i++) if (Math.abs(X(i)) < 0.02 && Math.abs(Y(i) - y) < 0.006) { hit = true; break; } if (hit) { crotch = y; break; } }
   if (M.robe || crotch < 0.3 * M.h) crotch = 0.46 * M.h;
   const hipY = crotch + 0.07;
   let lx = 0, ln = 0; for (let i = 0; i < n; i++) { const y = Y(i); if (y > crotch - 0.3 && y < crotch - 0.15) { lx += Math.abs(X(i)); ln++; } } const legX = M.robe ? 0.1 : clamp(lx / Math.max(1, ln), 0.07, 0.16);
-  const neckY = armY + 0.05, headY = bb.max.y - 0.12;
+  const top = bb.max.y; let neckM = armY + 0.06, minW = 9, headWm = 0;
+  for (let y = armY + 0.03; y < top - 0.05; y += 0.006) { let w0 = 9, w1 = -9; for (let i = 0; i < n; i++) { if (Math.abs(Y(i) - y) < 0.004 && Math.abs(X(i)) < 0.2) { w0 = Math.min(w0, X(i)); w1 = Math.max(w1, X(i)); } } const w = w1 - w0; if (w > 0 && w < minW && y < top - 0.16) { minW = w; neckM = y; } if (y > neckM + 0.05) headWm = Math.max(headWm, w); }
+  const neckY = neckM - 0.01, headY = (top + neckM) / 2, mouthY = top - (top - neckM) * 0.74;
   // 3) move the rig joints onto the model (bind pose = T-pose)
   c.cfg.hipY = hipY;
   c.hips.position.set(0, hipY, 0); c.hips.rotation.set(0, 0, 0); c.torso.rotation.set(0, 0, 0);
   c.legs.forEach((lp, j) => { lp.position.set((j ? -1 : 1) * legX, 0, 0); lp.rotation.set(0, 0, 0); });
-  c.arms.forEach((a, j) => { const s = j ? -1 : 1; a.sh.position.set(s * shX, armY - hipY, 0); a.sh.rotation.set(0, 0, s * Math.PI / 2); a.el.position.set(0, -(elX - shX), 0); a.el.rotation.set(0, 0, 0); });
+  c.arms.forEach((a, j) => { const s = j ? -1 : 1; a.sh.position.set(s * shX, armY - hipY, 0); a.sh.rotation.set(0, 0, s * (Math.PI / 2 - armAng)); a.el.position.set(0, -(elX - shX) / Math.cos(armAng), 0); a.el.rotation.set(0, 0, 0); });
   c.neck.position.set(0, neckY - hipY, 0); c.head.position.set(0, headY - neckY, 0); c.head.rotation.set(0, 0, 0); c.head.scale.setScalar(1);
+  const jaw = new THREE.Group(); c.head.add(jaw); jaw.position.set(0, mouthY + 0.012 - headY, -0.035); c.jaw = jaw;
+  // dark mouth cavity behind the lips (shows when the jaw drops)
+  let zf = 0; for (let i = 0; i < n; i++) if (Math.abs(Y(i) - mouthY) < 0.01 && Math.abs(X(i)) < 0.02) zf = Math.max(zf, P.getZ(i));
+  const cav = mesh(new THREE.SphereGeometry(0.022, 10, 6), new THREE.MeshBasicMaterial({ color: 0x1a0606 }), 0, mouthY - headY - 0.004, zf - 0.016, c.head); cav.scale.set(1.25, 0.7, 0.6); c.mouthCav = cav;
   // the procedural body goes away (keep the shadow blob)
-  c.root.traverse(o => { if (o.isMesh && o !== c.blob) o.visible = false; });
+  c.root.traverse(o => { if (o.isMesh && o !== c.blob && o !== cav) o.visible = false; });
   const saved = [c.root.position.clone(), c.root.rotation.clone(), c.root.scale.clone()];
   c.root.position.set(0, 0, 0); c.root.rotation.set(0, 0, 0); c.root.scale.setScalar(1); c.root.updateMatrixWorld(true);
   // 4) weights: torso / hips / legs / arms (upper, fore) / neck-head, with soft bands at every joint
-  const bones = [c.hips, c.torso, c.head, c.arms[0].sh, c.arms[0].el, c.arms[1].sh, c.arms[1].el, c.legs[0], c.legs[1]];
+  const bones = [c.hips, c.torso, c.head, c.arms[0].sh, c.arms[0].el, c.arms[1].sh, c.arms[1].el, c.legs[0], c.legs[1], jaw];
   const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4);
   for (let i = 0; i < n; i++) {
     const x = X(i), y = Y(i), ax = Math.abs(x), s = x >= 0 ? 0 : 1; const w = new Float32Array(bones.length);
-    const armBand = y > armY - 0.16 && y < armY + 0.16;
+    const yl = armAt(ax) + 0.03; const armBand = y > yl - 0.14 && y < yl + 0.14 && y > armY - 0.5;
     const wArm = armBand ? sstep(shX - 0.09, shX + 0.06, ax) : 0;
     const wFore = sstep(elX - 0.05, elX + 0.05, ax);
     const wLeg = sstep(hipY - 0.02, crotch - 0.09, y) * (M.robe ? 0.35 : 1);
@@ -58,7 +68,8 @@ function gtaSkin(c, sceneObj, M) {
     const rest = 1 - wArm;
     w[3 + s * 2] += wArm * (1 - wFore); w[4 + s * 2] += wArm * wFore;
     const body = rest * (1 - wLeg); w[7 + s] += rest * wLeg;
-    w[2] += body * wHead; const b2 = body * (1 - wHead); w[1] += b2 * wTor; w[0] += b2 * (1 - wTor);
+    const wJaw = (P.getZ(i) > 0 && Math.abs(x) < headWm * 0.45) ? sstep(mouthY - 0.004, mouthY - 0.016, y) * sstep(neckM - 0.01, neckM + 0.02, y) : 0;
+    w[9] += body * wHead * wJaw; w[2] += body * wHead * (1 - wJaw); const b2 = body * (1 - wHead); w[1] += b2 * wTor; w[0] += b2 * (1 - wTor);
     const ord = [...w.keys()].sort((a, b) => w[b] - w[a]).slice(0, 4); let tot = 0; ord.forEach(j => tot += w[j]);
     ord.forEach((j, q) => { si[i * 4 + q] = j; sw[i * 4 + q] = w[j] / (tot || 1); });
   }
@@ -66,8 +77,25 @@ function gtaSkin(c, sceneObj, M) {
   geo.computeVertexNormals();
   const map = src.material.map; if (map) { map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 4; }
   const mat = new THREE.MeshLambertMaterial({ map, color: 0xffffff }); mat.userData.orig = mat.color.clone(); c.mats.push(mat);
-  const sk = new THREE.SkinnedMesh(geo, mat); sk.frustumCulled = false; c.root.add(sk); c.root.updateMatrixWorld(true);
+  // sharp face: project the original front drawing onto the front of the head (the generated texture is blurry there)
+  let mats = mat; const BB = window.GTA_TPOSE_BB && window.GTA_TPOSE_BB[M.file];
+  if (BB && geo.index) {
+    const sy = (BB.neckY - BB.y0) / (top - neckM), sxx = BB.headW / Math.max(0.05, headWm); const uv1 = new Float32Array(n * 2);
+    for (let i = 0; i < n; i++) { uv1[i * 2] = (BB.cx + X(i) * sxx) / BB.w; uv1[i * 2 + 1] = 1 - (BB.y0 + (top - Y(i)) * sy) / BB.h; }
+    geo.setAttribute('uv1', new THREE.Float32BufferAttribute(uv1, 2));
+    const N = geo.attributes.normal, idx = geo.index.array, A = [], B = [];
+    const front = (v) => Y(v) > neckM + 0.02 && N.getZ(v) > 0.4 && Math.abs(X(v)) < headWm * 0.42;
+    for (let t = 0; t < idx.length; t += 3) { const a = idx[t], b = idx[t + 1], c2 = idx[t + 2]; (front(a) && front(b) && front(c2) ? B : A).push(a, b, c2); }
+    geo.setIndex([...A, ...B]); geo.clearGroups(); geo.addGroup(0, A.length, 0); geo.addGroup(A.length, B.length, 1);
+    const ft = new THREE.TextureLoader().load('gta/tpose/' + M.file + '.png'); ft.colorSpace = THREE.SRGBColorSpace; ft.channel = 1; ft.anisotropy = 8;
+    let r2; GTA_LOADS.push(new Promise(r => r2 = r)); ft.image = undefined; new THREE.ImageLoader().load('gta/tpose/' + M.file + '.png', (img) => { ft.image = img; ft.needsUpdate = true; r2(); }, undefined, () => r2());
+    const fm = new THREE.MeshLambertMaterial({ map: ft }); fm.userData.orig = fm.color.clone(); c.mats.push(fm); mats = [mat, fm];
+  }
+  const sk = new THREE.SkinnedMesh(geo, mats); sk.frustumCulled = false; c.root.add(sk); c.root.updateMatrixWorld(true);
   sk.bind(new THREE.Skeleton(bones)); c.model = sk;
   c.root.position.copy(saved[0]); c.root.rotation.copy(saved[1]); c.root.scale.copy(saved[2]);
-  c.modelInfo = { armY, shX, elX, crotch, hipY, legX, neckY, headY };
+  c.modelInfo = { mouthY, neckM, headWm, armAng, armY, shX, elX, crotch, hipY, legX, neckY, headY };
 }
+
+// lip sync: open the jaw with the speaker's voice envelope
+function gtaLipSync(t, cast) { for (const who in cast) { const c = cast[who]; if (!c || !c.jaw) continue; const e = speakerAt(t) === who ? envAt(t) : 0; c.jaw.rotation.x = Math.min(0.32, e * 0.36); } }
