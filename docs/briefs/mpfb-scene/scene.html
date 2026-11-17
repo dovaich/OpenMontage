@@ -1,0 +1,221 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>MPFB scene test</title>
+<style>
+@font-face{font-family:'Lalezar';src:url('node_modules/@fontsource/lalezar/files/lalezar-arabic-400-normal.woff2') format('woff2');}
+@font-face{font-family:'PS2P';src:url('node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2') format('woff2');}
+html,body{margin:0;background:#000}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><canvas id="out" width="720" height="1280"></canvas>
+<script type="module">
+// «المكنسة النووية» 12 s test with the MPFB cast (EXPERIMENT, not a series episode). window.renderFrame(t) draws frame t.
+import { THREE, loadActor, loadClips, pose, face } from './mpfb_runtime.js';
+const W = 720, H = 1280;
+const DATA = await (await fetch('data.json')).json(); const DUR = DATA.dur;
+const out = document.getElementById('out'); const ctx = out.getContext('2d');
+const gl = document.createElement('canvas'); gl.width = W; gl.height = H;
+const R = new THREE.WebGLRenderer({ canvas: gl, antialias: true, preserveDrawingBuffer: true }); R.setSize(W, H, false);
+R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.05;
+R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
+const S = new THREE.Scene(); S.background = new THREE.Color(0x0e0f14);
+const cam = new THREE.PerspectiveCamera(35, W / H, 0.05, 60);
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const TL = new THREE.TextureLoader();
+function tex(f, rep, srgb = true) { const t = TL.load('tex/' + f); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+const ease = (x) => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
+const lerp = (a, b, k) => a + (b - a) * k;
+
+// ---------- room: 5 x 4 m, 2.8 m ceiling, an Egyptian living room at night ----------
+const room = new THREE.Group(); S.add(room);
+const floorM = new THREE.MeshStandardMaterial({ map: tex('floor_tiles_06_diff_1k.jpg', [4, 3.2]), normalMap: tex('floor_tiles_06_nor_gl_1k.jpg', [4, 3.2], false), roughness: 0.55 });
+const wallM = new THREE.MeshStandardMaterial({ map: tex('painted_plaster_wall_diff_1k.jpg', [2.5, 1.4]), normalMap: tex('painted_plaster_wall_nor_gl_1k.jpg', [2.5, 1.4], false), color: 0xc9d8b8, roughness: 0.9 });
+const woodM = new THREE.MeshStandardMaterial({ map: tex('wood_table_001_diff_1k.jpg', [1, 1]), normalMap: tex('wood_table_001_nor_gl_1k.jpg', [1, 1], false), roughness: 0.6 });
+const mesh = (g, m, x, y, z, p = room) => { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; p.add(o); return o; };
+const floor = mesh(new THREE.PlaneGeometry(5, 4), floorM, 0, 0, 0); floor.rotation.x = -Math.PI / 2;
+const ceil = mesh(new THREE.PlaneGeometry(5, 4), new THREE.MeshStandardMaterial({ color: 0xe8e4da, roughness: 1 }), 0, 2.8, 0); ceil.rotation.x = Math.PI / 2;
+const back = mesh(new THREE.PlaneGeometry(5, 2.8), wallM, 0, 1.4, -2);
+const left = mesh(new THREE.PlaneGeometry(4, 2.8), wallM, -2.5, 1.4, 0); left.rotation.y = Math.PI / 2;
+const right = mesh(new THREE.PlaneGeometry(4, 2.8), wallM, 2.5, 1.4, 0); right.rotation.y = -Math.PI / 2;
+const front = mesh(new THREE.PlaneGeometry(5, 2.8), wallM, 0, 1.4, 2); front.rotation.y = Math.PI;
+// skirting + a dado line
+const trimM = new THREE.MeshStandardMaterial({ color: 0x6b4a32, roughness: 0.6 });
+for (const [w, x, z, ry] of [[5, 0, -1.99, 0], [4, -2.49, 0, Math.PI / 2], [4, 2.49, 0, -Math.PI / 2]]) {
+  const sk = mesh(new THREE.BoxGeometry(w, 0.1, 0.02), trimM, x, 0.05, z); sk.rotation.y = ry;
+  const dd = mesh(new THREE.BoxGeometry(w, 0.04, 0.02), trimM, x, 1.0, z); dd.rotation.y = ry;
+}
+// window on the back wall: night city outside, the curtain rod is EMPTY (the vacuum took the curtain)
+const winG = new THREE.Group(); winG.position.set(0.9, 1.55, -1.98); room.add(winG);
+const night = document.createElement('canvas'); night.width = 256; night.height = 256; { const g = night.getContext('2d'); const gr = g.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#0b1230'); gr.addColorStop(1, '#2a2340'); g.fillStyle = gr; g.fillRect(0, 0, 256, 256); let s = 3; const r = () => (s = s * 16807 % 2147483647) / 2147483647; for (let i = 0; i < 9; i++) { const x = r() * 240, h = 80 + r() * 140; g.fillStyle = '#070a18'; g.fillRect(x, 256 - h, 30 + r() * 30, h); for (let k = 0; k < 14; k++) { g.fillStyle = r() > 0.5 ? '#f4c860' : '#c89a40'; if (r() > 0.45) g.fillRect(x + 4 + r() * 24, 256 - h + 6 + r() * (h - 10), 3, 4); } } }
+const nightT = new THREE.CanvasTexture(night); nightT.colorSpace = THREE.SRGBColorSpace;
+mesh(new THREE.PlaneGeometry(1.2, 1.1), new THREE.MeshBasicMaterial({ map: nightT }), 0, 0, -0.01, winG);
+const frameM = new THREE.MeshStandardMaterial({ color: 0xece8de, roughness: 0.5 });
+for (const [w, h, x, y] of [[1.3, 0.06, 0, 0.58], [1.3, 0.06, 0, -0.58], [0.06, 1.2, -0.62, 0], [0.06, 1.2, 0.62, 0], [0.04, 1.1, 0, 0]]) mesh(new THREE.BoxGeometry(w, h, 0.06), frameM, x, y, 0.02, winG);
+const rod = mesh(new THREE.CylinderGeometry(0.012, 0.012, 1.7, 8), new THREE.MeshStandardMaterial({ color: 0xb08a3a, metalness: 0.8, roughness: 0.3 }), 0, 0.72, 0.08, winG); rod.rotation.z = Math.PI / 2;
+for (let i = 0; i < 9; i++) mesh(new THREE.TorusGeometry(0.025, 0.005, 6, 12), rod.material, -0.7 + i * 0.03, 0.7, 0.08, winG);   // rings bunched at one end
+// sofa (back wall, left), coffee table, TV, framed photo, ceiling lamp
+const sofaM = new THREE.MeshStandardMaterial({ color: 0x8a3a2e, roughness: 0.85 });
+const sofa = new THREE.Group(); sofa.position.set(-1.1, 0, -1.55); room.add(sofa);
+mesh(new THREE.BoxGeometry(1.9, 0.42, 0.75), sofaM, 0, 0.21, 0, sofa); mesh(new THREE.BoxGeometry(1.9, 0.5, 0.18), sofaM, 0, 0.62, -0.3, sofa);
+for (const x of [-1.02, 1.02]) mesh(new THREE.BoxGeometry(0.16, 0.62, 0.75), sofaM, x, 0.31, 0, sofa);
+for (const x of [-0.45, 0.45]) { const c = mesh(new THREE.SphereGeometry(0.3, 16, 10), new THREE.MeshStandardMaterial({ color: 0xd8b04a, roughness: 0.9 }), x, 0.55, -0.12, sofa); c.scale.set(1.1, 0.75, 0.45); }
+const table = new THREE.Group(); table.position.set(-1.0, 0, -0.55); room.add(table);
+mesh(new THREE.BoxGeometry(0.9, 0.05, 0.5), woodM, 0, 0.42, 0, table); for (const [x, z] of [[-0.4, -0.2], [0.4, -0.2], [-0.4, 0.2], [0.4, 0.2]]) mesh(new THREE.BoxGeometry(0.05, 0.42, 0.05), woodM, x, 0.21, z, table);
+mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.1, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }), 0.2, 0.5, 0.05, table);   // tea glass
+const tv = new THREE.Group(); tv.position.set(2.2, 0, 0.6); tv.rotation.y = -Math.PI / 2; room.add(tv);
+mesh(new THREE.BoxGeometry(1.2, 0.5, 0.4), woodM, 0, 0.25, 0, tv); mesh(new THREE.BoxGeometry(1.0, 0.58, 0.05), new THREE.MeshStandardMaterial({ color: 0x111114, roughness: 0.25 }), 0, 0.82, -0.05, tv);
+const scr = mesh(new THREE.PlaneGeometry(0.94, 0.52), new THREE.MeshBasicMaterial({ color: 0x3a6ab8 }), 0, 0.82, -0.02, tv); scr.rotation.y = Math.PI;
+const photo = document.createElement('canvas'); photo.width = 128; photo.height = 160; { const g = photo.getContext('2d'); g.fillStyle = '#c8b48a'; g.fillRect(0, 0, 128, 160); g.fillStyle = '#7a5a3a'; g.beginPath(); g.ellipse(64, 70, 26, 32, 0, 0, 7); g.fill(); g.fillStyle = '#2a2a2a'; g.fillRect(40, 102, 48, 58); }
+const ph = mesh(new THREE.BoxGeometry(0.36, 0.45, 0.03), new THREE.MeshStandardMaterial({ color: 0x5a3a20 }), -1.1, 1.75, -1.97); mesh(new THREE.PlaneGeometry(0.3, 0.38), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(photo) }), -1.1, 1.75, -1.952);
+const lampG = new THREE.Group(); lampG.position.set(0, 2.8, 0); room.add(lampG);
+mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.5, 6), trimM, 0, -0.25, 0, lampG);
+const shade = mesh(new THREE.ConeGeometry(0.28, 0.2, 24, 1, true), new THREE.MeshStandardMaterial({ color: 0xf2e2b8, emissive: 0xf2c870, emissiveIntensity: 0.6, side: THREE.DoubleSide }), 0, -0.55, 0, lampG);
+// door on the left wall, warm hallway light behind it
+const doorG = new THREE.Group(); doorG.position.set(-2.49, 0, 0.55); doorG.rotation.y = Math.PI / 2; room.add(doorG);
+mesh(new THREE.PlaneGeometry(0.95, 2.1), new THREE.MeshBasicMaterial({ color: 0x2a1c12 }), 0, 1.05, -0.005, doorG);
+for (const [w, h, x, y] of [[1.1, 0.08, 0, 2.14], [0.08, 2.18, -0.51, 1.09], [0.08, 2.18, 0.51, 1.09]]) mesh(new THREE.BoxGeometry(w, h, 0.08), trimM, x, y, 0.02, doorG);
+const hallGlow = mesh(new THREE.PlaneGeometry(0.95, 2.1), new THREE.MeshBasicMaterial({ color: 0xffb860, transparent: true, opacity: 0.0 }), 0, 1.05, -0.003, doorG);
+// lights
+S.add(new THREE.HemisphereLight(0xb8c4e0, 0x3a2a20, 0.55));
+const lampL = new THREE.PointLight(0xffd9a0, 9, 9, 1.6); lampL.position.set(0, 2.15, 0); S.add(lampL);
+const moon = new THREE.DirectionalLight(0x9fb8ff, 0.9); moon.position.set(1.2, 2.6, -2.6); moon.target.position.set(0, 0.6, 0.4); moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048);
+Object.assign(moon.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.5, far: 9 }); moon.shadow.bias = -0.0004; moon.shadow.normalBias = 0.02; S.add(moon, moon.target);
+const keyL = new THREE.DirectionalLight(0xffe8cc, 1.4); keyL.position.set(-0.8, 2.6, 3.2); keyL.target.position.set(0, 1, 0); keyL.castShadow = true; keyL.shadow.mapSize.set(2048, 2048);
+Object.assign(keyL.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.5, far: 9 }); keyL.shadow.bias = -0.0004; keyL.shadow.normalBias = 0.02; S.add(keyL, keyL.target);
+const hallL = new THREE.PointLight(0xffb060, 0, 4, 1.5); hallL.position.set(-2.8, 1.8, 0.55); S.add(hallL);
+const tvL = new THREE.PointLight(0x6a9aff, 1.2, 3, 1.5); tvL.position.set(1.9, 0.9, 0.6); S.add(tvL);
+
+// ---------- the invention: «المكنسة النووية ٣٠٠٠» = washing machine motor + mom's pot + the water hose ----------
+const vac = new THREE.Group(); vac.position.set(0.05, 0, -0.55); vac.rotation.y = -0.45; room.add(vac);
+const steel = new THREE.MeshStandardMaterial({ color: 0xc8ccd2, metalness: 0.85, roughness: 0.28 });
+const motorM = new THREE.MeshStandardMaterial({ color: 0x3a4a5a, metalness: 0.5, roughness: 0.45 });
+mesh(new THREE.BoxGeometry(0.62, 0.12, 0.5), new THREE.MeshStandardMaterial({ color: 0x2a5a3a, roughness: 0.7 }), 0, 0.12, 0, vac);
+for (const [x, z] of [[-0.25, -0.2], [0.25, -0.2], [-0.25, 0.2], [0.25, 0.2]]) { const w = mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.04, 16), new THREE.MeshStandardMaterial({ color: 0x151515 }), x, 0.06, z, vac); w.rotation.z = Math.PI / 2; }
+const motor = mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.26, 24), motorM, -0.12, 0.31, 0.05, vac); motor.rotation.z = Math.PI / 2;
+const pot = new THREE.Group(); pot.position.set(0.12, 0.18, -0.02); vac.add(pot);
+mesh(new THREE.CylinderGeometry(0.2, 0.18, 0.34, 32, 1, true), new THREE.MeshStandardMaterial({ color: 0xc8ccd2, metalness: 0.85, roughness: 0.28, side: THREE.DoubleSide }), 0, 0.17, 0, pot);
+mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.01, 32), steel, 0, 0.005, 0, pot);
+for (const x of [-0.22, 0.22]) mesh(new THREE.TorusGeometry(0.035, 0.008, 6, 12, Math.PI), steel, x, 0.3, 0, pot).rotation.y = Math.PI / 2;
+await document.fonts.load('40px Lalezar', 'ع');
+const label = document.createElement('canvas'); label.width = 256; label.height = 96; { const g = label.getContext('2d'); g.fillStyle = '#ffd400'; g.fillRect(0, 0, 256, 96); g.fillStyle = '#111'; g.fillRect(0, 0, 256, 8); g.fillRect(0, 88, 256, 8); g.font = '40px Lalezar'; g.direction = 'rtl'; g.textAlign = 'center'; g.fillText('النووية ٣٠٠٠', 128, 62); }
+const labelT = new THREE.CanvasTexture(label); labelT.colorSpace = THREE.SRGBColorSpace;
+const lab = mesh(new THREE.PlaneGeometry(0.22, 0.08), new THREE.MeshStandardMaterial({ map: labelT, roughness: 0.6 }), 0, 0.15, 0.201, pot);
+const ledM = new THREE.MeshBasicMaterial({ color: 0x3df05a }); const led = mesh(new THREE.SphereGeometry(0.018, 12, 8), ledM, -0.28, 0.42, 0.05, vac);
+// hose: from the pot towards Hamada (a curve that wiggles)
+const hoseM = new THREE.MeshStandardMaterial({ color: 0x2a6ab0, roughness: 0.45 });
+let hose = null; const nozzle = mesh(new THREE.CylinderGeometry(0.05, 0.035, 0.16, 20, 1, true), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5, side: THREE.DoubleSide }), 0, 0, 0, room);
+function hoseAt(t, tip) {
+  const a = vac.localToWorld(V(0.2, 0.42, 0.05)); const w = Math.sin(t * 13) * 0.03;
+  const pts = [a, V(lerp(a.x, tip.x, 0.35), 0.85 + w, lerp(a.z, tip.z, 0.35)), V(lerp(a.x, tip.x, 0.7), 0.95 - w, lerp(a.z, tip.z, 0.7)), tip];
+  const curve = new THREE.CatmullRomCurve3(pts);
+  if (hose) { room.remove(hose); hose.geometry.dispose(); }
+  hose = mesh(new THREE.TubeGeometry(curve, 40, 0.035, 12), hoseM, 0, 0, 0);
+  nozzle.position.copy(tip); const dir = curve.getTangent(1); nozzle.quaternion.setFromUnitVectors(V(0, 1, 0), dir);
+}
+
+// ---------- cast ----------
+const CL = await loadClips({ xbot: 'anims/Xbot.glb', talking: 'anims/talking.fbx', scared: 'anims/scared.fbx', yelling: 'anims/yelling.fbx',
+  angry_point: 'anims/angry_point.fbx', shrug: 'anims/shrug.fbx', arguing: 'anims/arguing.fbx' });
+const dad = await loadActor('models/ibrahim.glb', room), son = await loadActor('models/hamada.glb', room), mom = await loadActor('models/om_hamada.glb', room);
+// Ibrahim's notebook (كشكول) in his left hand
+const book = new THREE.Group(); const bookM = new THREE.MeshStandardMaterial({ color: 0x2a5ab0, roughness: 0.7 });
+{ const b = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.015), bookM); b.castShadow = true; book.add(b); const pg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.19, 0.016), new THREE.MeshStandardMaterial({ color: 0xf4f0e4 })); pg.position.x = 0.004; book.add(pg); }
+dad.bones.mixamorigLeftHand.add(book); book.position.set(0.0, 0.09, 0.03); book.rotation.set(0.3, 0, 1.4);
+const Q = (x, y, z) => new THREE.Quaternion().setFromEuler(new THREE.Euler(x, y, z));
+function place(a, x, z, ry) { a.holder.position.set(x, 0, z); a.holder.rotation.y = ry; }
+
+// ---------- timeline ----------
+const [L1, L2, L3] = DATA.lines; const T_SUCK = DATA.suck_t;
+const T2 = L2.t0 - 0.12, T3 = L3.t0 - 0.12, T4 = L3.t0 + 2.35;   // shot cuts
+const SC0 = Number(new URLSearchParams(location.search).get('sc') || 1.0);   // where in the scared clip Hamada starts
+const nozzleHome = V(-0.62, 1.0, 0.2);
+function state(t) {
+  // Hamada: scared, pulled towards the nozzle, then yanked in; afterwards only his legs stick out of the pot, kicking
+  let s;
+  if (t < T_SUCK) {
+    const k = ease(t / T_SUCK);
+    // running in place as hard as he can, while the machine drags him backwards
+    place(son, lerp(-1.15, -0.85, ease(t / T_SUCK) ** 2), lerp(0.55, 0.42, k), -0.35);
+    son.holder.rotation.z = 0; son.holder.position.y = 0;
+    pose(son, [{ src: CL.run, t: t * 1.35, w: 1 }], { extra: { mixamorigSpine: Q(0.25, 0, 0), mixamorigHead: Q(-0.15, 0.35, 0) } });
+    hoseAt(t, nozzleHome.clone().add(V(Math.sin(t * 17) * 0.01, 0, 0)));
+  } else if (t < T_SUCK + 0.45) {
+    const k = ease((t - T_SUCK) / 0.45);
+    place(son, lerp(-0.95, -0.1, k), lerp(0.35, -0.5, k), Math.PI * 0.38);
+    son.holder.position.y = Math.sin(k * Math.PI) * 0.5; son.holder.rotation.z = -k * 1.6;
+    son.holder.scale.set(1, 1 - 0.2 * Math.sin(k * Math.PI), 1);
+    pose(son, [{ src: CL.scared, t: 3.2 + (t - T_SUCK), w: 1 }]);
+    hoseAt(t, nozzleHome.clone().lerp(V(-0.15, 0.8, -0.25), k));
+  } else {
+    // upside down in the pot: legs up, kicking
+    const pw = pot.getWorldPosition(new THREE.Vector3());
+    son.holder.scale.set(1, 1, 1); son.holder.rotation.set(Math.PI, 0.4, 0);
+    son.holder.position.set(pw.x, pw.y + 1.0 + Math.sin(t * 20) * 0.01, pw.z);
+    pose(son, [{ src: CL.scared, t: 4 + t * 1.6, w: 1 }]);
+    hoseAt(t, V(-0.45, 0.62, 0.1).add(V(Math.sin(t * 9) * 0.02, 0, 0)));
+  }
+  vac.position.x = 0.05 + Math.sin(t * 47) * 0.004; vac.rotation.z = Math.sin(t * 31) * 0.01;
+  ledM.color.setHex(Math.floor(t * 6) % 2 ? 0x3df05a : 0x1a6a2a);
+  // Ibrahim: calm, talking to the camera with his notebook; at the end a shrug
+  place(dad, 0.85, 0.3, -0.3);
+  const sh = ease((t - (T4 + 0.2)) / 0.5);
+  pose(dad, [{ src: t < L2.t0 ? CL.idle : CL.talking, t: t < L2.t0 ? t : 1.2 + (t - L2.t0), w: 1 }, { src: CL.shrug, t: 0.4 + Math.max(0, t - T4 - 0.2), w: sh }],
+       { extra: { mixamorigHead: Q(0.08, 0, 0) } });
+  // Om Hamada: comes in through the door, shouting and pointing
+  const ein = ease((t - (T3 - 0.6)) / 0.6);
+  const ein2 = ease((t - (T3 - 0.9)) / 1.1);
+  place(mom, lerp(-2.95, -1.15, ein2), 0.55, Math.PI / 2 - 1.0 * ein2);
+  pose(mom, [{ src: CL.walk, t: t * 1.0, w: 1 }, { src: CL.yelling, t: 2.2 + (t - T3), w: ease((t - T3 - 0.1) / 0.35) },
+             { src: CL.angry_point, t: 0.3 + Math.max(0, t - L3.t0 - 1.6), w: ease((t - L3.t0 - 1.4) / 0.4) }]);
+  hallL.intensity = t > T3 - 0.8 ? 6 : 0; hallGlow.material.opacity = t > T3 - 0.8 ? 0.55 : 0;
+  face(son, 'son', t, DATA, t < T_SUCK + 0.4 ? { browsUp: 0.8, open: 0.25 } : {});
+  face(dad, 'dad', t, DATA, { smile: t > L2.t0 && t < L2.t1 ? 0.25 : 0.15 });
+  face(mom, 'mom', t, DATA, { browsDown: 0.7 });
+}
+function shot(t) {
+  if (t < T2) {   // Hamada being pulled towards the nozzle, slow push in
+    const k = ease(t / T2); cam.fov = 38; cam.position.set(lerp(-0.55, -0.6, k), 1.3, lerp(3.0, 2.75, k)); cam.lookAt(lerp(-1.0, -0.85, k), 1.0, 0.4);
+  } else if (t < T3) {   // Ibrahim, waist up; the pot with Hamada's legs behind him
+    const k = ease((t - T2) / (T3 - T2)); cam.fov = 33; cam.position.set(lerp(1.3, 1.25, k), 1.45, lerp(2.5, 2.25, k)); cam.lookAt(0.75, 1.25, 0.1);
+  } else if (t < T4) {   // Om Hamada coming in
+    const k = ease((t - T3) / (T4 - T3)); cam.fov = 36; cam.position.set(lerp(-0.45, -0.55, k), 1.45, lerp(2.75, 2.55, k)); cam.lookAt(-1.2, 1.2, 0.5);
+  } else {   // wide: everyone
+    const k = ease((t - T4) / (DUR - T4)); cam.fov = 52; cam.position.set(-0.15, 1.65, lerp(5.0, 4.75, k)); cam.lookAt(-0.15, 0.95, -0.15);
+  }
+  cam.updateProjectionMatrix();
+}
+// ---------- dialogue box (series style), text typed along the voice ----------
+const NAMES = { son: ['حمادة', '#d4141c'], dad: ['إبراهيم', '#c9a227'], mom: ['أم حمادة', '#1f9e5a'] };
+function revealCount(L, t) {
+  const words = L.ar.split(' '); const vox = L.vox.length ? L.vox : [[L.t0, L.t1]];
+  const total = vox.reduce((s, [a, b]) => s + (b - a), 0); let done = 0;
+  for (const [a, b] of vox) { if (t >= b) done += b - a; else if (t > a) done += t - a; }
+  const frac = done / total; const lens = words.map(w => w.length + 1); const all = lens.reduce((a, b) => a + b, 0);
+  let acc = 0, n = 0; for (const l of lens) { if ((acc + l * 0.5) / all <= frac + 1e-6) { acc += l; n++; } else break; } return n;
+}
+function dialogue(t) {
+  const L = DATA.lines.find(l => t >= l.t0 - 0.05 && t < l.t1 + 0.35); if (!L) return;
+  const x = 18, w = W - 36, hh = 170, y = H - hh - 54;
+  const gr = ctx.createLinearGradient(0, y, 0, y + hh); gr.addColorStop(0, 'rgba(20,40,150,0.88)'); gr.addColorStop(1, 'rgba(5,10,60,0.92)');
+  ctx.fillStyle = gr; ctx.fillRect(x, y, w, hh); ctx.strokeStyle = '#fff'; ctx.lineWidth = 4; ctx.strokeRect(x + 2, y + 2, w - 4, hh - 4);
+  const [name, col] = NAMES[L.s];
+  ctx.fillStyle = col; ctx.fillRect(x + w - 230, y - 22, 210, 36); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.strokeRect(x + w - 230, y - 22, 210, 36);
+  ctx.font = '28px Lalezar'; ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.fillText(name, x + w - 36, y + 6);
+  const words = L.ar.split(' '); const shown = words.slice(0, revealCount(L, t)).join(' ');
+  ctx.font = '38px Lalezar'; const rows = ['']; for (const wd of shown.split(' ').filter(Boolean)) { const tr = rows[rows.length - 1] ? rows[rows.length - 1] + ' ' + wd : wd; if (ctx.measureText(tr).width > w - 60 && rows[rows.length - 1]) rows.push(wd); else rows[rows.length - 1] = tr; }
+  rows.slice(0, 3).forEach((r, i) => { ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText(r, x + w - 28, y + 62 + i * 48); ctx.fillStyle = '#fff'; ctx.fillText(r, x + w - 30, y + 60 + i * 48); });
+}
+
+window.renderFrame = (t) => {
+  state(t); shot(t);
+  R.render(S, cam);
+  ctx.drawImage(gl, 0, 0, W, H);
+  const vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.25, W / 2, H / 2, H * 0.7); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.38)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  dialogue(t);
+  if (t > T_SUCK && t < T_SUCK + 0.07) { ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillRect(0, 0, W, H); }
+  return true;
+};
+window.frameData = () => out.toDataURL('image/png');
+window.DUR = DUR;
+await document.fonts.load('38px Lalezar', 'ع');
+window.READY = true;
+</script></body></html>

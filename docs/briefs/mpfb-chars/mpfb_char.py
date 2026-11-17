@@ -531,7 +531,8 @@ def nearest_any(p):
     """nearest vertex of the body or its clothes (for pieces that hang over clothes, e.g. a hijab cape)"""
     global allv_kd, allv
     if allv_kd is None:
-        allv = [v for v in bm.verts if v.is_valid and (in_group(v, 'body') or in_group(v, 'helper-tights') or in_group(v, 'helper-skirt'))]
+        allv = [v for v in bm.verts if v.is_valid and (in_group(v, 'body') or in_group(v, 'helper-tights') or in_group(v, 'helper-skirt'))
+                and not is_arm(v.co) and abs(v.co.x) < SL.x * 0.85]   # torso / neck only: a cape must not follow the arms
         allv_kd = KDTree(len(allv))
         for i, v in enumerate(allv): allv_kd.insert(v.co, i)
         allv_kd.balance()
@@ -570,12 +571,14 @@ if hw:
         pool = [v for v in bm.verts if v.is_valid and not is_arm(v.co) and abs(v.co.x) < SL.x * 1.05]
         rows, n = [], 48
         for t, z in zip((0, 0.2, 0.4, 0.6, 0.8, 1.0), zs):
-            ring = [v for v in pool if abs(v.co.z - z) < 0.012]; cy = sum(v.co.y for v in ring) / len(ring); C0 = Vector((0, cy, z)); row = []
-            ax_, ay_ = 0.08 + 0.1 * t ** 0.8, 0.085 + 0.055 * t ** 0.8
+            row = []
+            ax_, ay_ = 0.08 + 0.07 * t ** 0.8, 0.085 + 0.045 * t ** 0.8
             for k in range(n):
                 a = 2 * math.pi * k / n; d = Vector((math.sin(a), -math.cos(a), 0))
+                zk = z - t * 0.07 * abs(math.cos(a)) ** 1.5             # front and back hang lower
+                ring = [v for v in pool if abs(v.co.z - zk) < 0.012]; cy = sum(v.co.y for v in ring) / len(ring); C0 = Vector((0, cy, zk))
                 cone = [v for v in ring if (v.co - C0).normalized().dot(d) > 0.92] or ring
-                body_r = max((v.co - C0).dot(d) for v in cone) + 0.018
+                body_r = max((v.co - C0).dot(d) for v in cone if not is_arm(v.co) and abs(v.co.x) < SL.x * 0.95) + 0.018 if any(not is_arm(v.co) and abs(v.co.x) < SL.x * 0.95 for v in cone) else 0.0
                 ell_r = 1 / math.sqrt((d.x / ax_) ** 2 + (d.y / ay_) ** 2)
                 q = C0 + d * max(body_r, ell_r); v = bm.verts.new(q); adopt(v, nearest_any(q)); row.append(v)
             rows.append(row)
@@ -654,20 +657,20 @@ if WEAR.get('coverall'):   # collar, belt and zip so it reads as a work coverall
         ring = [v for v in bm.verts if v.is_valid and abs(v.co.z - z) < 0.01 and abs(v.co.x) < 0.02]
         fv = min(ring, key=lambda v: v.co.y); pts.append(Vector((0, fv.co.y - 0.004, z))); srcs.append(nearest_any(fv.co))
     tube(pts, [0.0035] * 14, mat('zip', hexrgb('#9a9a9a'), 0.3, 0.8), 0.4, 6, False, srcs, [Vector((0, -1, 0))] * 14)
-if WEAR.get('headphones'):
+if WEAR.get('headphones'):   # resting around the neck: band behind the neck, round cups at both sides of the neck under the jaw
     mi = mat('headphones', hexrgb(WEAR['headphones']), 0.4)
-    z = NE.z - 0.03
-    ring = [v for v in bm.verts if v.is_valid and abs(v.co.z - z) < 0.01 and abs(v.co.x) < 0.12 and not is_arm(v.co)]
+    z = NE.z - 0.035
+    ring = [v for v in bm.verts if v.is_valid and abs(v.co.z - z) < 0.01 and abs(v.co.x) < 0.1 and not is_arm(v.co)]
     cy = sum(v.co.y for v in ring) / len(ring); C0 = Vector((0, cy, z)); pts, srcs = [], []
-    for k in range(25):   # the band: half ring around the back of the neck
-        a = math.pi * (0.35 + 1.3 * k / 24); d = Vector((math.sin(a), -math.cos(a), 0))
+    for k in range(25):
+        a = math.pi * (0.5 + 1.0 * k / 24); d = Vector((math.sin(a), -math.cos(a), 0))
         cone = [v for v in ring if (v.co - C0).normalized().dot(d) > 0.9] or ring
-        rad = max((v.co - C0).dot(d) for v in cone) + 0.016; q = C0 + d * rad
+        q = C0 + d * (max((v.co - C0).dot(d) for v in cone) + 0.012) + Vector((0, 0, 0.012 * math.sin(math.pi * k / 24)))
         pts.append(q); srcs.append(nearest_any(q))
-    tube(pts, [0.008] * 25, mi, 0.45, 6, False, srcs, [Vector((0, 0, 1))] * 25)
-    for end in (pts[0], pts[-1]):   # ear cups at both ends, lying on the collar bones, facing outwards
-        sx = 1 if end.x > 0 else -1; c = end + Vector((sx * 0.004, -0.012, -0.012)); src = nearest_any(c)
-        tube([c - Vector((sx * 0.012, 0, 0)), c + Vector((sx * 0.012, 0, 0))], [0.032, 0.032], mi, 1.0, 18, False, [src, src], [Vector((0, 0, 1))] * 2)
+    tube(pts, [0.007] * 25, mi, 0.5, 6, False, srcs, [Vector((0, 0, 1))] * 25)
+    for end in (pts[0], pts[-1]):
+        sx = 1 if end.x > 0 else -1; c = end + Vector((sx * 0.008, -0.012, -0.004)); src = nearest_any(c); ax = Vector((sx, -0.25, 0)).normalized()
+        tube([c - ax * 0.011, c + ax * 0.011], [0.031, 0.029], mi, 1.0, 20, False, [src, src], [Vector((0, 0, 1))] * 2)
 if WEAR.get('chain'): neck_loop(NE.z - 0.06, 0.01, 0.003, mat('gold', hexrgb('#d4a72c'), 0.25, 1.0), 0.05, 40, 5)
 if WEAR.get('gloves'):
     shell([f for f in bm.faces if face_in(f, 'body') and f.material_index == M_SKIN and abs(cen(f).x) > abs(WL.x) - 0.03], mat('gloves', hexrgb(WEAR['gloves']), 0.35), 0.002, 0.003)
