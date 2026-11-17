@@ -19,11 +19,14 @@
    "head/head-oval": 0.4,
    "eyebrows/eyebrows-trans-down": 0.2,
    "cheek/l-cheek-bones-decr": 0.3,
-   "cheek/r-cheek-bones-decr": 0.3
+   "cheek/r-cheek-bones-decr": 0.3,
+   "head/head-age-incr": 0.5,
+   "stomach/stomach-pregnant-incr": 0.35,
+   "nose/nose-scale-depth-incr": 0.3
   },
   "colors": {
    "skin": "#a8714d",
-   "hair": "#1b1410",
+   "hair": "#2a211b",
    "iris": "#2a1a10",
    "shirt": "#efece2",
    "pants": "#c9cfd6",
@@ -39,6 +42,11 @@
   "brows": 0.0045,
   "shirt": "tank",
   "pants": "long",
-  "loose_pants": 0.018
+  "loose_pants": 0.018,
+  "sandals": "#6b4a2a",
+  "goggles": true,
+  "stubble": 0.55,
+  "hair_thick": 0.0045,
+  "grey_temples": 0.45
  }
 }

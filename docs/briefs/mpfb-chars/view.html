@@ -22,7 +22,8 @@ window.shot = (view, morphs) => {
 };
 new GLTFLoader().load(q.get('m'), g => {
   g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
-    const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.name === 'hair') m.roughness = 0.9; if (o.geometry.attributes.color) m.vertexColors = m.name === 'pants'; }); } });
+    const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.name === 'hair') m.roughness = 0.9; if (o.geometry.attributes.color) m.vertexColors = true; }); } });
+  if (q.get('norm')) { const bb = new THREE.Box3().setFromObject(g.scene); const k = 1.76 / (bb.max.y - bb.min.y); g.scene.scale.setScalar(k); const b2 = new THREE.Box3().setFromObject(g.scene); g.scene.position.y -= b2.min.y; g.scene.position.x -= (b2.min.x + b2.max.x) / 2; g.scene.position.z -= (b2.min.z + b2.max.z) / 2; }
   S.add(g.scene); window.INFO = { morphs: [], mats: [] };
   g.scene.traverse(o => { if (o.morphTargetDictionary) window.INFO.morphs = Object.keys(o.morphTargetDictionary); if (o.isMesh) window.INFO.mats.push(...(Array.isArray(o.material) ? o.material : [o.material]).map(m => m.name)); });
   window.READY = true;

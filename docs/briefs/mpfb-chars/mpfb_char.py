@@ -117,6 +117,16 @@ def kill(faces):
     loose = [v for v in bm.verts if not v.link_faces]; bmesh.ops.delete(bm, geom=loose, context='VERTS')
     bm.verts.ensure_lookup_table(); bm.faces.ensure_lookup_table()
 def cen(f): return f.calc_center_median()
+def smooth_edge(mi, it=4, k=0.5):
+    """relax the open border of the faces with material mi (removes the stair steps of a grid cut)"""
+    fs = {f for f in bm.faces if f.material_index == mi}
+    border = [e for e in bm.edges if sum(1 for f in e.link_faces if f in fs) == 1 and (len(e.link_faces) == 1 or not all(f in fs for f in e.link_faces))]
+    nb = {}
+    for e in border:
+        a, b = e.verts; nb.setdefault(a, set()).add(b); nb.setdefault(b, set()).add(a)
+    for _ in range(it):
+        tgt = {v: sum((u.co for u in n), Vector()) / len(n) for v, n in nb.items() if len(n) == 2}
+        for v, t in tgt.items(): move(v, (t - v.co) * k)
 SHAPES = list(bm.verts.layers.shape.values())
 def move(v, d):   # move a vertex in the mesh AND in every shape key, so the face movements keep working on it
     v.co += d
@@ -126,29 +136,61 @@ def move(v, d):   # move a vertex in the mesh AND in every shape key, so the fac
 kill([f for f in bm.faces if any(in_group(v, 'JointCubes') for v in f.verts)])
 kill([f for f in bm.faces if any(face_in(f, g) for g in ('helper-genital', 'helper-tongue', 'helper-l-eyelashes-1', 'helper-l-eyelashes-2', 'helper-r-eyelashes-1', 'helper-r-eyelashes-2'))])
 if not SPEC.get('dress'): kill([f for f in bm.faces if face_in(f, 'helper-skirt')])
-# eyes: sclera / iris / pupil by direction from the eyeball centre
+# eyes: the helper eyeballs are too coarse for a close-up -> a smooth sphere per eye (sclera / iris / pupil by angle),
+# riding the head bone (copied from the nearest skin vertex), with no shape-key motion
+EYES = []
 for side in ('helper-l-eye', 'helper-r-eye'):
     fs = [f for f in bm.faces if face_in(f, side)]
-    c = sum((v.co for f in fs for v in f.verts), Vector()) / sum(len(f.verts) for f in fs)
-    for f in fs:
-        d = (cen(f) - c).normalized(); a = -d.y
-        f.material_index = mat('pupil', (0.01, 0.01, 0.01), 0.2) if a > math.cos(math.radians(9)) else mat('iris', hexrgb(C.get('iris', '#3a2414')), 0.3) if a > math.cos(math.radians(21)) else mat('sclera', (0.85, 0.83, 0.8), 0.25)
+    vs = {v for f in fs for v in f.verts}
+    c = sum((v.co for v in vs), Vector()) / len(vs); r = max((v.co - c).length for v in vs) * 0.985
+    sv = next(iter(vs)); EYES.append((c, r, dict(sv[dl].items())))
+    kill(fs)
+def eyeball(c, r, src):
+    W_, H_ = 40, 24; rows = []
+    for i in range(H_ + 1):
+        th = math.pi * i / H_; row = []
+        for j in range(W_):
+            ph = 2 * math.pi * j / W_
+            d = Vector((math.sin(th) * math.cos(ph), -math.cos(th), math.sin(th) * math.sin(ph)))   # pole i=0 points to the front (-y)
+            p = c + d * r; v = bm.verts.new(p)
+            for gk, wt in src.items(): v[dl][gk] = wt
+            for sl in SHAPES: v[sl] = p.copy()
+            row.append(v)
+        rows.append(row)
+    I = C.get('iris_deg', 23)
+    for i in range(H_):
+        for j in range(W_):
+            q = (rows[i][j], rows[i][(j + 1) % W_], rows[i + 1][(j + 1) % W_], rows[i + 1][j])
+            if i == 0: q = (rows[0][j], rows[1][(j + 1) % W_], rows[1][j])
+            try: f = bm.faces.new(q)
+            except ValueError: continue
+            ang = 180 * (i + 0.5) / H_
+            f.material_index = mat('pupil', (0.01, 0.01, 0.01), 0.15) if ang < I * 0.42 else mat('iris', hexrgb(C.get('iris', '#3a2414')), 0.25) if ang < I else mat('sclera', (0.82, 0.8, 0.77), 0.2)
+            f.smooth = True
+            if f.normal.dot(f.calc_center_median() - c) < 0: f.normal_flip()
 for f in bm.faces:
     if face_in(f, 'helper-upper-teeth') or face_in(f, 'helper-lower-teeth'): f.material_index = mat('teeth', (0.8, 0.78, 0.7), 0.3)
     if face_in(f, 'helper-l-eyelashes-1') or face_in(f, 'helper-r-eyelashes-1') or face_in(f, 'helper-l-eyelashes-2') or face_in(f, 'helper-r-eyelashes-2'): f.material_index = mat('hair', hexrgb(C['hair']), 0.8)
 
+for c_, r_, src_ in EYES: eyeball(c_, r_, src_)
+bm.verts.ensure_lookup_table(); bm.faces.ensure_lookup_table()
 # the long-hair helper is not used: hair is a shell grown from the scalp skin (see 'hair' below, after the clothes)
 kill([f for f in bm.faces if face_in(f, 'helper-hair')])
 
 # clothes from the tights helper
 tf = [f for f in bm.faces if face_in(f, 'helper-tights')]
+bmesh.ops.subdivide_edges(bm, edges=list({e for f in tf for e in f.edges}), cuts=1, use_grid_fill=True)
+bm.verts.ensure_lookup_table(); bm.faces.ensure_lookup_table()
+tf = [f for f in bm.faces if face_in(f, 'helper-tights')]
+def ell(dx, dz, rx, rz): return (dx / rx) ** 2 + (dz / rz) ** 2 < 1
 def shirt_zone(p, shrink=0.0):
-    if not (PE.z + 0.06 + shrink < p.z < SL.z + 0.05 - shrink): return False
+    if not (PE.z + 0.06 + shrink < p.z < SL.z + 0.06 - shrink): return False
     ax = abs(p.x)
-    if ax > SL.x * 0.98 - shrink: return False
-    if SPEC['shirt'] == 'tank' and p.z > SL.z - 0.13 and ax > SL.x * 0.62 - shrink: return False     # arm holes
-    if p.z > SL.z - 0.02 - shrink and ax < 0.075 + shrink: return False                                # neck hole
-    if SPEC['shirt'] == 'tank' and p.y < NE.y - 0.04 and p.z > SL.z - 0.09 - shrink and ax < 0.10 + shrink: return False  # front scoop
+    if ax > SL.x * 1.02 - shrink: return False
+    if SPEC['shirt'] == 'tank':
+        if ell(ax - SL.x * 1.0, p.z - (SL.z + 0.0), 0.075 + shrink, 0.16 + shrink): return False     # round arm holes
+        if ell(ax, p.z - (SL.z + 0.07), 0.095 + shrink, (0.16 if p.y < NE.y - 0.02 else 0.085) + shrink): return False  # neck, deeper scoop in front
+    elif ell(ax, p.z - (SL.z + 0.06), 0.075 + shrink, 0.07 + shrink): return False
     return True
 def sleeve_zone(p, shrink=0.0):
     return SPEC['shirt'] == 'tshirt' and SL.z - 0.16 < p.z < SL.z + 0.05 and SL.x * 0.9 < abs(p.x) < SL.x * 1.0 + 0.22 - shrink
@@ -165,6 +207,7 @@ M_SHIRT = mat('shirt', hexrgb(C['shirt']), 0.85); M_PANTS = mat('pants', hexrgb(
 for f in keep_shirt: f.material_index = M_SHIRT
 for f in keep_pants: f.material_index = M_PANTS
 kill(drop)
+smooth_edge(M_SHIRT); smooth_edge(M_PANTS)
 loose = SPEC.get('loose_pants', 0.0)
 if loose:
     for v in {v for f in bm.faces if f.material_index == M_PANTS for v in f.verts}: move(v, v.normal * loose)
@@ -173,12 +216,19 @@ under = [f for f in bm.faces if f.material_index == M_SKIN and face_in(f, 'body'
 kill(under)
 
 # facial hair + eyebrows: thin shells duplicated from the face skin
-def shell(sel, mi, lift, thick):
+def shell(sel, mi, lift, thick, smooth=True):
     if not sel: return
     r = bmesh.ops.duplicate(bm, geom=sel); nf = [g for g in r['geom'] if isinstance(g, bmesh.types.BMFace)]
     nv = {v for f in nf for v in f.verts}
     nrm = {v: v.normal.copy() for v in nv}
     for v in nv: move(v, nrm[v] * lift)
+    fs = set(nf); nb = {}
+    for e in {e for f in nf for e in f.edges}:
+        if sum(1 for f in e.link_faces if f in fs) == 1:
+            a, b = e.verts; nb.setdefault(a, set()).add(b); nb.setdefault(b, set()).add(a)
+    for _ in range(4 if smooth else 0):
+        tgt = {v: sum((u.co for u in n), Vector()) / len(n) for v, n in nb.items() if len(n) == 2}
+        for v, t in tgt.items(): move(v, (t - v.co) * 0.5)
     ex = bmesh.ops.extrude_face_region(bm, geom=nf)
     for v in [g for g in ex['geom'] if isinstance(g, bmesh.types.BMVert)]: move(v, (nrm.get(v) or v.normal) * thick)
     for f in [g for g in ex['geom'] if isinstance(g, bmesh.types.BMFace)] + nf: f.material_index = mi
@@ -247,15 +297,102 @@ if brow:
 hair = SPEC.get('hair', 'full')
 if hair != 'none':
     HZ = EL.z   # eye height
+    # ears: the outermost skin at eye-to-mouth height on each side
+    sk = [v for v in bm.verts if in_group(v, 'body') and MO.z - 0.01 < v.co.z < EL.z + 0.03 and v.co.y > EL.y + 0.05]
+    EARS = []
+    for sg in (1, -1):
+        side = sorted([v for v in sk if v.co.x * sg > 0], key=lambda v: -abs(v.co.x))[:60]
+        EARS.append(sum((v.co for v in side), Vector()) / len(side))
+    # the ear's real outline: skin that sticks out sideways from the skull around E (|x| beyond the skull surface)
+    EARBOX = []
+    for E in EARS:
+        ev = [v.co for v in bm.verts if in_group(v, 'body') and v.co.x * E.x > 0 and abs(v.co.x) > abs(E.x) - 0.007 and abs(v.co.z - E.z) < 0.05 and abs(v.co.y - E.y) < 0.045]
+        ys = [c.y for c in ev]; zs = [c.z for c in ev]
+        EARBOX.append(((min(ys) + max(ys)) / 2, (max(ys) - min(ys)) / 2, (min(zs) + max(zs)) / 2, (max(zs) - min(zs)) / 2, abs(E.x)))
+    E0 = Vector((EARS[0].x, EARBOX[0][0], EARBOX[0][2]))
+    print('ears', [tuple(round(x, 3) for x in b) for b in EARBOX])
+    def ear_hole(p, m=0.004):   # the ear itself plus a small margin: hair goes tight around it
+        return any(abs(p.x) > ax - 0.022 and ((p.y - cy) / (ry + m)) ** 2 + ((p.z - cz) / (rz + m)) ** 2 < 1 for cy, ry, cz, rz, ax in EARBOX)
     def scalp(f):
         p = cen(f)
-        if not face_in(f, 'body') or p.z < HZ - 0.035: return False
-        back = p.y > EL.y + 0.075            # behind the ears' front edge
-        if hair == 'sides': return back and p.z < HZ + 0.085 and not (p.z < HZ + 0.0 and p.y > EL.y + 0.17 and abs(p.x) < 0.04) or (p.y > EL.y + 0.13 and p.z < HZ + 0.075)
-        return (back and p.z < HZ + 0.2) or p.z > HZ + 0.06
+        if not face_in(f, 'body') or ear_hole(p): return False
+        if hair == 'sides':   # horseshoe: temples + sideburns + around the ears + back, bald on top
+            if p.y < EL.y + 0.04: return False                                    # nothing on the forehead / face
+            behind = p.y > E0.y + 0.025
+            top = TOP - (0.075 if behind else 0.082)
+            bottom = HZ - (0.075 if behind else 0.0)                              # nape lower, sideburns to the ear middle
+            if p.y < E0.y - 0.015: bottom = max(bottom, E0.z - 0.01)              # sideburn in front of the ear
+            return bottom < p.z < top and abs(p.x) > (0.0 if behind else 0.05)
+        if p.z < HZ - 0.035: return False
+        return (p.y > EL.y + 0.075 and p.z < HZ + 0.2) or p.z > HZ + 0.06
     sel = [f for f in bm.faces if scalp(f) and abs(cen(f).x) < 0.2]
     print('hair faces', len(sel))
     shell(sel, mat('hair', hexrgb(C['hair']), 0.85), 0.002, SPEC.get('hair_thick', 0.012 if hair == 'curly' else 0.006))
+# ---- accessories ----
+def ring3(center, normal, radius, tube_r, mi, src, sides=6, seg=20):
+    """a torus in 3D (e.g. a goggle rim), riding the skin vertex src"""
+    n = normal.normalized(); u = n.orthogonal().normalized(); w = n.cross(u)
+    rings = []
+    for k in range(seg):
+        a = 2 * math.pi * k / seg; c = center + (u * math.cos(a) + w * math.sin(a)) * radius; rd = (c - center).normalized(); ring = []
+        for j in range(sides):
+            b = 2 * math.pi * j / sides; p = c + (rd * math.cos(b) + n * math.sin(b)) * tube_r
+            v = bm.verts.new(p)
+            for gk, wt in src[dl].items(): v[dl][gk] = wt
+            for sl in SHAPES: v[sl] = p + (src[sl] - src.co)
+            ring.append(v)
+        rings.append(ring)
+    for k in range(seg):
+        for j in range(sides):
+            f = bm.faces.new((rings[k][j], rings[k][(j + 1) % sides], rings[(k + 1) % seg][(j + 1) % sides], rings[(k + 1) % seg][j])); f.material_index = mi; f.smooth = True
+    return rings
+def disc(center, normal, radius, mi, src, seg=20):
+    n = normal.normalized(); u = n.orthogonal().normalized(); w = n.cross(u); vs = []
+    for k in range(seg):
+        a = 2 * math.pi * k / seg; p = center + (u * math.cos(a) + w * math.sin(a)) * radius; v = bm.verts.new(p)
+        for gk, wt in src[dl].items(): v[dl][gk] = wt
+        for sl in SHAPES: v[sl] = p + (src[sl] - src.co)
+        vs.append(v)
+    f = bm.faces.new(vs); f.material_index = mi
+    if f.normal.dot(n) < 0: f.normal_flip()
+bm.normal_update()
+if SPEC.get('sandals'):
+    M_SAND = mat('sandals', hexrgb(SPEC['sandals']), 0.7)
+    soles = [f for f in bm.faces if face_in(f, 'body') and cen(f).z < AL.z - 0.035 and f.normal.z < -0.4]
+    shell(soles, M_SAND, 0.001, 0.016)
+    strap = [f for f in bm.faces if face_in(f, 'body') and AL.z - 0.075 < cen(f).z < AL.z - 0.02 and f.normal.z > 0.25 and f.material_index == M_SKIN and abs(cen(f).y - (AL.y - 0.075)) < 0.022]
+    shell(strap, M_SAND, 0.002, 0.004, smooth=False)
+if SPEC.get('goggles'):
+    M_BRASS = mat('brass', hexrgb('#b8902c'), 0.35); M_GLASS = mat('lens', hexrgb('#2c4a3a'), 0.1); M_STRAP = mat('strap', hexrgb('#3a2a1e'), 0.8)
+    gz = EL.z + 0.058
+    # smooth flat band around the head at goggle height: one ring point per angle on the skull, pushed out over the hair
+    HC = Vector((0, (EL.y + EARBOX[0][0]) / 2 + 0.03, gz))
+    ring_vs = [v for v in skin_vs if abs(v.co.z - gz) < 0.008 and v.is_valid]
+    pts = []
+    for k in range(48):
+        a = 2 * math.pi * k / 48; d = Vector((math.sin(a), -math.cos(a), 0))
+        v = max(ring_vs, key=lambda v: (v.co - HC).normalized().dot(d))
+        pts.append((Vector((v.co.x, v.co.y, gz)) + Vector((v.normal.x, v.normal.y, 0)).normalized() * 0.0105, v))
+    rings = []
+    for k, (c, src) in enumerate(pts):
+        t = (pts[(k + 1) % 48][0] - pts[k - 1][0]).normalized(); out = Vector((0, 0, 1)).cross(t).normalized()
+        ring = []
+        for (du, dz) in ((-0.0015, -0.007), (0.0015, -0.007), (0.0015, 0.007), (-0.0015, 0.007)):
+            pnt = c + out * du + Vector((0, 0, dz)); nv = bm.verts.new(pnt)
+            for gk, wt in src[dl].items(): nv[dl][gk] = wt
+            for sl in SHAPES: nv[sl] = pnt + (src[sl] - src.co)
+            ring.append(nv)
+        rings.append(ring)
+    for k in range(48):
+        for j in range(4):
+            f = bm.faces.new((rings[k][j], rings[k][(j + 1) % 4], rings[(k + 1) % 48][(j + 1) % 4], rings[(k + 1) % 48][j])); f.material_index = M_STRAP
+    bm.normal_update()
+    for sx in (1, -1):
+        v = on_skin(sx * 0.034, gz, EL.y - 0.1); nrm = (v.normal + Vector((0, 0, 0.35))).normalized()
+        c = v.co + nrm * 0.012
+        ring3(c, nrm, 0.022, 0.006, M_BRASS, v); disc(c + nrm * 0.004, nrm, 0.02, M_GLASS, v)
+    bm.verts.ensure_lookup_table(); bm.faces.ensure_lookup_table()
+for f in bm.faces: f.smooth = True
 bm.to_mesh(me); bm.free()
 idx = [p.material_index for p in me.polygons]
 me.materials.clear()
@@ -264,18 +401,49 @@ for p, i in zip(me.polygons, idx): p.material_index = i
 me.update()
 import collections; print('faces per material', {MATS[k].name: n for k, n in collections.Counter(idx).items()})
 
-# stripes (vertex colours) on pajama trousers
-if C.get('pants_stripes'):
-    ca = me.color_attributes.new('Col', 'BYTE_COLOR', 'CORNER')
-    s1, s2 = hexrgb(C['pants']), hexrgb(C['pants_stripes'])
-    for poly in me.polygons:
-        for li in poly.loop_indices:
-            v = me.vertices[me.loops[li].vertex_index].co; col = (1, 1, 1)
-            if poly.material_index == M_PANTS:
-                cx = PE.x + (0.09 if v.x > 0 else -0.09); a = math.atan2(v.y - 0.0, v.x - cx)
-                col = s2 if int((a + math.pi) / (2 * math.pi) * 16) % 2 else s1
-            ca.data[li].color = (*col, 1)
-    bpy.data.materials['pants'].node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (1, 1, 1, 1)
+# vertex colours (multiply the material colour): lips, cheeks, stubble, under-eyes; stripes on the pajama trousers
+ca = me.color_attributes.new('Col', 'BYTE_COLOR', 'CORNER')
+P_SKIN, P_PANTS = MATS.index(bpy.data.materials['skin']), MATS.index(bpy.data.materials['pants'])
+P_HAIR = MATS.index(bpy.data.materials['hair'])
+GREY = SPEC.get('grey_temples', 0.0)
+HB, HG = hexrgb(C['hair']), hexrgb('#9a948e')   # hair = grey material x dark vertex colour (lighter at the temples)
+if GREY: bpy.data.materials['hair'].node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (*HG, 1)
+s1 = hexrgb(C['pants']); s2 = hexrgb(C.get('pants_stripes', C['pants']))
+def sm(a, b, x): x = max(0.0, min(1.0, (x - a) / (b - a))); return x * x * (3 - 2 * x)
+def tint(v):
+    r = g = b = 1.0
+    def mix(t, col, k):
+        nonlocal r, g, b; r, g, b = r + (col[0] - r) * k * t, g + (col[1] - g) * k * t, b + (col[2] - b) * k * t
+    face = v.y < EL.y + 0.05 and v.z > NE.z
+    if face:
+        lip = sm(0.022, 0.0, math.hypot(v.x / 1.6, v.z - MO.z)) * sm(MO.y + 0.03, MO.y + 0.005, v.y)
+        mix(lip, (0.78, 0.52, 0.52), 0.8)
+        for E in (EL, ER):
+            ch = sm(0.045, 0.0, math.hypot(v.x - E.x * 1.6, v.z - (E.z - 0.045)))
+            mix(ch, (1.05, 0.85, 0.82), 0.5)
+            ue = sm(0.016, 0.0, math.hypot(v.x - E.x, v.z - (E.z - 0.016)))
+            mix(ue, (0.82, 0.78, 0.82), 0.6)
+        if SPEC.get('stubble'):
+            st = sm(MO.z + 0.03, MO.z + 0.0, v.z) * sm(NE.z + 0.0, NE.z + 0.05, v.z) * (1 - sm(0.06, 0.08, abs(v.x)) * sm(MO.z - 0.02, MO.z + 0.01, v.z))
+            mix(st * (1 - lip), (0.72, 0.74, 0.8), SPEC['stubble'])
+    if v.z > EL.z + 0.06: mix(1, (1.04, 0.95, 0.92), 0.4)     # scalp/forehead a bit warmer/shinier
+    return (min(r, 1), min(g, 1), min(b, 1))
+for poly in me.polygons:
+    for li in poly.loop_indices:
+        v = me.vertices[me.loops[li].vertex_index].co; col = (1, 1, 1)
+        if poly.material_index == P_SKIN: col = tint(v)
+        elif poly.material_index == P_HAIR and GREY:
+            k = 0.0
+            if v.z > MO.z + 0.03 and abs(v.x) > 0.05:   # salt-and-pepper temples (not the mustache/brows)
+                k = GREY * sm(EL.y + 0.03, EL.y + 0.09, v.y) * (1 - sm(EL.y + 0.13, EL.y + 0.2, v.y)) * (0.55 + 0.45 * ((int(v.x * 900) + int(v.z * 700)) % 3 == 0))
+            col = tuple(HB[i] / HG[i] + (1 - HB[i] / HG[i]) * k for i in range(3))
+        elif poly.material_index == P_PANTS and C.get('pants_stripes'):
+            cx = 0.09 if v.x > 0 else -0.09; ang = math.atan2(v.y, v.x - cx)
+            col = s2 if int((ang + math.pi) / (2 * math.pi) * 16) % 2 else s1
+        ca.data[li].color = (*[min(1.0, c) for c in col], 1)
+if C.get('pants_stripes'): bpy.data.materials['pants'].node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (1, 1, 1, 1)
+me.color_attributes.active_color = ca
+import statistics; _c=[tuple(round(x,2) for x in ca.data[li].color[:3]) for poly in me.polygons if poly.material_index==P_SKIN for li in poly.loop_indices]; print('skin tint samples', sum(1 for c in _c if c!=(1.0,1.0,1.0)), 'of', len(_c), min(_c))
 
 # ---------- 6. export ----------
 h.name = CHAR; rig.name = CHAR + '_rig'
