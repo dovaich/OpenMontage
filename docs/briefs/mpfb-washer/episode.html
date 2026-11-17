@@ -1,0 +1,295 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Nuclear Washer</title>
+<style>
+@font-face{font-family:'Lalezar';src:url('node_modules/@fontsource/lalezar/files/lalezar-arabic-400-normal.woff2') format('woff2');}
+@font-face{font-family:'PS2P';src:url('node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2') format('woff2');}
+@font-face{font-family:'ReemKufi';font-weight:700;src:url('node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-700-normal.woff2') format('woff2');}
+html,body{margin:0;background:#000}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><canvas id="out" width="720" height="1280"></canvas>
+<script type="module">
+// «الغسالة النووية» — Om Hamada series episode with the MPFB cast (user-approved test of the new characters). window.renderFrame(t).
+import { THREE, loadActor, loadClips, pose, face } from './mpfb_runtime.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import * as HUD from './hud.js';
+await Promise.all([document.fonts.load('40px Lalezar', 'ع'), document.fonts.load('12px PS2P', 'A'), document.fonts.load('700 40px ReemKufi', 'ع')]);
+const W = 720, H = 1280;
+const DATA = await (await fetch('data.json')).json(); const DUR = DATA.dur, MK = DATA.mk;
+const LN = Object.fromEntries(DATA.lines.map(l => [l.key, l]));
+const out = document.getElementById('out'); const ctx = out.getContext('2d');
+const glc = document.createElement('canvas'); glc.width = W; glc.height = H;
+const R = new THREE.WebGLRenderer({ canvas: glc, antialias: true, preserveDrawingBuffer: true }); R.setSize(W, H, false);
+R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.05;
+R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
+const S = new THREE.Scene(); S.background = new THREE.Color(0x0b0c10);
+const cam = new THREE.PerspectiveCamera(36, W / H, 0.05, 80);
+const V = (x, y, z) => new THREE.Vector3(x, y, z), Q = (x, y, z) => new THREE.Quaternion().setFromEuler(new THREE.Euler(x, y, z));
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x)), ease = (x) => { x = clamp(x); return x * x * (3 - 2 * x); }, lerp = (a, b, k) => a + (b - a) * k;
+const TL = new THREE.TextureLoader();
+function tex(f, rep, srgb = true) { const t = TL.load('tex/' + f); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+function canvasTex(w, h, draw, rep = [1, 1]) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); t.anisotropy = 8; return t; }
+const M = (o) => new THREE.MeshStandardMaterial(o);
+const mesh = (g, m, x, y, z, p) => { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; p.add(o); return o; };
+const plane = (w, h, m, x, y, z, ry, p) => { const o = mesh(new THREE.PlaneGeometry(w, h), m, x, y, z, p); o.rotation.y = ry; return o; };
+
+// =============== BATHROOM (x 0): 2.8 x 2.6 m, tiled ===============
+const bath = new THREE.Group(); S.add(bath);
+const tileT = canvasTex(128, 128, (g) => { g.fillStyle = '#d9e2e6'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#aeb9bf'; g.fillRect(0, 0, 128, 4); g.fillRect(0, 0, 4, 128); g.fillStyle = 'rgba(255,255,255,0.25)'; g.fillRect(10, 10, 50, 6); }, [9, 5]);
+const tileM = M({ map: tileT, roughness: 0.25, metalness: 0.0 });
+const paintM = M({ color: 0xe9e2cf, roughness: 0.9 });
+const bfloor = mesh(new THREE.PlaneGeometry(2.8, 2.6), M({ map: tex('floor_tiles_06_diff_1k.jpg', [2.2, 2]), normalMap: tex('floor_tiles_06_nor_gl_1k.jpg', [2.2, 2], false), roughness: 0.4 }), 0, 0, 0, bath); bfloor.rotation.x = -Math.PI / 2;
+const bceil = mesh(new THREE.PlaneGeometry(2.8, 2.6), paintM, 0, 2.6, 0, bath); bceil.rotation.x = Math.PI / 2;
+for (const [w, x, z, ry] of [[2.8, 0, -1.3, 0], [2.6, -1.4, 0, Math.PI / 2], [2.6, 1.4, 0, -Math.PI / 2], [2.8, 0, 1.3, Math.PI]]) {
+  const tw = new THREE.Group(); tw.position.set(x, 0, z); tw.rotation.y = ry; bath.add(tw);
+  if (!(x === 1.4)) { plane(w, 1.5, tileM, 0, 0.75, 0, 0, tw); plane(w, 1.1, paintM, 0, 2.05, 0, 0, tw); }
+}
+// right wall with the door opening (z 0.15 .. 1.0)
+{ const rw = new THREE.Group(); rw.position.set(1.4, 0, 0); rw.rotation.y = -Math.PI / 2; bath.add(rw);
+  plane(1.45, 1.5, tileM, 0.575, 0.75, 0, 0, rw); plane(1.45, 1.1, paintM, 0.575, 2.05, 0, 0, rw);   // z -1.3 .. 0.15
+  plane(0.3, 1.5, tileM, -1.15, 0.75, 0, 0, rw); plane(0.3, 1.1, paintM, -1.15, 2.05, 0, 0, rw);    // z 1.0 .. 1.3
+  plane(0.85, 0.45, paintM, -0.575, 2.375, 0, 0, rw); }
+const woodT = M({ color: 0x7a5232, roughness: 0.6 });
+const doorFrame = new THREE.Group(); doorFrame.position.set(1.4, 0, 0.575); bath.add(doorFrame);
+for (const [w, h, d, x, y, z] of [[0.06, 2.16, 0.07, 0, 1.08, -0.45], [0.06, 2.16, 0.07, 0, 1.08, 0.45], [0.06, 0.06, 0.97, 0, 2.15, 0]]) mesh(new THREE.BoxGeometry(w, h, d), woodT, x, y, z, doorFrame);
+const doorP = new THREE.Group(); doorP.position.set(1.42, 0, 1.0); bath.add(doorP);   // hinge at z 1.0
+const doorLeaf = mesh(new THREE.BoxGeometry(0.04, 2.08, 0.84), M({ color: 0xe8e2d4, roughness: 0.6 }), 0, 1.04, -0.42, doorP);
+doorP.rotation.y = -1.5;
+// hallway behind the door (seen when the washer leaves)
+const hall = new THREE.Group(); hall.position.set(2.6, 0, 0.6); bath.add(hall);
+{ const f = mesh(new THREE.PlaneGeometry(2.4, 1.6), M({ map: tex('floor_tiles_06_diff_1k.jpg', [2, 1.4]), roughness: 0.5 }), 0, 0, 0, hall); f.rotation.x = -Math.PI / 2;
+  plane(2.4, 2.6, M({ color: 0xc9d8b8, roughness: 0.9 }), 0, 1.3, -0.8, 0, hall); plane(1.6, 2.6, M({ color: 0xc9d8b8, roughness: 0.9 }), 1.2, 1.3, 0, -Math.PI / 2, hall); }
+// sink + mirror (left wall), towel, small window, shower curtain corner
+const ceramic = M({ color: 0xf4f4f2, roughness: 0.15 });
+const sink = new THREE.Group(); sink.position.set(-1.18, 0, -0.55); bath.add(sink);
+mesh(new THREE.CylinderGeometry(0.1, 0.13, 0.78, 24), ceramic, 0, 0.39, 0, sink);
+{ const b = mesh(new RoundedBoxGeometry(0.42, 0.14, 0.5, 4, 0.05), ceramic, 0.02, 0.84, 0, sink); }
+mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.16, 12), M({ color: 0xcfd3d8, metalness: 0.9, roughness: 0.2 }), -0.15, 0.98, 0, sink);
+const mirror = mesh(new THREE.PlaneGeometry(0.5, 0.65), M({ color: 0xaab8c2, metalness: 1.0, roughness: 0.05 }), -1.385, 1.55, -0.55, bath); mirror.rotation.y = Math.PI / 2;
+const towel = mesh(new THREE.BoxGeometry(0.03, 0.55, 0.38), M({ color: 0xd8231b, roughness: 0.95 }), -1.37, 1.2, 0.35, bath);
+const bwin = plane(0.6, 0.4, new THREE.MeshBasicMaterial({ color: 0x1a2440 }), -0.6, 2.15, -1.295, 0, bath);
+const curtain = mesh(new THREE.PlaneGeometry(0.9, 1.9, 12, 1), M({ color: 0x3a8ad8, roughness: 0.7, side: THREE.DoubleSide, transparent: true, opacity: 0.93 }), -0.85, 1.15, 0.85, bath);
+{ const p = curtain.geometry.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 22) * 0.03); curtain.geometry.computeVertexNormals(); curtain.rotation.y = Math.PI / 2; }
+// puddle from the dripping clothes
+const puddle = mesh(new THREE.CircleGeometry(0.35, 32), M({ color: 0x6a8aa0, roughness: 0.02, metalness: 0.3, transparent: true, opacity: 0.55 }), -0.25, 0.004, -0.1, bath); puddle.rotation.x = -Math.PI / 2; puddle.scale.set(1.3, 0.8, 1);
+const bathLight = new THREE.PointLight(0xf2f6ff, 5, 7, 1.4); bathLight.position.set(0, 2.45, 0); S.add(bathLight);
+mesh(new THREE.SphereGeometry(0.07, 16, 10), new THREE.MeshBasicMaterial({ color: 0xffffff }), 0, 2.52, 0, bath);
+
+// =============== THE WASHER («الغسالة النووية ٣٠٠٠») ===============
+const washer = new THREE.Group(); S.add(washer);
+const wbody = new THREE.Group(); washer.add(wbody);   // wobbling part
+const whiteM = M({ color: 0xf1f1ee, roughness: 0.35 });
+mesh(new RoundedBoxGeometry(0.6, 0.85, 0.6, 5, 0.04), whiteM, 0, 0.425, 0, wbody);
+const chrome = M({ color: 0xd0d4d8, metalness: 0.95, roughness: 0.18 });
+const ring = mesh(new THREE.TorusGeometry(0.18, 0.025, 12, 40), chrome, 0, 0.4, 0.305, wbody);
+const glass = mesh(new THREE.CircleGeometry(0.165, 40), M({ color: 0x1a2a3a, roughness: 0.05, metalness: 0.2, transparent: true, opacity: 0.55 }), 0, 0.4, 0.31, wbody);
+const drum = new THREE.Group(); drum.position.set(0, 0.4, 0.22); wbody.add(drum);
+for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; const c = mesh(new THREE.SphereGeometry(0.05 + (i % 3) * 0.01, 10, 8), M({ color: [0xd4141c, 0x2f6fff, 0xffd400, 0x1f9e5a, 0xffffff, 0xe98aa8][i], roughness: 0.9 }), Math.cos(a) * 0.09, Math.sin(a) * 0.09, 0, drum); }
+mesh(new THREE.BoxGeometry(0.58, 0.1, 0.02), M({ color: 0xdadad6, roughness: 0.4 }), 0, 0.78, 0.3, wbody);
+for (const x of [0.12, 0.2]) { const k = mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 16), M({ color: 0x777777, roughness: 0.4 }), x, 0.78, 0.315, wbody); k.rotation.x = Math.PI / 2; }
+const disp = canvasTex(128, 32, (g) => { g.fillStyle = '#05120a'; g.fillRect(0, 0, 128, 32); g.fillStyle = '#3df05a'; g.font = '20px PS2P'; g.fillText('1400', 10, 26); });
+const dispM = new THREE.MeshBasicMaterial({ map: disp }); mesh(new THREE.PlaneGeometry(0.14, 0.04), dispM, -0.12, 0.78, 0.312, wbody);
+// the tuk-tuk engine strapped on top (only after Ibrahim's "upgrade")
+const eng = new THREE.Group(); eng.position.set(0, 0.85, -0.02); wbody.add(eng);
+const engM = M({ color: 0x4a4e54, metalness: 0.6, roughness: 0.45 }), redM = M({ color: 0xc8202a, roughness: 0.35, metalness: 0.2 });
+mesh(new RoundedBoxGeometry(0.3, 0.16, 0.3, 3, 0.03), engM, -0.08, 0.08, 0, eng);
+for (let i = 0; i < 6; i++) mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.012, 24), engM, 0.12, 0.05 + i * 0.03, 0.02, eng);
+mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.22, 16), engM, 0.12, 0.2, 0.02, eng);
+const tank = mesh(new RoundedBoxGeometry(0.26, 0.12, 0.2, 4, 0.05), redM, -0.1, 0.24, -0.02, eng);
+const lab = canvasTex(256, 96, (g) => { g.fillStyle = '#ffd400'; g.fillRect(0, 0, 256, 96); g.fillStyle = '#111'; g.fillRect(0, 0, 256, 8); g.fillRect(0, 88, 256, 8); g.font = '48px Lalezar'; g.direction = 'rtl'; g.textAlign = 'center'; g.fillText('نووي ٣٠٠٠', 128, 66); });
+mesh(new THREE.PlaneGeometry(0.22, 0.08), M({ map: lab, roughness: 0.5 }), 0, 0.42, 0.302, wbody);
+const pipePts = [V(0.12, 0.31, 0.02), V(0.15, 0.42, -0.05), V(0.22, 0.45, -0.2), V(0.25, 0.38, -0.3)];
+mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pipePts), 20, 0.022, 10), chrome, 0, 0, 0, eng);
+const pull = mesh(new THREE.TorusGeometry(0.03, 0.006, 6, 16), M({ color: 0x111111 }), -0.25, 0.1, 0.12, eng);
+for (const z of [-0.12, 0.12]) mesh(new THREE.BoxGeometry(0.64, 0.02, 0.03), M({ color: 0x2a2a2a, roughness: 0.8 }), 0, -0.005, z, eng);   // straps
+const ledM = new THREE.MeshBasicMaterial({ color: 0x3df05a }); mesh(new THREE.SphereGeometry(0.018, 12, 8), ledM, 0.25, 0.78, 0.31, wbody);
+// smoke puffs + water drops (sprites)
+const puffT = canvasTex(64, 64, (g) => { const gr = g.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, 'rgba(230,230,230,0.9)'); gr.addColorStop(1, 'rgba(230,230,230,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); });
+const puffs = []; for (let i = 0; i < 24; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, transparent: true, depthWrite: false })); s.visible = false; S.add(s); puffs.push(s); }
+const drops = []; const dropM = M({ color: 0x9fd0ff, roughness: 0.05, transparent: true, opacity: 0.8 });
+for (let i = 0; i < 14; i++) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 6), dropM); d.visible = false; S.add(d); drops.push(d); }
+
+// =============== STAIRWELL (x 20): landing at y 0, 12 steps down towards +z ===============
+const st = new THREE.Group(); st.position.set(20, 0, 0); S.add(st);
+const RISE = 0.17, RUN = 0.28, NST = 12, Z0 = 1.0;
+const stepM = M({ map: tex('floor_tiles_06_diff_1k.jpg', [0.6, 0.3]), roughness: 0.55, color: 0xd8d0c0 });
+const oilM = M({ color: 0x3f5a46, roughness: 0.35 }), creamM = M({ color: 0xe6dcc0, roughness: 0.9 });
+{ const f = mesh(new THREE.PlaneGeometry(1.8, 2.2), stepM, 0, 0, -0.1, st); f.rotation.x = -Math.PI / 2; }
+for (let i = 0; i < NST; i++) {
+  const yTop = -RISE * (i + 1), z = Z0 + RUN * i;
+  mesh(new THREE.BoxGeometry(1.6, 0.05, RUN + 0.02), stepM, 0, yTop - 0.025, z + RUN / 2, st);
+  mesh(new THREE.BoxGeometry(1.6, RISE, 0.02), M({ color: 0xbfb6a4, roughness: 0.8 }), 0, yTop + RISE / 2, z, st);
+}
+const BOT = -RISE * NST, ZB = Z0 + RUN * NST;
+{ const f = mesh(new THREE.PlaneGeometry(1.8, 2.4), stepM, 0, BOT, ZB + 1.2, st); f.rotation.x = -Math.PI / 2; }
+for (const x of [-0.9, 0.9]) {   // side walls: oil paint below, cream above, following the stairs
+  const g = new THREE.Group(); g.position.set(x, 0, 0); g.rotation.y = x < 0 ? Math.PI / 2 : -Math.PI / 2; st.add(g);
+  plane(7.4, 1.2, oilM, 0, BOT + 0.6 + 1.0, x < 0 ? -2.4 : 2.4, 0, g); plane(7.4, 4.5, creamM, 0, BOT + 3.45, x < 0 ? -2.4 : 2.4, 0, g);
+}
+for (const [x, w] of [[0, 1.8]]) { plane(w, 1.2, oilM, x, 0.6, -1.2, 0, st); plane(w, 1.6, creamM, x, 2.0, -1.2, 0, st); }
+// the apartment door (open, warm light)
+const adoor = new THREE.Group(); adoor.position.set(-0.2, 0, -1.19); st.add(adoor);
+plane(0.95, 2.1, new THREE.MeshBasicMaterial({ color: 0xffc070 }), 0, 1.05, 0.005, 0, adoor);
+for (const [w, h, x, y] of [[1.1, 0.08, 0, 2.14], [0.08, 2.18, -0.51, 1.09], [0.08, 2.18, 0.51, 1.09]]) mesh(new THREE.BoxGeometry(w, h, 0.08), woodT, x, y, 0.03, adoor);
+const nameplate = mesh(new THREE.PlaneGeometry(0.2, 0.07), new THREE.MeshBasicMaterial({ map: canvasTex(128, 48, (g) => { g.fillStyle = '#b08a3a'; g.fillRect(0, 0, 128, 48); g.fillStyle = '#2a1a0a'; g.font = '26px Lalezar'; g.direction = 'rtl'; g.textAlign = 'center'; g.fillText('م. إبراهيم', 64, 34); }) }), 0.65, 1.55, 0.01, adoor);
+// railing on the right
+const railM = M({ color: 0x2a2a2a, metalness: 0.6, roughness: 0.4 });
+{ const a = V(0.72, 0.9, Z0), b = V(0.72, BOT + 0.9, ZB); const len = a.distanceTo(b); const r = mesh(new THREE.CylinderGeometry(0.02, 0.02, len, 10), M({ color: 0x6a4228, roughness: 0.5 }), (a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2, st); r.quaternion.setFromUnitVectors(V(0, 1, 0), b.clone().sub(a).normalize());
+  for (let i = 0; i <= NST; i += 1) { const z = Z0 + RUN * i, y = -RISE * i; mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.9, 6), railM, 0.72, y + 0.45 - (i ? 0 : 0), z, st); } }
+const bulb = mesh(new THREE.SphereGeometry(0.05, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffe0a0 }), 0, 2.5, 0.8, st);
+const stairL = new THREE.PointLight(0xffc880, 7, 9, 1.4); stairL.position.set(20, 2.3, 1.2); S.add(stairL);
+const stairL2 = new THREE.PointLight(0xffc880, 3, 6, 1.5); stairL2.position.set(20, BOT + 2.2, ZB + 0.6); S.add(stairL2);
+const stepTop = (z) => z < Z0 ? 0 : z > ZB ? BOT : -RISE * (Math.floor((z - Z0) / RUN) + 1);
+
+// =============== light ===============
+S.add(new THREE.HemisphereLight(0xc8d0e8, 0x3a3028, 0.5));
+const key = new THREE.DirectionalLight(0xfff0dc, 1.5); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.3, far: 12 }); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; S.add(key, key.target);
+function keyAt(cx, cy, cz) { key.position.set(cx - 1.2, cy + 3.2, cz + 2.6); key.target.position.set(cx, cy, cz); key.shadow.camera.updateProjectionMatrix(); }
+
+// =============== cast ===============
+const CL = await loadClips({ xbot: 'anims/Xbot.glb', talking: 'anims/talking.fbx', yelling: 'anims/yelling.fbx', angry_point: 'anims/angry_point.fbx',
+  shrug: 'anims/shrug.fbx', arguing: 'anims/arguing.fbx', bragging: 'anims/bragging.fbx', facepalm: 'anims/facepalm.fbx', scared: 'anims/scared.fbx' });
+const dad = await loadActor('models/ibrahim.glb', S), son = await loadActor('models/hamada.glb', S), mom = await loadActor('models/om_hamada.glb', S);
+// props: Ibrahim's notebook, Om Hamada's dripping wet clothes
+const book = new THREE.Group(); { const b = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.015), M({ color: 0x2a5ab0, roughness: 0.7 })); b.castShadow = true; book.add(b); const pg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.19, 0.016), M({ color: 0xf4f0e4 })); pg.position.x = 0.004; book.add(pg); }
+dad.bones.mixamorigLeftHand.add(book); book.position.set(0.0, 0.09, 0.03); book.rotation.set(0.3, 0, 1.4);
+const cloth = new THREE.Group(); mom.bones.mixamorigLeftHand.add(cloth); cloth.position.set(0, 0.1, 0.02);
+const clothGeo = new THREE.PlaneGeometry(0.34, 0.5, 8, 10); { const p = clothGeo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i); p.setZ(i, Math.sin(x * 14) * 0.02 - (0.25 - y) * 0.05); } clothGeo.computeVertexNormals(); }
+const clothM = M({ map: canvasTex(64, 64, (g) => { g.fillStyle = '#4a7ad8'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#ffffff'; for (let i = 0; i < 64; i += 16) g.fillRect(i, 0, 6, 64); }), roughness: 0.3, side: THREE.DoubleSide });
+const clothMesh = new THREE.Mesh(clothGeo, clothM); clothMesh.position.y = -0.27; clothMesh.castShadow = true; cloth.add(clothMesh);
+function place(a, x, y, z, ry) { a.holder.position.set(x, y, z); a.holder.rotation.set(0, ry, 0); }
+
+// portraits for the dialogue box: each face rendered once from the front
+const portraits = {};
+{ const ps = new THREE.Scene(); ps.background = new THREE.Color(0x203060); ps.add(new THREE.HemisphereLight(0xffffff, 0x334466, 1.1)); const dl = new THREE.DirectionalLight(0xfff0e0, 1.6); dl.position.set(0.5, 2, 2); ps.add(dl);
+  const pc = new THREE.PerspectiveCamera(22, 1, 0.05, 10); const pr = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); pr.setSize(160, 160, false); pr.outputColorSpace = THREE.SRGBColorSpace; pr.toneMapping = THREE.ACESFilmicToneMapping;
+  for (const [id, a] of [['dad', dad], ['son', son], ['mom', mom]]) {
+    const par = a.holder.parent; ps.add(a.holder); place(a, 0, 0, 0, 0); pose(a, [{ src: CL.idle, t: 0.5, w: 1 }]); a.holder.updateMatrixWorld(true);
+    const hp = a.bones.mixamorigHead.getWorldPosition(new THREE.Vector3()); pc.position.set(hp.x, hp.y + 0.06, hp.z + 0.72); pc.lookAt(hp.x, hp.y + 0.05, hp.z);
+    pr.render(ps, pc); const c = document.createElement('canvas'); c.width = c.height = 160; c.getContext('2d').drawImage(pr.domElement, 0, 0); portraits[id] = c; par.add(a.holder);
+  } }
+
+// =============== timeline ===============
+const tC = MK.cold, t1 = MK.L1, t2 = MK.L2, t3 = MK.L3, t4 = MK.L4, t5 = MK.L5, t6 = MK.L6, t7 = MK.L7, tA = MK.anno;
+const BATH0 = MK.rw[1];                       // story starts (bathroom)
+const ENGINE_ON = t2[0] - 0.25;               // the upgrade is installed between L1 and L2
+const WALK0 = t5[0] - 0.2, WALK1 = t5[1] + 0.5;   // the washer walks out of the bathroom
+const WPATH = [V(0.45, 0, -0.92), V(0.6, 0, -0.2), V(1.05, 0, 0.45), V(1.8, 0, 0.6), V(2.6, 0, 0.62)];
+const wcurve = new THREE.CatmullRomCurve3(WPATH);
+function stairsWasher(u, crashT) {   // u 0..1 down the stairs, then the crash at the bottom
+  const z = lerp(0.6, ZB + 0.55, ease(u)); const hops = 9; const ph = (u * hops) % 1;
+  const y = Math.max(stepTop(z), stepTop(z - 0.3)) + Math.abs(Math.sin(ph * Math.PI)) * 0.28 * (1 - u * 0.4);
+  washer.position.set(20 + Math.sin(u * 17) * 0.12, y, z); washer.rotation.set(-0.35 * Math.sin(ph * Math.PI) - 0.15, Math.sin(u * 9) * 0.4 + Math.PI, Math.sin(u * 13) * 0.18);
+  if (crashT > 0) { const k = ease(crashT / 0.4); washer.rotation.set(lerp(washer.rotation.x, -1.35, k), Math.PI + 0.3, 0.1); washer.position.y = BOT + 0.3 * k; washer.position.z = ZB + 0.6 + 0.25 * k; }
+}
+let SET = 'bath';
+function state(t) {
+  // ---- the washer
+  eng.visible = t < BATH0 || t >= ENGINE_ON;
+  drum.rotation.z = -t * (t >= ENGINE_ON || t < BATH0 ? 40 : 2);
+  ledM.color.setHex(Math.floor(t * 6) % 2 ? 0x3df05a : 0x1a6a2a);
+  let puffSrc = null, shake = 0;
+  if (t < BATH0 || t >= t7[0] - 0.2) {
+    SET = 'stairs';
+    if (t < BATH0) stairsWasher(clamp((t - 0.05) / (tC[1] - 0.15)), -1);
+    else { const u = clamp((t - t7[0] + 0.2) / 1.6); stairsWasher(0.55 + 0.45 * Math.min(u, 1), u >= 1 ? t - (t7[0] + 1.4) : -1); }
+    wbody.position.set(0, 0, 0); wbody.rotation.set(0, 0, 0);
+    puffSrc = washer.localToWorld(V(0.25, 1.23, -0.3)); shake = 0.01;
+  } else {
+    SET = 'bath';
+    if (t < WALK0) { washer.position.copy(WPATH[0]); washer.rotation.set(0, 0, 0); }
+    else { const u = ease(clamp((t - WALK0) / (WALK1 - WALK0))); const p = wcurve.getPointAt(u); const tg = wcurve.getTangentAt(Math.min(0.999, u));
+      washer.position.copy(p); washer.rotation.set(0, Math.atan2(tg.x, tg.z), 0); }
+    const hop = t > t3[0] - 0.3 ? Math.abs(Math.sin((t - t3[0]) * 8.7)) * (t > t5[0] - 0.4 ? 0.12 : 0.06) : (t >= ENGINE_ON ? Math.abs(Math.sin(t * 30)) * 0.006 : 0);
+    const waddle = t > WALK0 ? Math.sin((t - WALK0) * 8.7) * 0.18 : 0;
+    wbody.position.set(0, hop, 0); wbody.rotation.set(Math.sin(t * 23) * 0.015 * (t >= ENGINE_ON), 0, waddle + Math.sin(t * 31) * 0.02 * (t >= ENGINE_ON));
+    if (t >= ENGINE_ON) puffSrc = washer.localToWorld(V(0.25, 1.23 + hop, -0.3));
+    doorP.rotation.y = t > WALK1 - 0.6 ? lerp(-1.5, -2.6, ease((t - (WALK1 - 0.6)) / 0.2)) : -1.5;   // the washer bangs the door open
+  }
+  // puffs from the exhaust
+  puffs.forEach((s, i) => {
+    if (!puffSrc) { s.visible = false; return; }
+    const age = ((t * 2.2 + i / puffs.length) % 1); s.visible = true;
+    s.position.copy(puffSrc).add(V(Math.sin(i * 7.1) * 0.05 + age * 0.12, age * 0.55, -age * 0.2)); const sc = 0.06 + age * 0.3; s.scale.set(sc, sc, 1); s.material.opacity = (1 - age) * 0.55;
+  });
+  // ---- Om Hamada
+  const momOn = SET === 'stairs';
+  if (momOn) {   // at the top of the stairs, shouting down
+    place(mom, 19.85, 0, 0.55, 0.1);
+    if (t >= tA[0] - 0.3) pose(mom, [{ src: CL.facepalm, t: 0.2 + t - tA[0], w: 1 }]);
+    else pose(mom, [{ src: CL.yelling, t: 2.0 + (t < BATH0 ? t : t - t7[0]), w: 1 }]);
+  } else {       // bathroom: complaining with the wet clothes, then she leaves the frame
+    place(mom, -0.35, 0, -0.15, 0.35);
+    pose(mom, [{ src: CL.talking, t: 0.6 + t * 0.9, w: 1 }]);
+    if (t > t2[0]) mom.holder.position.set(-5, 0, 0);
+  }
+  cloth.visible = !momOn;
+  drops.forEach((d, i) => { d.visible = !momOn && t < t2[0]; if (!d.visible) return; const age = ((t * 1.7 + i / drops.length) % 1); const c = clothMesh.localToWorld(V((i % 5 - 2) * 0.06, -0.24, 0)); d.position.set(c.x, c.y - age * age * 1.0, c.z); d.visible = d.position.y > 0.01; });
+  face(mom, 'mom', t, DATA, momOn ? { browsDown: 0.7 } : { frown: 0.4, browsDown: 0.3 });
+  // ---- Ibrahim
+  if (SET === 'bath') {
+    place(dad, 0.95, 0, -0.35, -0.55);
+    let L = [{ src: CL.idle, t, w: 1 }];
+    if (t >= t2[0] - 0.2 && t < t3[0]) L = [{ src: CL.bragging, t: 0.3 + t - t2[0], w: 1 }, { src: CL.talking, t: t - t2[0], w: ease((t - t2[0] - 1.6) / 0.5) }];
+    else if (t >= t4[0] - 0.2 && t < t5[0]) L = [{ src: CL.talking, t: 2 + t - t4[0], w: 1 }, { src: CL.shrug, t: Math.max(0, t - t4[1] + 0.9), w: ease((t - t4[1] + 1.0) / 0.4) }];
+    else if (t >= t6[0] - 0.2) L = [{ src: CL.talking, t: 0.5 + (t - t6[0]) * 0.6, w: 1 }];
+    pose(dad, L, { extra: t >= t6[0] - 0.2 ? { mixamorigHead: Q(0.35, -0.2, 0) } : {} });
+  } else {   // end: he appears at the apartment door behind Om Hamada, with his notebook
+    place(dad, 20.35, 0, -0.75, Math.PI * 1.05); if (t < tA[0] - 0.4) dad.holder.position.set(-30, 0, 0);
+    pose(dad, [{ src: CL.shrug, t: 0.3 + Math.max(0, t - tA[0]), w: 1 }]);
+  }
+  face(dad, 'dad', t, DATA, { smile: SET === 'bath' ? 0.25 : 0.4 });
+  // ---- Hamada: by the sink, worried, then pointing in panic and backing off
+  if (SET === 'bath') {
+    const back = ease((t - t5[0]) / 1.2);
+    place(son, t > t5[0] - 0.2 ? lerp(-0.3, -0.5, back) : -0.45, 0, lerp(0.45, 0.55, back), t > t5[0] - 0.2 ? lerp(1.9, 1.35, back) : 2.3);
+    let L = [{ src: CL.idle, t: t + 1.3, w: 1 }];
+    if (t >= t3[0] - 0.2 && t < t5[0] - 0.2) L = [{ src: CL.idle, t: t + 1.3, w: 1 }, { src: CL.talking, t: 3 + t - t3[0], w: 0.55 }];
+    else if (t >= t5[0] - 0.2) L = [{ src: CL.angry_point, t: 0.25 + (t - t5[0]) * 0.9, w: 1 }];
+    pose(son, L, { extra: { mixamorigHead: Q(0, -0.3, 0) } });
+    if (t < t3[0] - 0.12) son.holder.position.set(-30, 0, 0);   // he comes in at L3
+  } else son.holder.position.set(-30, 0, 0);
+  face(son, 'son', t, DATA, SET === 'bath' && t > t3[0] - 0.3 ? { browsUp: 0.8 } : {});
+}
+function shot(t) {
+  const look = (px, py, pz, lx, ly, lz, fov) => { cam.position.set(px, py, pz); cam.lookAt(lx, ly, lz); cam.fov = fov; };
+  if (t < BATH0) {   // COLD OPEN: from the lower landing, up the stairs; the washer bounces down at us, Om Hamada shouting at the top
+    const k = ease(t / BATH0); look(20.25, BOT + 1.35, ZB + 2.0 - 0.3 * k, 20.0, -0.55, 1.6, 44); keyAt(20, -1, 2.5);
+  } else if (t < t2[0] - 0.12) {   // hook + L1: Om Hamada with the wet clothes, the old washer, Ibrahim
+    const k = ease((t - BATH0) / (t2[0] - BATH0)); look(lerp(0.05, 0.0, k), 1.45, lerp(2.75, 2.45, k), 0.05, 1.05, -0.4, 40); keyAt(0, 1, 0);
+  } else if (t < t3[0] - 0.12) {   // L2: Ibrahim presents the upgraded washer
+    const k = ease((t - t2[0]) / (t3[0] - t2[0])); look(lerp(0.2, 0.25, k), 1.5, lerp(2.95, 2.7, k), 0.7, 1.15, -0.5, 40); keyAt(0.5, 1, -0.4);
+  } else if (t < t4[0] - 0.12) {   // L3: Hamada, worried; the washer jumping behind
+    const k = ease((t - t3[0]) / (t4[0] - t3[0])); look(lerp(0.32, 0.28, k), 1.5, -0.5, -0.45, 1.33, 0.45, 36); keyAt(-0.4, 1, 0.3);
+  } else if (t < t5[0] - 0.12) {   // L4: Ibrahim, calm
+    const k = ease((t - t4[0]) / (t5[0] - t4[0])); look(1.25, 1.55, lerp(2.2, 2.0, k), 0.9, 1.35, -0.3, 33); keyAt(0.9, 1, -0.3);
+  } else if (t < t6[0] - 0.12) {   // L5: wide from the shower corner: the washer walks out, Hamada points
+    const k = ease((t - t5[0]) / (t6[0] - t5[0])); look(lerp(-0.15, -0.05, k), 1.35, lerp(2.15, 2.3, k), lerp(-0.1, 0.15, k), 0.95, -0.2, 60); keyAt(0.4, 1, 0.2);
+  } else if (t < t7[0] - 0.2) {   // L6: Ibrahim writes in his notebook, the door hanging open behind him
+    const k = ease((t - t6[0]) / (t7[0] - t6[0])); look(0.7, 1.55, lerp(2.0, 1.85, k), 1.0, 1.32, -0.3, 33); keyAt(0.9, 1, -0.3);
+  } else if (t < tA[0] - 0.12) {   // L7: over Om Hamada's shoulder, down the stairs: the washer bounces down and crashes
+    const k = ease((t - t7[0]) / (tA[0] - t7[0])); look(lerp(19.45, 19.4, k), 1.5, lerp(1.75, 1.6, k), 19.85, 1.38, 0.55, 36); keyAt(19.9, 1, 0.6);
+  } else {   // announcer + end card: from below, Om Hamada facepalming at the top, Ibrahim in the doorway, the washer wrecked
+    const k = ease((t - tA[0]) / (DUR - tA[0])); look(20.3, BOT + 1.25, ZB + 2.1 + 0.2 * k, 20.0, -0.6, 1.4, 46); keyAt(20, -1, 2.5);
+  }
+  cam.updateProjectionMatrix();
+}
+window.renderFrame = (t) => {
+  state(t); shot(t);
+  R.render(S, cam);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(glc, 0, 0, W, H);
+  const vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.25, W / 2, H / 2, H * 0.7); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.35)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  ctx.setTransform(W / HUD.W, 0, 0, H / HUD.H, 0, 0);
+  HUD.drawHookV(ctx, t, MK.hook[0], MK.hook[1], 'لما الغسالة تبوظ...', 'وأبوك يصلحها بنفسه');
+  HUD.drawInventionV(ctx, t, t2[0] + 1.2, t2[1] + 0.9, 'الغسالة النووية ٣٠٠٠', [['SPIN', 10, '#ff3a2a'], ['NOISE', 9, '#ffe14a'], ['SAFETY', 1, '#3df05a']]);
+  HUD.drawDialogueV(ctx, t, DATA.lines, portraits);
+  HUD.drawRewind(ctx, t, MK.rw[0], MK.rw[1], 'قبلها بساعة...');
+  HUD.drawEndV(ctx, t, MK.end, 'WASHER: ESCAPED', 'الغسالة النووية ٣٠٠٠', [['SPIN', 'العصر: ١٠٠٠٠ لفة', MK.end + 0.6, '#ff5a4a'], ['STAIRS', 'السلم: محتاج تصليح', MK.end + 1.6, '#3df05a']], DUR);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const crash = t7[0] + 1.4; if (t > crash && t < crash + 0.07) { ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillRect(0, 0, W, H); }
+  return true;
+};
+window.frameData = () => out.toDataURL('image/png');
+window.DUR = DUR; window.DBG = () => ({ son: son.holder.position.toArray(), cam: cam.position.toArray(), set: SET }); window.READY = true;
+</script></body></html>

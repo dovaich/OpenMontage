@@ -237,6 +237,21 @@ function nuclearVacuum(s) {
   g.rotation.y = -0.4; return { g, cam: [V(1.3, 1.4, 2.6), V(0.1, 0.55, 0.3)] };
 }
 
+function nuclearWasher(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.6, 0.85, 0.6), P(0xf2f2f2), 0, 0.43, 0, g); mesh(new THREE.CircleGeometry(0.17, 14), P(0x2a4a6a), 0, 0.4, 0.302, g); mesh(new THREE.TorusGeometry(0.18, 0.025, 4, 14), P(0xcccccc, { shininess: 110 }), 0, 0.4, 0.305, g);
+  for (let i = 0; i < 4; i++) mesh(new THREE.IcosahedronGeometry(0.045, 0), M([0xd4141c, 0x2f6fff, 0xffd400, 0x1f9e5a][i]), Math.cos(i * 1.6) * 0.08, 0.4 + Math.sin(i * 1.6) * 0.08, 0.27, g);
+  mesh(box(0.58, 0.1, 0.02), M(0xdadad6), 0, 0.78, 0.3, g);
+  const eng = new THREE.Group(); eng.position.set(0, 0.86, 0); g.add(eng);
+  mesh(box(0.3, 0.16, 0.3), P(0x4a4e54), -0.08, 0.08, 0, eng); for (let i = 0; i < 6; i++) mesh(cyl(0.09, 0.09, 0.012, 10), P(0x5a5e64), 0.12, 0.05 + i * 0.03, 0.02, eng);
+  mesh(box(0.26, 0.12, 0.2), P(0xc8202a, { shininess: 90 }), -0.1, 0.24, -0.02, eng);
+  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(0.12, 0.25, 0.02), V(0.15, 0.4, -0.05), V(0.22, 0.45, -0.2), V(0.25, 0.38, -0.3)]), 16, 0.022, 6), P(0xcccccc, { shininess: 110 }), 0, 0, 0, eng);
+  for (let i = 0; i < 6; i++) mesh(new THREE.IcosahedronGeometry(0.04 + i * 0.012, 0), new THREE.MeshBasicMaterial({ color: 0xdfe6ee, transparent: true, opacity: 0.75 }), 0.26 + i * 0.03, 1.28 + i * 0.09, -0.32 - i * 0.03, g);
+  for (const z of [-0.12, 0.12]) mesh(box(0.64, 0.02, 0.03), M(0x2a2a2a), 0, 0.855, z, g);
+  for (const [x, z] of [[-0.22, 0.22], [0.22, 0.22]]) { const leg = mesh(box(0.08, 0.06, 0.12), M(0x2a2a2a), x, 0.03, z, g); leg.rotation.x = x < 0 ? 0.3 : -0.3; }   // walking feet
+  g.rotation.set(0, -0.5, 0.12); return { g, cam: [V(1.5, 1.6, 2.4), V(0.05, 0.6, 0)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -272,6 +287,9 @@ const CARDS = [
   { file: 'card_nuclear_vacuum', build: nuclearVacuum, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'المكنسة النووية ٣٠٠٠', en: 'NUCLEAR VACUUM 3000',
     stats: [['SUCTION', 'الشفط', 6], ['CONTROL', 'التحكم', 0], ['SAFETY', 'الأمان', 0], ['MOM\'S POT', 'حلة ماما', 5]],
     parts: 'موتور الغسالة + خرطوم المية + حلة ماما', quote: '«كل اختراع عظيم... بيبدأ بحلة أمك»', result: 'النتيجة: شفطت حمادة', ep: 'المكنسة النووية' },
+  { file: 'card_nuclear_washer', build: nuclearWasher, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'الغسالة النووية ٣٠٠٠', en: 'NUCLEAR WASHER 3000',
+    stats: [['SPIN', 'العصر', 6], ['NOISE', 'الدوشة', 5], ['SAFETY', 'الأمان', 0], ['WALKING', 'المشي', 5]],
+    parts: 'غسالة أم حمادة + موتور التوك توك', quote: '«دي بتسخّن... سيبها تاخد راحتها»', result: 'النتيجة: نزلت السلم لوحدها', ep: 'الغسالة النووية' },
 ];
 
 // ---------- 2D card ----------
