@@ -58,6 +58,41 @@ function BatchesToRecord {
     }
 }
 
+# Safety net: a recorder session sometimes pushes incoming/<task>/manifest.txt but forgets to set the status.
+# A task still "record" whose manifest was committed AFTER the status was set to "record" (and has no BLOCKED.txt)
+# is delivered: the watcher sets its status to "recorded" itself, so it is not recorded twice.
+function DeliveredButNotMarked {
+    foreach ($b in @(BatchesToRecord)) {
+        $ref = "$Remote/$Branch"
+        git cat-file -e "${ref}:incoming/$b/manifest.txt" 2>$null
+        if ($LASTEXITCODE -ne 0) { continue }
+        git cat-file -e "${ref}:incoming/$b/BLOCKED.txt" 2>$null
+        if ($LASTEXITCODE -eq 0) { continue }
+        $statusCommit = (git log -1 --format=%H $ref -- "queue/$b.status" 2>$null | Select-Object -First 1)
+        if (-not $statusCommit) { continue }
+        $after = @(git log --format=%H "$statusCommit..$ref" -- "incoming/$b/manifest.txt" 2>$null)
+        if ($after.Count -gt 0) { $b }
+    }
+}
+
+function FixForgottenStatus {
+    $fix = @(DeliveredButNotMarked)
+    if ($fix.Count -eq 0) { return }
+    Log "Delivered but status still 'record' (recorder forgot): $($fix -join ', '). Setting 'recorded'."
+    git pull -q --rebase --autostash $Remote $Branch 2>&1 | ForEach-Object { Log "$_" }
+    foreach ($b in $fix) {
+        [IO.File]::WriteAllText((Join-Path $Repo "queue\$b.status"), "recorded`n")
+        git add "queue/$b.status" | Out-Null
+    }
+    git commit -q -m "$($fix -join ', '): status recorded (set by watcher.ps1; files were already pushed)" 2>&1 | ForEach-Object { Log "$_" }
+    for ($i = 0; $i -lt 3; $i++) {
+        git push -q $Remote $Branch 2>&1 | ForEach-Object { Log "$_" }
+        if ($LASTEXITCODE -eq 0) { Log "Pushed status fix."; break }
+        git pull -q --rebase --autostash $Remote $Branch 2>&1 | ForEach-Object { Log "$_" }
+    }
+    git fetch -q $Remote $Branch 2>&1 | Out-Null
+}
+
 function RunClaude([string[]]$batches) {
     $list = $batches -join ", "
     $prompt = @"
@@ -115,11 +150,13 @@ function CheckOnce {
         return
     }
 
+    FixForgottenStatus
     $batches = @(BatchesToRecord | Where-Object { [int]$script:Attempts[$_] -lt $MaxAttempts })
     if ($batches.Count -gt 0) {
         foreach ($b in $batches) { $script:Attempts[$b] = [int]$script:Attempts[$b] + 1 }
         RunClaude $batches
         git fetch -q $Remote $Branch 2>&1 | Out-Null
+        FixForgottenStatus
         $left = @(BatchesToRecord | Where-Object { [int]$script:Attempts[$_] -lt $MaxAttempts })
         if ($left.Count -gt 0) {
             $script:RetryAt = (Get-Date).AddMinutes($RetryMinutes)

@@ -15,7 +15,7 @@
 - That session:
   1. Records the batch in AI Studio exactly as `docs/briefs/<batch>/recording_message.md` says. Run the recordings back-to-back, and don't wait between them.
   2. Saves `incoming/<batch>/r1.wav`, `r2.wav`, `r3.wav` and `manifest.txt`.
-  3. Sets the status to `recorded`, then commits and pushes immediately.
+  3. Sets the status to `recorded`, then commits and pushes immediately. (Safety net: if a session pushes `incoming/<batch>/manifest.txt` but forgets the status, `watcher.ps1` sets `recorded` itself, so a batch is never recorded twice.)
   4. Finishes. It never starts a watcher, loop, Monitor, cron or wakeup, and never messages itself.
 
 ## Cloud session (this repo's builder): ON DEMAND, no fixed schedule
