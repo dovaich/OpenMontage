@@ -71,6 +71,9 @@ globals (`flames`, `curtain`, `drawTV`, `hood`, `car`…) crash the page — ren
   for one id (young/old): `window.CAST = { teta: [a, b] }`. Props that may cover a face: `window.FRAME_IGNORE = [obj]`.
 - **Render:** `node render.cjs frames 15` now splits the frames over up to 4 browsers (`--jobs N`); `--range 300-420` re-renders only a part.
   (A full 54 s episode: ~80 s → ~65 s here; rendering was never the slow part.)
+- **MPFB-cast episodes (user asked for them, Nov 2026):** `docs/briefs/mpfb-washer` (34 s) and `docs/briefs/mpfb-gas` (60 s) are the templates
+  (three.js + `mpfb_runtime.js` + `hud.js`, cameras aimed at faces with `on()` / `two()`). User preferences for these: **no cold open** (start on the hook
+  card over the first line), render at **540x960** and deliver **720x1280** (smaller file, faster render), ~60 s is fine.
 - **Real 3D characters: EXPERIMENT ONLY (user rule).** Do NOT use `useModel(...)` / `model_chars.js` in any episode unless the user explicitly
   asks for the 3D models in that chat. Episodes keep the normal low-poly cartoon characters. Details: `docs/briefs/model-chars/README.md`.
 - **Flow cold open (only for the strongest episodes; Flow credits ≈ 40 clips/month):** queue one VIDEO batch clip from a still of the

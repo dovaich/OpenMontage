@@ -1,0 +1,322 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Nuclear Stove</title>
+<style>
+@font-face{font-family:'Lalezar';src:url('node_modules/@fontsource/lalezar/files/lalezar-arabic-400-normal.woff2') format('woff2');}
+@font-face{font-family:'PS2P';src:url('node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2') format('woff2');}
+@font-face{font-family:'ReemKufi';font-weight:700;src:url('node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-700-normal.woff2') format('woff2');}
+html,body{margin:0;background:#000}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><canvas id="out" width="540" height="960"></canvas>
+<script type="module">
+// «البوتاجاز النووي» — Om Hamada series, MPFB cast, ~58 s, no cold open, rendered at 540x960. window.renderFrame(t).
+import { THREE, loadActor, loadClips, pose, face } from './mpfb_runtime.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import * as HUD from './hud.js';
+await Promise.all([document.fonts.load('40px Lalezar', 'ع'), document.fonts.load('12px PS2P', 'A'), document.fonts.load('700 40px ReemKufi', 'ع')]);
+const W = 540, H = 960;
+const DATA = await (await fetch('data.json')).json(); const DUR = DATA.dur, MK = DATA.mk;
+const out = document.getElementById('out'); const ctx = out.getContext('2d');
+const glc = document.createElement('canvas'); glc.width = W; glc.height = H;
+const R = new THREE.WebGLRenderer({ canvas: glc, antialias: true, preserveDrawingBuffer: true }); R.setSize(W, H, false);
+R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.05;
+R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
+const S = new THREE.Scene(); S.background = new THREE.Color(0x07080c);
+const cam = new THREE.PerspectiveCamera(40, W / H, 0.05, 80);
+const V = (x, y, z) => new THREE.Vector3(x, y, z), Q = (x, y, z) => new THREE.Quaternion().setFromEuler(new THREE.Euler(x, y, z));
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x)), ease = (x) => { x = clamp(x); return x * x * (3 - 2 * x); }, lerp = (a, b, k) => a + (b - a) * k;
+const TL = new THREE.TextureLoader();
+function tex(f, rep, srgb = true) { const t = TL.load('tex/' + f); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+function canvasTex(w, h, draw, rep = [1, 1]) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); t.anisotropy = 8; return t; }
+const M = (o) => new THREE.MeshStandardMaterial(o);
+const mesh = (g, m, x, y, z, p) => { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; p.add(o); return o; };
+const plane = (w, h, m, x, y, z, ry, p) => { const o = mesh(new THREE.PlaneGeometry(w, h), m, x, y, z, p); o.rotation.y = ry; return o; };
+
+// =============== KITCHEN: x -1.8..1.8, z -1.5..2.6, ceiling 2.6 ===============
+const kit = new THREE.Group(); S.add(kit);
+const KW = 3.6, KZ0 = -1.5, KZ1 = 2.6, KH = 2.6, KD = KZ1 - KZ0, KZC = (KZ0 + KZ1) / 2;
+const tileT = canvasTex(128, 128, (g) => { g.fillStyle = '#e8e1cc'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#c4b998'; g.fillRect(0, 0, 128, 3); g.fillRect(0, 0, 3, 128); g.fillStyle = '#7fae9a'; g.fillRect(40, 40, 48, 48); g.fillStyle = '#e8e1cc'; g.fillRect(48, 48, 32, 32); }, [12, 3]);
+const tileM = M({ map: tileT, roughness: 0.3 }), wallM = M({ color: 0xf0d9a8, roughness: 0.9 }), ceilM = M({ color: 0xece6d6, roughness: 1 });
+{ const f = mesh(new THREE.PlaneGeometry(KW, KD), M({ map: tex('floor_tiles_06_diff_1k.jpg', [3, 3.4]), normalMap: tex('floor_tiles_06_nor_gl_1k.jpg', [3, 3.4], false), roughness: 0.5 }), 0, 0, KZC, kit); f.rotation.x = -Math.PI / 2; }
+const ceil = mesh(new THREE.PlaneGeometry(KW, KD), ceilM, 0, KH, KZC, kit); ceil.rotation.x = Math.PI / 2;
+plane(KW, 1.0, tileM, 0, 1.3, KZ0, 0, kit); plane(KW, 0.8, wallM, 0, 0.4, KZ0 + 0.001, 0, kit); plane(KW, 0.8, wallM, 0, 2.2, KZ0, 0, kit);
+for (const [x, ry] of [[-KW / 2, Math.PI / 2], [KW / 2, -Math.PI / 2]]) plane(KD, KH, wallM, x, KH / 2, KZC, ry, kit);
+plane(KW, KH, wallM, 0, KH / 2, KZ1, Math.PI, kit);
+// window over the counter (night outside), with a small curtain
+const nightT = canvasTex(256, 192, (g) => { const gr = g.createLinearGradient(0, 0, 0, 192); gr.addColorStop(0, '#0b1230'); gr.addColorStop(1, '#2a2340'); g.fillStyle = gr; g.fillRect(0, 0, 256, 192); let s = 9; const r = () => (s = s * 16807 % 2147483647) / 2147483647; for (let i = 0; i < 8; i++) { const x = r() * 240, h = 60 + r() * 110; g.fillStyle = '#070a18'; g.fillRect(x, 192 - h, 30 + r() * 30, h); for (let k = 0; k < 12; k++) if (r() > 0.45) { g.fillStyle = '#f4c860'; g.fillRect(x + 4 + r() * 24, 192 - h + 6 + r() * (h - 10), 3, 4); } } });
+const winMat = new THREE.MeshBasicMaterial({ map: nightT }); const win = plane(0.9, 0.7, winMat, -0.8, 1.6, KZ0 + 0.01, 0, kit);
+for (const [w, h, x, y] of [[1.0, 0.05, -0.8, 1.96], [1.0, 0.05, -0.8, 1.24], [0.05, 0.75, -1.27, 1.6], [0.05, 0.75, -0.33, 1.6], [0.03, 0.7, -0.8, 1.6]]) mesh(new THREE.BoxGeometry(w, h, 0.05), M({ color: 0xf4f0e6 }), x, y, KZ0 + 0.03, kit);
+// counter along the back wall (x -1.8 .. 0.3) with cabinets, sink, kettle, tea glasses
+const woodM = M({ map: tex('wood_table_001_diff_1k.jpg', [1, 1]), roughness: 0.6 }), topM = M({ color: 0x8a8a84, roughness: 0.35 });
+const cnt = new THREE.Group(); kit.add(cnt);
+mesh(new THREE.BoxGeometry(2.1, 0.86, 0.6), woodM, -0.75, 0.43, KZ0 + 0.3, cnt); mesh(new THREE.BoxGeometry(2.14, 0.04, 0.64), topM, -0.75, 0.88, KZ0 + 0.31, cnt);
+for (let i = 0; i < 4; i++) mesh(new THREE.BoxGeometry(0.02, 0.6, 0.01), M({ color: 0x5a3a20 }), -1.7 + i * 0.52, 0.45, KZ0 + 0.605, cnt);
+mesh(new THREE.BoxGeometry(2.1, 0.6, 0.35), woodM, -0.75, 2.15, KZ0 + 0.18, cnt);   // wall cabinets
+mesh(new RoundedBoxGeometry(0.5, 0.06, 0.38, 3, 0.02), M({ color: 0xd0d4d8, metalness: 0.9, roughness: 0.25 }), -1.2, 0.9, KZ0 + 0.3, cnt);
+mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.2, 20), M({ color: 0xc8202a, roughness: 0.4 }), -0.35, 1.0, KZ0 + 0.25, cnt);
+for (let i = 0; i < 3; i++) mesh(new THREE.CylinderGeometry(0.03, 0.026, 0.09, 12), M({ color: 0xffffff, transparent: true, opacity: 0.6, roughness: 0.1 }), 0.0 + i * 0.08, 0.945, KZ0 + 0.45, cnt);
+// fridge in the right corner
+const fr = mesh(new RoundedBoxGeometry(0.7, 1.75, 0.65, 4, 0.04), M({ color: 0xeef0ee, roughness: 0.3 }), 1.4, 0.875, KZ0 + 0.35, kit);
+mesh(new THREE.BoxGeometry(0.03, 0.4, 0.03), M({ color: 0x999999, metalness: 0.8, roughness: 0.3 }), 1.12, 1.15, KZ0 + 0.69, kit);
+// the stove (freestanding, 4 burners) at x 0.65
+const stove = new THREE.Group(); stove.position.set(0.65, 0, KZ0 + 0.32); kit.add(stove);
+const enamel = M({ color: 0xf2f2ee, roughness: 0.3 });
+mesh(new RoundedBoxGeometry(0.62, 0.86, 0.6, 3, 0.02), enamel, 0, 0.43, 0, stove);
+mesh(new THREE.BoxGeometry(0.5, 0.36, 0.01), M({ color: 0x1a1a1e, roughness: 0.2 }), 0, 0.38, 0.301, stove);
+for (let i = 0; i < 4; i++) { const k = mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.03, 12), M({ color: 0x222222 }), -0.2 + i * 0.13, 0.72, 0.31, stove); k.rotation.x = Math.PI / 2; }
+mesh(new THREE.BoxGeometry(0.62, 0.02, 0.6), M({ color: 0x2a2a2a, roughness: 0.5 }), 0, 0.87, 0, stove);
+const BURN = [[-0.15, 0.15], [0.15, 0.15], [-0.15, -0.15], [0.15, -0.15]];
+for (const [x, z] of BURN) mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.02, 16), M({ color: 0x3a3a3a, metalness: 0.5 }), x, 0.89, z, stove);
+// gas cylinder beside the stove (blue Egyptian butane)
+const cyl = new THREE.Group(); cyl.position.set(0.15, 0, KZ0 + 0.85); kit.add(cyl);
+mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.5, 24), M({ color: 0x2a5ab0, roughness: 0.4, metalness: 0.3 }), 0, 0.3, 0, cyl);
+mesh(new THREE.SphereGeometry(0.15, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), M({ color: 0x2a5ab0, roughness: 0.4, metalness: 0.3 }), 0, 0.55, 0, cyl);
+mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.08, 10), M({ color: 0xc8a030, metalness: 0.9, roughness: 0.3 }), 0, 0.73, 0, cyl);
+mesh(new THREE.TorusGeometry(0.1, 0.012, 6, 20), M({ color: 0x1a1a1a }), 0, 0.05, 0, cyl).rotation.x = Math.PI / 2;
+mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(0.15, 0.75, KZ0 + 0.85), V(0.25, 0.85, KZ0 + 0.75), V(0.36, 0.7, KZ0 + 0.5)]), 12, 0.012, 8), M({ color: 0xd8691a }), 0, 0, 0, kit);
+// the pot of molokhia on the front-left burner (sits on the iron when the invention is on)
+const pot = new THREE.Group(); kit.add(pot);
+const steel = M({ color: 0xc8ccd2, metalness: 0.85, roughness: 0.28 });
+mesh(new THREE.CylinderGeometry(0.15, 0.14, 0.2, 28, 1, true), new THREE.MeshStandardMaterial({ color: 0xc8ccd2, metalness: 0.85, roughness: 0.28, side: THREE.DoubleSide }), 0, 0.1, 0, pot);
+mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.01, 28), steel, 0, 0.005, 0, pot);
+const molo = mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.01, 28), M({ color: 0x3e6a1e, roughness: 0.3 }), 0, 0.16, 0, pot);
+for (const x of [-0.17, 0.17]) mesh(new THREE.TorusGeometry(0.03, 0.007, 6, 12, Math.PI), steel, x, 0.17, 0, pot).rotation.y = Math.PI / 2;
+const lid = mesh(new THREE.SphereGeometry(0.155, 24, 8, 0, Math.PI * 2, 0, 0.5), steel, 0, 0.2, 0, kit);
+const spoon = mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.38, 8), M({ color: 0x8a5a2b }), 0, 0, 0, kit);
+// ---- Ibrahim's NUCLEAR STOVE 3000: Teta's heater + the iron + the hair dryer + an overloaded power strip ----
+const inv = new THREE.Group(); kit.add(inv);
+const iron = new THREE.Group(); inv.add(iron);
+{ const sh = new THREE.Shape(); sh.moveTo(-0.12, -0.07); sh.lineTo(0.08, -0.07); sh.quadraticCurveTo(0.16, 0, 0.08, 0.07); sh.lineTo(-0.12, 0.07); sh.lineTo(-0.12, -0.07);
+  const ig = new THREE.ExtrudeGeometry(sh, { depth: 0.06, bevelEnabled: true, bevelSize: 0.01, bevelThickness: 0.01 }); ig.rotateX(Math.PI / 2);
+  mesh(ig, M({ color: 0x2f6fd8, roughness: 0.35 }), 0, 0.07, 0, iron); mesh(new THREE.BoxGeometry(0.24, 0.012, 0.15), M({ color: 0xcfd3d8, metalness: 0.9, roughness: 0.2 }), -0.01, 0.075, 0, iron); }
+iron.position.set(0.5, 0.9, KZ0 + 0.47); iron.rotation.z = Math.PI;   // upside down on the burner, the pot sits on its plate
+const dryer = new THREE.Group(); inv.add(dryer);
+const pinkM = M({ color: 0xe86aa0, roughness: 0.35 });
+mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.2, 20), pinkM, 0, 0, 0, dryer).rotation.z = Math.PI / 2;
+mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.1, 16), M({ color: 0x333333 }), -0.14, 0, 0, dryer).rotation.z = Math.PI / 2;
+mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.16, 12), pinkM, 0.04, -0.09, 0, dryer);
+dryer.position.set(0.18, 1.02, KZ0 + 0.47); dryer.rotation.y = 0;   // on a stack of books, blowing at the pot
+for (let i = 0; i < 3; i++) mesh(new THREE.BoxGeometry(0.22, 0.04, 0.16), M({ color: [0xc8202a, 0x2a5ab0, 0x1f9e5a][i], roughness: 0.7 }), 0.2, 0.9 + 0.025 + i * 0.04, KZ0 + 0.47, inv);
+const heater = new THREE.Group(); heater.position.set(0.65, 0, KZ0 + 0.95); heater.rotation.y = Math.PI; inv.add(heater);
+mesh(new THREE.BoxGeometry(0.4, 0.04, 0.2), M({ color: 0x8a6a3a, roughness: 0.6 }), 0, 0.02, 0, heater);
+const frameM = M({ color: 0xb8b8b0, metalness: 0.7, roughness: 0.3 });
+mesh(new THREE.BoxGeometry(0.4, 0.5, 0.02), frameM, 0, 0.3, 0.06, heater);
+const coilMs = []; for (let i = 0; i < 3; i++) { const cm = M({ color: 0x5a2a10, emissive: 0xff4a10, emissiveIntensity: 0 }); coilMs.push(cm); mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.34, 10), cm, 0, 0.18 + i * 0.12, 0.04, heater).rotation.z = Math.PI / 2; }
+const strip = new THREE.Group(); strip.position.set(-0.15, 0.01, KZ0 + 1.25); inv.add(strip);
+mesh(new THREE.BoxGeometry(0.32, 0.04, 0.07), M({ color: 0xf2f2f2, roughness: 0.4 }), 0, 0.02, 0, strip);
+for (let i = 0; i < 4; i++) mesh(new THREE.BoxGeometry(0.04, 0.05, 0.04), M({ color: 0x222222 }), -0.12 + i * 0.08, 0.05, 0, strip);
+const swLed = new THREE.MeshBasicMaterial({ color: 0x441111 }); mesh(new THREE.BoxGeometry(0.03, 0.015, 0.02), swLed, 0.14, 0.045, 0.02, strip);
+const cordM = M({ color: 0x1a1a1a, roughness: 0.6 });
+for (const [a, b] of [[V(-0.27, 0.06, KZ0 + 1.25), V(0.18, 0.95, KZ0 + 0.47)], [V(-0.19, 0.06, KZ0 + 1.25), V(0.5, 0.9, KZ0 + 0.6)], [V(-0.11, 0.06, KZ0 + 1.25), V(0.65, 0.1, KZ0 + 0.95)], [V(0.0, 0.03, KZ0 + 1.25), V(-1.79, 0.3, KZ0 + 1.6)]]) {
+  const mid = a.clone().lerp(b, 0.5).add(V(0, -0.02, 0.2)); mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([a, V(a.x, 0.01, a.z + 0.1), V(mid.x, 0.012, mid.z), V(b.x, Math.min(b.y, 0.02) + 0.01, b.z + 0.05), b]), 30, 0.008, 6), cordM, 0, 0, 0, kit); }
+mesh(new THREE.BoxGeometry(0.02, 0.1, 0.07), M({ color: 0xf2f2f2 }), -1.79, 0.3, KZ0 + 1.6, kit);   // wall socket
+// fire, sparks, explosion, molokhia on the ceiling
+const glowT = canvasTex(64, 64, (g) => { const gr = g.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, 'rgba(255,255,220,1)'); gr.addColorStop(0.35, 'rgba(255,160,40,0.9)'); gr.addColorStop(1, 'rgba(255,60,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); });
+const spr = (n, map, blend = THREE.AdditiveBlending) => Array.from({ length: n }, () => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map, transparent: true, depthWrite: false, blending: blend })); s.visible = false; S.add(s); return s; });
+const fire = spr(26, glowT), sparks = spr(14, glowT), boomS = spr(10, glowT);
+const smokeT = canvasTex(64, 64, (g) => { const gr = g.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, 'rgba(60,60,60,0.9)'); gr.addColorStop(1, 'rgba(60,60,60,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); });
+const smoke = spr(14, smokeT, THREE.NormalBlending);
+const blobs = []; const moloM = M({ color: 0x3e6a1e, roughness: 0.25 });
+for (let i = 0; i < 18; i++) { const b = mesh(new THREE.SphereGeometry(0.03 + (i % 4) * 0.012, 10, 8), moloM, 0, -9, 0, kit); blobs.push(b); }
+const splat = mesh(new THREE.CircleGeometry(0.45, 40), M({ color: 0x3e6a1e, roughness: 0.2 }), 0.5, KH - 0.004, KZ0 + 0.47, kit); splat.rotation.x = Math.PI / 2;
+{ const p = splat.geometry.attributes.position; for (let i = 1; i < p.count; i++) { const a = Math.atan2(p.getY(i), p.getX(i)); const r = 1 + 0.25 * Math.sin(a * 5) + 0.15 * Math.sin(a * 11 + 1); p.setXY(i, p.getX(i) * r, p.getY(i) * r); } }
+const drips = []; for (let i = 0; i < 7; i++) { const d = mesh(new THREE.SphereGeometry(0.025, 10, 8), moloM, 0, 0, 0, kit); d.scale.set(1, 2.5, 1); drips.push(d); }
+const headDrip = mesh(new THREE.SphereGeometry(0.03, 10, 8), moloM, 0, -9, 0, S);
+const headSplat = mesh(new THREE.SphereGeometry(0.05, 12, 8, 0, Math.PI * 2, 0, 0.6), moloM, 0, 0, 0, S); headSplat.visible = false;
+// ceiling light (fluorescent tube) + lights
+const tubeM = new THREE.MeshBasicMaterial({ color: 0xf4fbff }); const tube = mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.0, 10), tubeM, 0, KH - 0.08, 0.2, kit); tube.rotation.z = Math.PI / 2; tube.castShadow = false;
+const amb = new THREE.HemisphereLight(0xdfe6f2, 0x3a3028, 0.55); S.add(amb);
+const kitL = new THREE.PointLight(0xf2f8ff, 9, 9, 1.4); kitL.position.set(0, KH - 0.3, 0.3); S.add(kitL);
+const key = new THREE.DirectionalLight(0xfff0dc, 1.3); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+Object.assign(key.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.3, far: 12 }); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; S.add(key, key.target);
+function keyAt(cx, cy, cz) { key.position.set(cx - 1.0, cy + 3.0, cz + 2.8); key.target.position.set(cx, cy, cz); }
+const moonL = new THREE.SpotLight(0x6f8fff, 0, 6, 0.8, 0.6, 1.2); moonL.position.set(-0.8, 1.6, KZ0 - 0.2); moonL.target.position.set(0, 0.6, 0.8); S.add(moonL, moonL.target);
+const fireL = new THREE.PointLight(0xff8a30, 0, 4, 1.6); fireL.position.set(0.5, 1.1, KZ0 + 0.6); S.add(fireL);
+const boomL = new THREE.PointLight(0xfff0c0, 0, 8, 1.4); boomL.position.set(0.5, 1.3, KZ0 + 0.6); S.add(boomL);
+
+// =============== ELEVATOR (x 30): Abu Samir stuck in an old cabin, collapsible grille in front ===============
+const elv = new THREE.Group(); elv.position.set(30, 0, 0); S.add(elv);
+const panelM = M({ color: 0x6a4a2a, roughness: 0.55 });
+{ const f = mesh(new THREE.PlaneGeometry(1.1, 1.1), M({ color: 0x3a2e24, roughness: 0.8 }), 0, 0, 0, elv); f.rotation.x = -Math.PI / 2; }
+plane(1.1, 2.3, panelM, 0, 1.15, -0.55, 0, elv); plane(1.1, 2.3, panelM, -0.55, 1.15, 0, Math.PI / 2, elv); plane(1.1, 2.3, panelM, 0.55, 1.15, 0, -Math.PI / 2, elv);
+{ const c = mesh(new THREE.PlaneGeometry(1.1, 1.1), panelM, 0, 2.3, 0, elv); c.rotation.x = Math.PI / 2; }
+const mirrorE = plane(0.6, 0.9, M({ color: 0x9aa8b2, metalness: 1, roughness: 0.08 }), 0, 1.3, -0.545, 0, elv);
+const btnP = new THREE.Group(); btnP.position.set(0.54, 1.2, 0.25); btnP.rotation.y = -Math.PI / 2; elv.add(btnP);
+mesh(new THREE.BoxGeometry(0.12, 0.3, 0.01), M({ color: 0x999999, metalness: 0.8, roughness: 0.3 }), 0, 0, 0, btnP);
+const alarmM = new THREE.MeshBasicMaterial({ color: 0xff2020 }); mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.01, 12), alarmM, 0, -0.1, 0.01, btnP).rotation.x = Math.PI / 2;
+const grilleM = M({ color: 0x2a2a2a, metalness: 0.7, roughness: 0.4 });
+for (let i = 0; i < 11; i++) mesh(new THREE.BoxGeometry(0.012, 2.2, 0.012), grilleM, -0.5 + i * 0.1, 1.1, 0.56, elv);
+for (let i = 0; i < 10; i++) for (const s of [-1, 1]) { const d = mesh(new THREE.BoxGeometry(0.008, 0.15, 0.008), grilleM, -0.45 + i * 0.1, 0.6 + (s > 0 ? 0 : 0.0), 0.56, elv); d.rotation.z = s * 0.6; d.position.y = s > 0 ? 0.55 : 1.65; }
+const emerg = new THREE.PointLight(0xff6040, 1.6, 3, 1.5); emerg.position.set(30.3, 2.1, 0.2); S.add(emerg);
+mesh(new THREE.BoxGeometry(0.12, 0.05, 0.06), new THREE.MeshBasicMaterial({ color: 0xff7050 }), 0.3, 2.27, 0.2, elv);
+
+// =============== cast ===============
+const CL = await loadClips({ xbot: 'anims/Xbot.glb', talking: 'anims/talking.fbx', yelling: 'anims/yelling.fbx', angry_point: 'anims/angry_point.fbx',
+  shrug: 'anims/shrug.fbx', arguing: 'anims/arguing.fbx', bragging: 'anims/bragging.fbx', facepalm: 'anims/facepalm.fbx', scared: 'anims/scared.fbx' });
+const dad = await loadActor('models/ibrahim.glb', S), son = await loadActor('models/hamada.glb', S), mom = await loadActor('models/om_hamada.glb', S), samir = await loadActor('models/samir.glb', S);
+const book = new THREE.Group(); { const b = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.015), M({ color: 0x2a5ab0, roughness: 0.7 })); b.castShadow = true; book.add(b); const pg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.19, 0.016), M({ color: 0xf4f0e4 })); pg.position.x = 0.004; book.add(pg); }
+dad.bones.mixamorigLeftHand.add(book); book.position.set(0.0, 0.09, 0.03); book.rotation.set(0.3, 0, 1.4);
+// phones with flashlights (used in the blackout)
+function phone(a, side = 'Right') {
+  const g = new THREE.Group(); a.bones['mixamorig' + side + 'Hand'].add(g); g.position.set(0, 0.08, 0.03);
+  const p = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.14, 0.008), M({ color: 0x111111, roughness: 0.3 })); g.add(p);
+  const sl = new THREE.SpotLight(0xfff6e0, 0, 6, 0.7, 0.55, 1.3); sl.position.set(0, 0.06, -0.01); g.add(sl); const tg = new THREE.Object3D(); tg.position.set(0, 2, -1); g.add(tg); sl.target = tg;
+  const glow = new THREE.PointLight(0xfff6e0, 0, 1.2, 2); glow.position.set(0, 0.05, 0.08); g.add(glow);
+  return { g, sl, glow };
+}
+const phS = phone(son), phD = phone(dad, 'Right'), phM = phone(mom, 'Left'), phSam = phone(samir);
+function place(a, x, y, z, ry) { a.holder.position.set(x, y, z); a.holder.rotation.set(0, ry, 0); }
+const hide = (a) => a.holder.position.set(-50, 0, 0);
+// portraits
+const portraits = {};
+{ const ps = new THREE.Scene(); ps.background = new THREE.Color(0x203060); ps.add(new THREE.HemisphereLight(0xffffff, 0x334466, 1.1)); const dl = new THREE.DirectionalLight(0xfff0e0, 1.6); dl.position.set(0.5, 2, 2); ps.add(dl);
+  const pc = new THREE.PerspectiveCamera(22, 1, 0.05, 10); const pr = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); pr.setSize(160, 160, false); pr.outputColorSpace = THREE.SRGBColorSpace; pr.toneMapping = THREE.ACESFilmicToneMapping;
+  for (const [id, a] of [['dad', dad], ['son', son], ['mom', mom], ['samir', samir]]) {
+    const par = a.holder.parent; ps.add(a.holder); place(a, 0, 0, 0, 0); pose(a, [{ src: CL.idle, t: 0.5, w: 1 }]); a.holder.updateMatrixWorld(true);
+    const hp = a.bones.mixamorigHead.getWorldPosition(new THREE.Vector3()); pc.position.set(hp.x, hp.y + 0.06, hp.z + 0.72); pc.lookAt(hp.x, hp.y + 0.05, hp.z);
+    pr.render(ps, pc); const c = document.createElement('canvas'); c.width = c.height = 160; c.getContext('2d').drawImage(pr.domElement, 0, 0); portraits[id] = c; par.add(a.holder);
+  } }
+
+// =============== timeline ===============
+const T = Object.fromEntries(Object.entries(MK).map(([k, v]) => [k, v]));
+const L = (k) => MK[k];
+const SW = MK.switch, BOOM = MK.boom, DARK = MK.dark;
+const INV_ON = L('L2')[0] - 0.12;
+const POT0 = V(0.5, 0.905, KZ0 + 0.47), POTI = V(0.5, 0.995, KZ0 + 0.47);
+function heat(t) { return t < SW ? 0 : t < BOOM ? clamp((t - SW) / (BOOM - SW)) : 0; }
+function lightsOn(t) {   // flicker before the blackout
+  if (t < SW) return 1; if (t >= DARK) return 0;
+  const f = Math.sin(t * 37) * Math.sin(t * 13); return t > BOOM ? (f > -0.2 ? 0.75 : 0.2) : (f > 0.85 ? 0.45 : 1);
+}
+function state(t) {
+  inv.visible = t >= INV_ON;
+  const hk = heat(t);
+  // pot on the burner (or on the iron), lid, spoon, molokhia
+  pot.position.copy(t >= INV_ON ? POTI : POT0); pot.rotation.set(0, 0, 0); pot.visible = true;
+  if (t >= BOOM) { const k = clamp((t - BOOM) / 0.35); pot.position.y += Math.sin(k * Math.PI) * 0.25; pot.rotation.z = k * 0.6; }
+  if (t < BOOM) { lid.position.copy(pot.position).add(V(0, 0.2 + (hk > 0.6 ? Math.abs(Math.sin(t * 40)) * 0.02 * hk : 0), 0)); lid.rotation.set(0, 0, 0); }
+  else { const k = clamp((t - BOOM) / 0.6); lid.position.copy(POTI).add(V(-0.6 * k, 0.2 + 1.3 * Math.sin(k * Math.PI * 0.9), 0.9 * k)); lid.rotation.set(k * 9, 0, k * 5); if (k >= 1) lid.position.copy(V(-0.15, 0.03, KZ0 + 1.45)); }
+  molo.visible = t < BOOM;
+  spoon.visible = t < INV_ON;
+  // heater coils / iron / dryer
+  coilMs.forEach((m, i) => m.emissiveIntensity = t >= SW + 1.6 && t < DARK ? 1.5 + Math.sin(t * 9 + i) * 0.3 : 0);
+  swLed.color.setHex(t >= SW && t < DARK ? 0xff3020 : 0x441111);
+  dryer.rotation.z = hk > 0 ? Math.sin(t * 60) * 0.02 : 0;
+  // fire from the dryer towards the pot, burner flames
+  const jet = t >= L('L9')[0] - 0.4 && t < BOOM ? 1 : (t >= SW && t < BOOM ? 0.25 : 0);
+  fire.forEach((s, i) => {
+    if (!jet) { s.visible = false; return; }
+    const age = (t * 3 + i / fire.length) % 1; s.visible = true;
+    const from = dryer.position.clone().add(V(0.12, 0, 0)), to = POTI.clone().add(V(0, -0.03, 0));
+    s.position.copy(from.lerp(to, age)).add(V(0, Math.sin(i * 3.1 + t * 20) * 0.03, Math.cos(i * 1.7) * 0.03)); const sc = (0.08 + age * 0.12) * (0.4 + jet); s.scale.set(sc, sc, 1); s.material.opacity = (1 - age) * jet;
+  });
+  sparks.forEach((s, i) => {
+    const on = t >= SW && t < DARK; if (!on) { s.visible = false; return; }
+    const age = (t * 2.3 + i / sparks.length) % 1; s.visible = Math.sin(i * 7 + Math.floor(t * 10)) > 0;
+    s.position.copy(strip.position).add(V(-0.1 + (i % 4) * 0.07 + age * 0.1 * Math.sin(i), 0.06 + age * 0.25 - age * age * 0.3, Math.cos(i) * 0.05 * age)); s.scale.setScalar(0.04 * (1 - age)); s.material.color.setHex(0xffe080);
+  });
+  boomS.forEach((s, i) => { const k = (t - BOOM) / 0.5; s.visible = k > 0 && k < 1; if (!s.visible) return; s.position.copy(POTI).add(V(Math.sin(i * 2.4) * 0.25 * k, 0.15 + k * 0.4, Math.cos(i * 2.4) * 0.2 * k)); s.scale.setScalar(0.3 + k * 0.8); s.material.opacity = 1 - k; });
+  smoke.forEach((s, i) => { const on = t > BOOM; s.visible = on; if (!on) return; const age = ((t - BOOM) * 0.35 + i / smoke.length) % 1; s.position.copy(POTI).add(V(Math.sin(i * 3) * 0.2 + age * 0.3, 0.2 + age * 1.3, Math.cos(i * 2) * 0.15)); s.scale.setScalar(0.2 + age * 0.6); s.material.opacity = (1 - age) * 0.45 * clamp(1 - (t - BOOM) / 12); });
+  blobs.forEach((b, i) => {
+    const k = (t - BOOM - 0.02 * i) / 0.32; if (k < 0) { b.position.y = -9; return; }
+    const tgt = V(0.5 + Math.sin(i * 2.7) * 0.35, KH - 0.04, KZ0 + 0.47 + Math.cos(i * 1.9) * 0.3);
+    if (k < 1) b.position.copy(POTI.clone().lerp(tgt, ease(k)).add(V(0, Math.sin(k * Math.PI) * 0.1, 0))); else b.position.copy(tgt);
+  });
+  const sp = clamp((t - BOOM - 0.25) / 0.25); splat.visible = sp > 0; splat.scale.setScalar(Math.max(0.01, sp));
+  drips.forEach((d, i) => { if (sp <= 0) { d.visible = false; return; } d.visible = true; const x = 0.5 + Math.sin(i * 2.2) * 0.3, z = KZ0 + 0.47 + Math.cos(i * 1.3) * 0.25;
+    const ph = ((t - BOOM) * 0.6 + i * 0.37) % 1; d.position.set(x, KH - 0.04 - ph * ph * 2.2, z); d.visible = ph < 0.95; });
+  // lights
+  const lo = lightsOn(t); kitL.intensity = 9 * lo; tubeM.color.setScalar(lo > 0.5 ? 1 : 0.15); amb.intensity = 0.28 + 0.27 * lo; key.intensity = 1.3 * lo;
+  winMat.color.setScalar(t >= DARK ? 0.25 : 1);   // the whole street goes dark too
+  moonL.intensity = t >= DARK ? 7 : 0;
+  fireL.intensity = jet ? 3 + Math.sin(t * 50) * 0.8 : (t >= SW + 1.6 && t < DARK ? 0.8 : 0);
+  boomL.intensity = t > BOOM && t < BOOM + 0.25 ? 30 * (1 - (t - BOOM) / 0.25) : 0;
+  const phOn = t >= DARK + 0.6; for (const p of [phS, phD, phM]) { p.g.visible = phOn; p.sl.intensity = phOn ? 12 : 0; p.glow.intensity = phOn ? 1.5 : 0; }
+  phSam.g.visible = true; phSam.sl.intensity = 5; phSam.glow.intensity = 0.8;
+  // ---- Om Hamada
+  place(mom, 0.0, 0, KZ0 + 0.95, 0.35);
+  let ml = [{ src: CL.talking, t: 0.5 + t * 0.9, w: 1 }];
+  if (t >= L('L7')[0] - 0.2 && t < SW) ml = [{ src: CL.arguing, t: 1 + t - L('L7')[0], w: 1 }];
+  if (t >= SW && t < BOOM) { place(mom, -1.0, 0, KZ0 + 0.95, 0.6); ml = [{ src: CL.idle, t, w: 1 }]; }
+  if (t >= BOOM - 0.05) { place(mom, -0.45, 0, KZ0 + 1.3, 0.5); ml = [{ src: CL.scared, t: 2.5 + (t - BOOM) * 0.6, w: 1 - ease((t - BOOM - 1.2) / 0.5) }, { src: CL.idle, t, w: ease((t - BOOM - 1.2) / 0.5) }]; }
+  if (t >= DARK) ml = [{ src: CL.facepalm, t: 0.3 + Math.min(3.5, (t - DARK) * 0.5), w: 1 }];
+  pose(mom, ml, { extra: t >= L('L10')[0] - 0.2 && t < DARK ? { mixamorigHead: Q(-0.55, 0, 0), mixamorigNeck: Q(-0.25, 0, 0) } : {} });
+  face(mom, 'mom', t, DATA, t >= L('L10')[0] - 0.2 ? { browsUp: 0.8 } : { browsDown: 0.4 });
+  // ---- Ibrahim: enters for the reveal, stays by the fridge side
+  if (t < INV_ON) hide(dad); else place(dad, 1.05, 0, KZ0 + 1.25, -0.55);
+  let dl = [{ src: CL.idle, t, w: 1 }];
+  if (t >= L('L2')[0] - 0.2 && t < L('L3')[0]) dl = [{ src: CL.bragging, t: 0.4 + t - L('L2')[0], w: 1 }];
+  else if (t >= L('L4')[0] - 0.2 && t < L('L5')[0]) dl = [{ src: CL.talking, t: 1 + t - L('L4')[0], w: 1 }];
+  else if (t >= L('L6')[0] - 0.2 && t < L('L7')[0]) dl = [{ src: CL.talking, t: 3 + t - L('L6')[0], w: 1 }, { src: CL.bragging, t: 1.6, w: 0.35 }];
+  else if (t >= L('L8')[0] - 0.2 && t < SW + 0.5) dl = [{ src: CL.talking, t: t - L('L8')[0], w: 1 }, { src: CL.angry_point, t: 0.6 + Math.max(0, t - L('L8')[1] + 1.0), w: ease((t - L('L8')[1] + 1.2) / 0.4) }];
+  else if (t >= BOOM - 0.05 && t < DARK) dl = [{ src: CL.scared, t: 3 + (t - BOOM) * 0.6, w: 1 }];
+  else if (t >= DARK) dl = [{ src: CL.talking, t: 0.5 + (t - DARK) * 0.5, w: 1 }];
+  pose(dad, dl, { extra: t >= L('L13')[0] - 0.2 ? { mixamorigHead: Q(0.3, -0.2, 0) } : {} });
+  face(dad, 'dad', t, DATA, { smile: t < BOOM ? 0.3 : (t >= L('L13')[0] ? 0.35 : 0) });
+  // molokhia drip lands on Ibrahim's head at the end
+  const hd = dad.bones.mixamorigHead.getWorldPosition(new THREE.Vector3()); const dropT = L('L13')[1] - 0.6;
+  if (t > dropT - 0.5 && t < dropT) { headDrip.position.copy(hd).add(V(0, 0.1 + (dropT - t) * 2.6, 0)); } else headDrip.position.y = -9;
+  headSplat.visible = t >= dropT; if (headSplat.visible) { headSplat.position.copy(hd).add(V(0, 0.115, 0.01)); headSplat.scale.set(1.2, 0.5, 1.1); }
+  // ---- Hamada: at the table side, then at the power strip, then panics
+  place(son, -0.75, 0, KZ0 + 1.65, 0.75);
+  let sl = [{ src: CL.idle, t: t + 1.3, w: 1 }];
+  if (t >= L('L3')[0] - 0.2 && t < L('L4')[0]) sl = [{ src: CL.talking, t: 2 + t - L('L3')[0], w: 1 }];
+  else if (t >= L('L5')[0] - 0.2 && t < L('L6')[0]) sl = [{ src: CL.shrug, t: 0.3 + (t - L('L5')[0]) * 0.6, w: 1 }];
+  else if (t >= SW - 0.3 && t < L('L9')[0] - 0.3) { place(son, -0.6, 0, KZ0 + 1.3, Math.PI / 2); sl = [{ src: CL.idle, t, w: 1 }]; }
+  else if (t >= L('L9')[0] - 0.3 && t < DARK) { place(son, -0.6, 0, KZ0 + 1.75, 0.55); sl = [{ src: CL.scared, t: 1.2 + (t - L('L9')[0]) * 0.8, w: 1 }]; }
+  else if (t >= DARK) { place(son, -0.75, 0, KZ0 + 1.85, 0.6); sl = [{ src: CL.scared, t: 9, w: 0.5 }, { src: CL.idle, t, w: 0.5 }]; }
+  pose(son, sl, { extra: t >= SW - 0.3 && t < L('L9')[0] - 0.3 ? { mixamorigSpine: Q(0.6, 0, 0), mixamorigRightArm: Q(0.6, 0, 0.4) } : {} });
+  face(son, 'son', t, DATA, t >= L('L9')[0] - 0.3 ? { browsUp: 0.9, open: t < DARK ? 0.2 : 0 } : {});
+  // ---- Abu Samir in the elevator
+  place(samir, 30.05, 0, -0.05, 0.1);
+  pose(samir, [{ src: CL.yelling, t: 1.2 + Math.max(0, t - L('L12')[0]), w: 1 }]);
+  face(samir, 'samir', t, DATA, { browsDown: 0.6 });
+  alarmM.color.setHex(Math.floor(t * 4) % 2 ? 0xff2020 : 0x400000);
+}
+function headOf(a) { a.holder.updateMatrixWorld(true); return a.bones.mixamorigHead.getWorldPosition(new THREE.Vector3()); }
+// camera in front of an actor's face: dist (m), yaw (deg, + = to the actor's left), dy = where to look below the head (face lands in the upper third)
+function on(a, dist, yaw, fov, dy = -0.22, h = 0.02) {
+  const hp = headOf(a); const ry = a.holder.rotation.y + yaw * Math.PI / 180;
+  cam.position.set(hp.x + Math.sin(ry) * dist, hp.y + h, hp.z + Math.cos(ry) * dist); cam.lookAt(hp.x, hp.y + dy, hp.z); cam.fov = fov; keyAt(hp.x, 1, hp.z);
+}
+function two(a, b, dist, side, fov, dy = -0.3) {   // two-shot: both heads in frame
+  const p = headOf(a), q = headOf(b); const c = p.clone().add(q).multiplyScalar(0.5); const d = q.clone().sub(p); d.y = 0;
+  const n = V(-d.z, 0, d.x).normalize(); if (n.z < 0) n.negate(); n.applyAxisAngle(V(0, 1, 0), side * Math.PI / 180);
+  cam.position.copy(c).add(n.multiplyScalar(dist)).add(V(0, 0.05, 0)); cam.lookAt(c.x, c.y + dy, c.z); cam.fov = fov; keyAt(c.x, 1, c.z);
+}
+function shot(t) {
+  const look = (px, py, pz, lx, ly, lz, fov) => { cam.position.set(px, py, pz); cam.lookAt(lx, ly, lz); cam.fov = fov; };
+  const k = (a, b) => ease((t - a) / (b - a));
+  const l = (key) => L(key);
+  if (t < l('L2')[0] - 0.12) { const u = k(0, l('L2')[0]); look(lerp(-0.2, -0.05, u), 1.45, lerp(1.95, 1.7, u), 0.15, 1.15, KZ0 + 0.6, 42); keyAt(0.2, 1, -0.6); }   // Om Hamada at the stove, the gas cylinder
+  else if (t < l('L3')[0] - 0.12) { const u = k(l('L2')[0], l('L3')[0]); look(lerp(-0.35, -0.25, u), 1.5, lerp(2.2, 2.05, u), 0.6, 1.15, KZ0 + 0.9, 54); keyAt(0.7, 1, -0.4); }   // Ibrahim + the invention
+  else if (t < l('L4')[0] - 0.12) on(son, lerp(1.55, 1.4, k(l('L3')[0], l('L4')[0])), -25, 40);
+  else if (t < l('L5')[0] - 0.12) on(dad, lerp(1.45, 1.3, k(l('L4')[0], l('L5')[0])), 15, 40);
+  else if (t < l('L6')[0] - 0.12) on(son, lerp(1.4, 1.3, k(l('L5')[0], l('L6')[0])), 10, 40);
+  else if (t < l('L7')[0] - 0.12) on(dad, lerp(1.5, 1.4, k(l('L6')[0], l('L7')[0])), -10, 40);
+  else if (t < l('L8')[0] - 0.12) on(mom, lerp(1.4, 1.3, k(l('L7')[0], l('L8')[0])), 10, 40);
+  else if (t < SW) two(mom, dad, lerp(2.3, 2.15, k(l('L8')[0], SW)), 10, 54);
+  else if (t < l('L9')[0] - 0.4) { const u = k(SW, l('L9')[0]); look(lerp(1.15, 1.2, u), lerp(0.75, 0.85, u), lerp(0.75, 0.7, u), lerp(-0.2, 0.35, u), lerp(0.3, 0.75, u), KZ0 + 0.95, 50); keyAt(0, 0.5, -0.4); }   // the switch, sparks, the heater glowing
+  else if (t < BOOM + 0.6) { const u = k(l('L9')[0], BOOM + 0.6); look(lerp(-0.1, -0.15, u), 1.45, lerp(1.6, 1.85, u), 0.1, 1.05, KZ0 + 0.9, 52); keyAt(0, 1, -0.3); }   // fire! the boom
+  else if (t < DARK - 0.05) { const u = k(BOOM + 0.6, DARK); look(0.45, 1.0, lerp(1.45, 1.35, u), -0.05, 2.0, KZ0 + 0.85, 64); keyAt(0, 1, -0.3); }   // low angle: Om Hamada + the molokhia on the ceiling
+  else if (t < l('L12')[0] - 0.12) on(son, lerp(1.05, 0.95, k(DARK, l('L12')[0])), -10, 40);   // dark: Hamada with his phone
+  else if (t < l('L13')[0] - 0.12) { const u = k(l('L12')[0], l('L13')[0]); look(30.0, 1.5, lerp(1.5, 1.35, u), 30.05, 1.42, -0.05, 36); keyAt(30, 1, 0); }   // Abu Samir in the elevator
+  else if (t < l('anno')[0] - 0.12) on(dad, lerp(1.0, 0.9, k(l('L13')[0], l('anno')[0])), 10, 40);   // Ibrahim writing in the dark
+  else { const u = k(l('anno')[0], DUR); look(0.1, 1.7, lerp(2.4, 2.3, u), 0.15, 1.15, KZ0 + 0.9, 52); keyAt(0, 1, -0.3); }   // wide: everyone in the dark, the ceiling
+  cam.updateProjectionMatrix();
+}
+window.renderFrame = (t) => {
+  state(t); shot(t); R.render(S, cam);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(glc, 0, 0, W, H);
+  const vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.25, W / 2, H / 2, H * 0.7); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.35)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  HUD.drawHookV(ctx, t, MK.hook[0], MK.hook[1], 'لما الأنبوبة تخلص...', 'وأبوك عالم');
+  HUD.drawInventionV(ctx, t, L('L2')[0] + 1.0, L('L3')[0] + 0.6, 'البوتاجاز النووي ٣٠٠٠', [['HEAT', 10, '#ff3a2a'], ['WATTS', 10, '#ffe14a'], ['SAFETY', 0, '#3df05a']]);
+  HUD.drawDialogueV(ctx, t, DATA.lines, portraits);
+  HUD.drawEndV(ctx, t, MK.end, 'BUILDING: OFFLINE', 'البوتاجاز النووي ٣٠٠٠', [['GAS', 'الغاز: اتوفّر', MK.end + 0.6, '#3df05a'], ['POWER', 'الكهربا: مفيش', MK.end + 1.6, '#ff5a4a']], DUR);
+  if (t > BOOM && t < BOOM + 0.08) { ctx.fillStyle = 'rgba(255,255,230,0.8)'; ctx.fillRect(0, 0, W, H); }
+  if (t > DARK && t < DARK + 0.5) { ctx.fillStyle = `rgba(0,0,0,${0.85 * (1 - (t - DARK) / 0.5)})`; ctx.fillRect(0, 0, W, H); }
+  return true;
+};
+window.frameData = () => out.toDataURL('image/png');
+window.DUR = DUR; window.READY = true;
+</script></body></html>

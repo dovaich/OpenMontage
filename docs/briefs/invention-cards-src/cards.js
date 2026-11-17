@@ -252,6 +252,21 @@ function nuclearWasher(s) {
   g.rotation.set(0, -0.5, 0.12); return { g, cam: [V(1.5, 1.6, 2.4), V(0.05, 0.6, 0)] };
 }
 
+function nuclearStove(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.62, 0.86, 0.6), P(0xf2f2ee), 0, 0.43, 0, g); mesh(box(0.5, 0.36, 0.01), P(0x1a1a1e), 0, 0.38, 0.301, g);
+  mesh(box(0.62, 0.02, 0.6), M(0x2a2a2a), 0, 0.87, 0, g);
+  mesh(cyl(0.15, 0.14, 0.2, 12, true), P(0xc8ccd2, { shininess: 110, side: THREE.DoubleSide }), -0.15, 1.08, 0.15, g); mesh(cyl(0.14, 0.14, 0.01, 12), M(0x3e6a1e), -0.15, 1.15, 0.15, g);
+  mesh(box(0.24, 0.07, 0.15), P(0x2f6fd8), -0.15, 0.93, 0.15, g);   // iron under the pot
+  const d = new THREE.Group(); d.position.set(-0.55, 1.05, 0.15); g.add(d); mesh(cyl(0.06, 0.06, 0.2, 10), P(0xe86aa0), 0, 0, 0, d).rotation.z = Math.PI / 2; mesh(cyl(0.025, 0.025, 0.16, 6), P(0xe86aa0), 0.04, -0.09, 0, d);
+  for (let i = 0; i < 6; i++) mesh(new THREE.IcosahedronGeometry(0.03 + i * 0.012, 0), new THREE.MeshBasicMaterial({ color: [0xffe080, 0xffa030, 0xff6010][i % 3] }), -0.42 + i * 0.05, 1.05, 0.15, g);
+  const h = new THREE.Group(); h.position.set(0.55, 0, 0.3); g.add(h); mesh(box(0.4, 0.5, 0.04), P(0xb8b8b0), 0, 0.3, 0, h);
+  for (let i = 0; i < 3; i++) mesh(cyl(0.02, 0.02, 0.34, 6), new THREE.MeshBasicMaterial({ color: 0xff5010 }), 0, 0.18 + i * 0.12, 0.03, h).rotation.z = Math.PI / 2;
+  mesh(cyl(0.15, 0.15, 0.55, 12), P(0x2a5ab0), -0.55, 0.28, -0.25, g);
+  for (let i = 0; i < 5; i++) mesh(new THREE.IcosahedronGeometry(0.035, 0), M(0x3e6a1e), -0.15 + Math.sin(i * 2) * 0.12, 1.35 + i * 0.12, 0.15 + Math.cos(i) * 0.08, g);   // molokhia flying up
+  g.rotation.y = -0.4; return { g, cam: [V(1.4, 1.6, 2.6), V(0, 0.75, 0)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -290,6 +305,9 @@ const CARDS = [
   { file: 'card_nuclear_washer', build: nuclearWasher, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'الغسالة النووية ٣٠٠٠', en: 'NUCLEAR WASHER 3000',
     stats: [['SPIN', 'العصر', 6], ['NOISE', 'الدوشة', 5], ['SAFETY', 'الأمان', 0], ['WALKING', 'المشي', 5]],
     parts: 'غسالة أم حمادة + موتور التوك توك', quote: '«دي بتسخّن... سيبها تاخد راحتها»', result: 'النتيجة: نزلت السلم لوحدها', ep: 'الغسالة النووية' },
+  { file: 'card_nuclear_stove', build: nuclearStove, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'البوتاجاز النووي ٣٠٠٠', en: 'NUCLEAR STOVE 3000',
+    stats: [['HEAT', 'الحرارة', 6], ['WATTS', 'الكهربا', 6], ['SAFETY', 'الأمان', 0], ['GAS SAVED', 'توفير الغاز', 5]],
+    parts: 'سشوار + مكوة + دفاية تيتة + مشترك', quote: '«حرارة على حرارة على حرارة... يبقى نار»', result: 'النتيجة: الملوخية في السقف والعمارة ضلمت', ep: 'البوتاجاز النووي' },
 ];
 
 // ---------- 2D card ----------
