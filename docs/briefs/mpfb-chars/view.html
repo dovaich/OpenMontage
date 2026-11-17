@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script></head>
+<body><canvas id="c" width="540" height="960"></canvas>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+const q = new URLSearchParams(location.search);
+const R = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
+R.setSize(540, 960, false); R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.0;
+R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
+const S = new THREE.Scene(); S.background = new THREE.Color(0x5a6a7a);
+S.environment = new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(), 0.04).texture; S.environmentIntensity = 0.5;
+const key = new THREE.DirectionalLight(0xfff0dd, 2.2); key.position.set(1.5, 3, 2.5); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); S.add(key);
+const rim = new THREE.DirectionalLight(0xaaccff, 1.0); rim.position.set(-2, 2, -2); S.add(rim);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshStandardMaterial({ color: 0x6b6b6b })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; S.add(floor);
+const cam = new THREE.PerspectiveCamera(30, 540 / 960, 0.05, 50);
+window.shot = (view, morphs) => {
+  const [px, py, pz, lx, ly, lz, fov] = view; cam.fov = fov; cam.updateProjectionMatrix(); cam.position.set(px, py, pz); cam.lookAt(lx, ly, lz);
+  S.traverse(o => { if (o.morphTargetDictionary) { o.morphTargetInfluences.fill(0); for (const k in morphs) if (k in o.morphTargetDictionary) o.morphTargetInfluences[o.morphTargetDictionary[k]] = morphs[k]; } });
+  R.render(S, cam); return document.getElementById('c').toDataURL('image/png');
+};
+new GLTFLoader().load(q.get('m'), g => {
+  g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
+    const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.name === 'hair') m.roughness = 0.9; if (o.geometry.attributes.color) m.vertexColors = m.name === 'pants'; }); } });
+  S.add(g.scene); window.INFO = { morphs: [], mats: [] };
+  g.scene.traverse(o => { if (o.morphTargetDictionary) window.INFO.morphs = Object.keys(o.morphTargetDictionary); if (o.isMesh) window.INFO.mats.push(...(Array.isArray(o.material) ? o.material : [o.material]).map(m => m.name)); });
+  window.READY = true;
+});
+</script></body></html>

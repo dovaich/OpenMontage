@@ -1,0 +1,44 @@
+{
+ "ibrahim": {
+  "macro": {
+   "gender": 1.0,
+   "age": 0.66,
+   "muscle": 0.42,
+   "weight": 0.36,
+   "height": 0.47,
+   "proportions": 0.5,
+   "african": 0.35,
+   "asian": 0.05,
+   "caucasian": 0.6
+  },
+  "targets": {
+   "nose/nose-volume-incr": 0.45,
+   "nose/nose-scale-vert-incr": 0.3,
+   "nose/nose-hump-incr": 0.4,
+   "forehead/forehead-scale-vert-incr": 0.3,
+   "head/head-oval": 0.4,
+   "eyebrows/eyebrows-trans-down": 0.2,
+   "cheek/l-cheek-bones-decr": 0.3,
+   "cheek/r-cheek-bones-decr": 0.3
+  },
+  "colors": {
+   "skin": "#a8714d",
+   "hair": "#1b1410",
+   "iris": "#2a1a10",
+   "shirt": "#efece2",
+   "pants": "#c9cfd6",
+   "pants_stripes": "#5d6f86"
+  },
+  "hair": "sides",
+  "mustache": {
+   "w": 0.034,
+   "droop": 0.016,
+   "thick": 0.0065,
+   "up": 0.013
+  },
+  "brows": 0.0045,
+  "shirt": "tank",
+  "pants": "long",
+  "loose_pants": 0.018
+ }
+}
