@@ -1,0 +1,4 @@
+r1.wav 36.6 Recording 1: Ibrahim (Orus) + Hamada (Puck), blocks 1-7, Gemini 3.8 Flash TTS
+r2.wav 17.1 Recording 2: Om Hamada (Kore) + Abu Samir (Gacrux), blocks 1-2
+r3.wav 5.7 Recording 3: English announcer (Algenib) "Gas: restored. Building: offline."
+Note: 24 kHz mono 16-bit PCM. The WAV header's byte-rate field says 96000 (should be 48000); durations above are computed from the sample rate. Re-mux/fix the header before trusting tools that read byte-rate.

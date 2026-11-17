@@ -19,7 +19,7 @@ const fps = Number(fpsArg || 15);
 const URL = 'http://127.0.0.1:8903/episode.html';
 const checkMode = outDir === 'check';
 fs.mkdirSync(outDir, { recursive: true });
-const allTimes = Array.from({ length: Math.ceil(57.85 * fps) }, (_, i) => i / fps);
+const allTimes = Array.from({ length: Math.ceil(56.15 * fps) }, (_, i) => i / fps);
 const stills = list && list !== '-';
 let items = stills ? list.split(',').map(Number).map((t, i) => [i, t]) : allTimes.map((t, i) => [i, t]);
 if (range && !stills) items = items.slice(range[0], range[1]);   // frame indices [a, b): re-render only part of an episode

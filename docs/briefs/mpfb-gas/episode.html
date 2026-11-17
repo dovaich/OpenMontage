@@ -296,7 +296,7 @@ function shot(t) {
   else if (t < l('L7')[0] - 0.12) on(dad, lerp(1.5, 1.4, k(l('L6')[0], l('L7')[0])), -10, 40);
   else if (t < l('L8')[0] - 0.12) on(mom, lerp(1.4, 1.3, k(l('L7')[0], l('L8')[0])), 10, 40);
   else if (t < SW) two(mom, dad, lerp(2.3, 2.15, k(l('L8')[0], SW)), 10, 54);
-  else if (t < l('L9')[0] - 0.4) { const u = k(SW, l('L9')[0]); look(lerp(1.15, 1.2, u), lerp(0.75, 0.85, u), lerp(0.75, 0.7, u), lerp(-0.2, 0.35, u), lerp(0.3, 0.75, u), KZ0 + 0.95, 50); keyAt(0, 0.5, -0.4); }   // the switch, sparks, the heater glowing
+  else if (t < l('L9')[0] - 0.4) { const u = k(SW, l('L9')[0]); look(lerp(0.35, 0.45, u), lerp(0.85, 0.95, u), lerp(1.0, 0.95, u), lerp(-0.3, 0.55, u), lerp(0.25, 0.6, u), lerp(KZ0 + 1.25, KZ0 + 0.9, u), 50); keyAt(0, 0.5, -0.4); }   // the switch, sparks, the heater glowing
   else if (t < BOOM + 0.6) { const u = k(l('L9')[0], BOOM + 0.6); look(lerp(-0.1, -0.15, u), 1.45, lerp(1.6, 1.85, u), 0.1, 1.05, KZ0 + 0.9, 52); keyAt(0, 1, -0.3); }   // fire! the boom
   else if (t < DARK - 0.05) { const u = k(BOOM + 0.6, DARK); look(0.45, 1.0, lerp(1.45, 1.35, u), -0.05, 2.0, KZ0 + 0.85, 64); keyAt(0, 1, -0.3); }   // low angle: Om Hamada + the molokhia on the ceiling
   else if (t < l('L12')[0] - 0.12) on(son, lerp(1.05, 0.95, k(DARK, l('L12')[0])), -10, 40);   // dark: Hamada with his phone
