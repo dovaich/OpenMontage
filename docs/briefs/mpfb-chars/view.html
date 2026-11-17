@@ -20,11 +20,28 @@ window.shot = (view, morphs) => {
   S.traverse(o => { if (o.morphTargetDictionary) { o.morphTargetInfluences.fill(0); for (const k in morphs) if (k in o.morphTargetDictionary) o.morphTargetInfluences[o.morphTargetDictionary[k]] = morphs[k]; } });
   R.render(S, cam); return document.getElementById('c').toDataURL('image/png');
 };
+// runtime detail: skin pores / fabric weave as tiling normal maps (shared with the episode engine)
+function noiseNormal(size, freq, amp, seed) {
+  const c = document.createElement('canvas'); c.width = c.height = size; const g = c.getContext('2d'); const d = g.createImageData(size, size);
+  let s = seed; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647; const hgt = new Float32Array(size * size);
+  for (let o = 0; o < 4; o++) { const n = freq << o; const grid = []; for (let i = 0; i < n * n; i++) grid.push(rnd());
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) { const gx = x / size * n, gy = y / size * n, x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
+      const v = (a, b) => grid[((b % n) * n) + (a % n)]; const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+      hgt[y * size + x] += (v(x0, y0) * (1 - sx) * (1 - sy) + v(x0 + 1, y0) * sx * (1 - sy) + v(x0, y0 + 1) * (1 - sx) * sy + v(x0 + 1, y0 + 1) * sx * sy) / (1 << o); } }
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) { const i = y * size + x; const dx = (hgt[y * size + (x + 1) % size] - hgt[y * size + (x + size - 1) % size]) * amp, dy = (hgt[((y + 1) % size) * size + x] - hgt[((y + size - 1) % size) * size + x]) * amp;
+    const l = Math.hypot(dx, dy, 1); d.data[i * 4] = (-dx / l * 0.5 + 0.5) * 255; d.data[i * 4 + 1] = (-dy / l * 0.5 + 0.5) * 255; d.data[i * 4 + 2] = (1 / l * 0.5 + 0.5) * 255; d.data[i * 4 + 3] = 255; }
+  g.putImageData(d, 0, 0); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; }
+const SKIN_N = noiseNormal(256, 32, 2.5, 7), CLOTH_N = noiseNormal(256, 32, 3, 11), HAIR_N = noiseNormal(256, 64, 4, 3);
+SKIN_N.repeat.set(20, 20); CLOTH_N.repeat.set(2, 2); HAIR_N.repeat.set(6, 6);
+const CLOTHES = ['top', 'bottom', 'robe', 'coverall', 'jacket', 'apron', 'headwear', 'band', 'headband'];
 new GLTFLoader().load(q.get('m'), g => {
   g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
-    const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.name === 'hair') m.roughness = 0.9; if (o.geometry.attributes.color) m.vertexColors = true; }); } });
+    const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (['hair', 'mustache', 'brows'].includes(m.name)) { m.side = THREE.DoubleSide; m.roughness = 0.8; m.normalMap = HAIR_N; m.normalScale.set(0.4, 0.4); } if (o.geometry.attributes.color) m.vertexColors = true;
+      if (m.name === 'skin') { m.normalMap = SKIN_N; m.normalScale.set(0.1, 0.1); m.roughness = 0.52; }
+      if (CLOTHES.includes(m.name)) { m.normalMap = CLOTH_N; m.normalScale.set(m.name === 'headwear' ? 0.12 : 0.25, m.name === 'headwear' ? 0.12 : 0.25); }
+      if (m.name === 'jacket' && m.roughness < 0.5) { m.metalness = 0.0; m.envMapIntensity = 1.3; } }); } });
   if (q.get('norm')) { const bb = new THREE.Box3().setFromObject(g.scene); const k = 1.76 / (bb.max.y - bb.min.y); g.scene.scale.setScalar(k); const b2 = new THREE.Box3().setFromObject(g.scene); g.scene.position.y -= b2.min.y; g.scene.position.x -= (b2.min.x + b2.max.x) / 2; g.scene.position.z -= (b2.min.z + b2.max.z) / 2; }
-  S.add(g.scene); window.INFO = { morphs: [], mats: [] };
+  S.add(g.scene); window.INFO = { morphs: [], mats: [], top: new THREE.Box3().setFromObject(g.scene).max.y };
   g.scene.traverse(o => { if (o.morphTargetDictionary) window.INFO.morphs = Object.keys(o.morphTargetDictionary); if (o.isMesh) window.INFO.mats.push(...(Array.isArray(o.material) ? o.material : [o.material]).map(m => m.name)); });
   window.READY = true;
 });
