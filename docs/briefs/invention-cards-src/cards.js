@@ -237,6 +237,31 @@ function nuclearVacuum(s) {
   g.rotation.y = -0.4; return { g, cam: [V(1.3, 1.4, 2.6), V(0.1, 0.55, 0.3)] };
 }
 
+
+function dealHunter(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.9, 0.12, 0.6), P(0x8a5a2b), 0, 0.06, 0, g);
+  mesh(box(0.06, 0.4, 0.06), M(0x333333), 0.18, 0.32, 0, g); const ph = mesh(box(0.3, 0.52, 0.03), P(0x111111), 0.18, 0.72, 0.03, g); ph.rotation.x = -0.2;
+  const scr = mesh(new THREE.PlaneGeometry(0.26, 0.46), new THREE.MeshBasicMaterial({ color: 0xffe14a }), 0.18, 0.72, 0.05, g); scr.rotation.x = -0.2;
+  mesh(new THREE.PlaneGeometry(0.2, 0.1), new THREE.MeshBasicMaterial({ color: 0x22aa44 }), 0.18, 0.56, 0.08, g).rotation.x = -0.2;
+  mesh(cyl(0.12, 0.14, 0.05, 8), M(0x2a8a8a), -0.25, 0.14, 0, g); mesh(cyl(0.025, 0.025, 0.5, 6), M(0x2a8a8a), -0.25, 0.4, 0, g);
+  const rot = new THREE.Group(); rot.position.set(-0.25, 0.68, 0.06); g.add(rot);
+  for (let i = 0; i < 4; i++) { const arm = new THREE.Group(); arm.rotation.z = i * Math.PI / 2; rot.add(arm); mesh(box(0.05, 0.3, 0.02), M(0xdddddd), 0, 0.15, 0, arm); mesh(box(0.07, 0.1, 0.05), P(0xffd400), 0, 0.32, 0.02, arm); }
+  for (let i = 0; i < 5; i++) mesh(box(0.28, 0.2, 0.24), M(0xc89a5a), -0.9 + (i % 3) * 0.3, 0.1 + Math.floor(i / 3) * 0.2, -0.5 + (i % 2) * 0.1, g);
+  for (let i = 0; i < 6; i++) mesh(new THREE.PlaneGeometry(0.12, 0.08), new THREE.MeshBasicMaterial({ color: 0x2fae5a, side: THREE.DoubleSide }), 0.6 + (i % 3) * 0.12, 0.9 + i * 0.08, 0.2 - i * 0.05, g).rotation.set(i, i * 2, 0);
+  g.rotation.y = -0.3; return { g, cam: [V(0.6, 1.2, 2.3), V(0.0, 0.5, 0.0)] };
+}
+function nuclearBlanket(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(1.2, 0.14, 1.3), P(0xd8a030), 0, 0.07, 0, g); for (let i = 0; i < 3; i++) mesh(box(1.22, 0.02, 0.05), P(0xb07818), 0, 0.15, -0.4 + i * 0.4, g);
+  for (let i = 0; i < 3; i++) mesh(box(1.24, 0.03, 0.06), P(0xc9ccd1), -0.3 + i * 0.3, 0.16, 0, g).rotation.y = Math.PI / 2;
+  mesh(box(0.26, 0.1, 0.14), P(0x2f6fd8), -0.3, 0.2, 0.25, g); mesh(cyl(0.06, 0.07, 0.24, 8), P(0xff5fa8), 0.3, 0.22, -0.2, g).rotation.z = Math.PI / 2;
+  mesh(cyl(0.1, 0.12, 0.22, 10), P(0xd8d8e0, { shininess: 100 }), 0.05, 0.27, 0.4, g);
+  for (let i = 0; i < 7; i++) mesh(new THREE.ConeGeometry(0.06, 0.28, 5), new THREE.MeshBasicMaterial({ color: [0xffdd33, 0xff9a1a, 0xff5a10][i % 3] }), -0.5 + i * 0.17, 0.3, -0.55 + (i % 2) * 0.1, g);
+  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(0.5, 0.15, 0.3), V(0.9, 0.05, 0.6), V(1.2, 0.3, 0.2)]), 16, 0.02, 5), M(0x111111), 0, 0, 0, g);
+  g.rotation.y = -0.35; return { g, cam: [V(0.9, 1.5, 2.2), V(0.0, 0.2, 0.0)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -272,6 +297,12 @@ const CARDS = [
   { file: 'card_nuclear_vacuum', build: nuclearVacuum, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'المكنسة النووية ٣٠٠٠', en: 'NUCLEAR VACUUM 3000',
     stats: [['SUCTION', 'الشفط', 6], ['CONTROL', 'التحكم', 0], ['SAFETY', 'الأمان', 0], ['MOM\'S POT', 'حلة ماما', 5]],
     parts: 'موتور الغسالة + خرطوم المية + حلة ماما', quote: '«كل اختراع عظيم... بيبدأ بحلة أمك»', result: 'النتيجة: شفطت حمادة', ep: 'المكنسة النووية' },
+  { file: 'card_deal_hunter', build: dealHunter, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'صياد العروض النووي ٣٠٠٠', en: 'NUCLEAR DEAL HUNTER 3000',
+    stats: [['DISCOUNT', 'الخصم', 5], ['WALLET', 'المحفظة', 0], ['SAFETY', 'الأمان', 1], ['CAMELS', 'الجمال', 1]],
+    parts: 'موبايل + مروحة + جوانتي أصفر', quote: '«أي حاجة عليها خصم... بيشتريها لوحده!»', result: 'النتيجة: جمل في الصالة', ep: 'الجمعة البيضاء' },
+  { file: 'card_nuclear_blanket', build: nuclearBlanket, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'البطانية النووية ٣٠٠٠', en: 'NUCLEAR BLANKET 3000',
+    stats: [['HEAT', 'الدفا', 6], ['SAFETY', 'الأمان', 0], ['FIRE', 'الولعة', 5], ['MOM STEAL', 'خطف أم حمادة', 5]],
+    parts: 'بطانية + مكوة + سشوار + كاتل الشاي', quote: '«ده موديل الشتا... ادخل تحتها»', result: 'النتيجة: أم حمادة خدتها', ep: 'البطانية النووية' },
 ];
 
 // ---------- 2D card ----------
@@ -345,7 +376,7 @@ window.drawCover = async () => {
   g.save(); g.translate(CW / 2, CH / 2 + 60); for (let k = 0; k < 24; k++) { g.rotate(Math.PI / 12); g.fillStyle = k % 2 ? 'rgba(255,225,74,0.06)' : 'rgba(0,0,0,0)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(1200, -160); g.lineTo(1200, 160); g.fill(); } g.restore();
   ar('اختراعات إبراهيم', CW / 2, 20, 84, '#ffe14a', 'center', 'ReemKufi');
   px('COLLECT THEM ALL!', CW / 2, 132, 26, '#ffffff', 'center');
-  const cw = 200, ch = 250; const pos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => [30 + (i % 4) * 258, 210 + Math.floor(i / 4) * 280]); const rot = pos.map((_, i) => (i % 2 ? 0.025 : -0.025));
+  const cw = 200, ch = 250; const pos = CARDS.map((_, i) => [30 + (i % 4) * 258, 190 + Math.floor(i / 4) * 284]); const rot = pos.map((_, i) => (i % 2 ? 0.025 : -0.025));
   ims.forEach((im, i) => { g.save(); g.translate(pos[i][0] + cw / 2, pos[i][1] + ch / 2); g.rotate(rot[i]); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(-cw / 2 + 10, -ch / 2 + 14, cw, ch); g.drawImage(im, -cw / 2, -ch / 2, cw, ch); g.restore(); });
   for (let y = 0; y < CH; y += 4) { g.fillStyle = 'rgba(0,0,0,0.06)'; g.fillRect(0, y, CW, 1); }
   return card.toDataURL('image/png');
