@@ -1,0 +1,4 @@
+﻿r1.wav 24.2 Recording 1 «الجمعة البيضاء»: Hamada (Puck) + Ibrahim (Orus), blocks 1-4, Gemini 3.8 Flash TTS
+r2.wav 28.3 Recording 2 «البطانية النووية»: Hamada (Puck) + Ibrahim (Orus), blocks 1-4
+r3.wav 19.2 Recording 3 (both episodes): Om Hamada (Kore) + English announcer (Algenib), blocks 1-2
+Note: 24 kHz mono 16-bit PCM. WAV header byte-rate fixed to 48000 (was 96000) and block-align to 2 on 2026-11-19.
