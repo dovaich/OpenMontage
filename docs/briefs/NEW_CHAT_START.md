@@ -14,7 +14,7 @@ Branch: `ccr-3b18907e-5bki3m` (commit + push everything there; commit lines end 
 
 ## Standing rules (details in SERIES_NOTES.md)
 - **Vertical 9:16** (540×960 frames → 1080×1920), **30–45 s** target, family core cast works best (Om Hamada / Ibrahim / Hamada).
-- Open with a **cold open** of the funniest moment (a COMPLETE line, never cut) → «<< REWIND قبلها بـ...» → **hook text** (2 lines, big, white card) → story → disaster ending → announcer line (English) → end card (meters) → «يُتبع...».
+- Open with a **cold open** of the funniest moment (a COMPLETE line, never cut) → «<< REWIND قبلها بـ...» → story (NO hook text card: user asked to drop it, the cold open must grab on its own) → disaster ending → announcer line (English) → end card (meters) → «يُتبع...».
 - Dialogue text appears in sync with the voice (`revealCount` / `vox`). Big dialogue box at the bottom (`drawDialogueV`).
 - Each character keeps one voice (table in SERIES_NOTES.md). Every new Ibrahim invention → an invention card (`invention-cards-src`).
 - Cartoon slapstick only (stars, bonk, slipper) — no realistic violence. El-Gazzar's "spaced-out" trait stays implicit.
