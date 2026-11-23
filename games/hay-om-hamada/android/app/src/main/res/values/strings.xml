@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">حي أم حمادة</string>
+    <string name="title_activity_main">حي أم حمادة</string>
+    <string name="package_name">com.omhamada.hay</string>
+    <string name="custom_url_scheme">com.omhamada.hay</string>
+</resources>

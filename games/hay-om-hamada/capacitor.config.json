@@ -1,0 +1,6 @@
+{
+  "appId": "com.omhamada.hay",
+  "appName": "حي أم حمادة",
+  "webDir": "dist",
+  "android": { "backgroundColor": "#0b0f2e" }
+}

@@ -9,11 +9,14 @@
     "preview": "vite preview --host"
   },
   "dependencies": {
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
     "@fontsource/lalezar": "^5.1.0",
     "@fontsource/press-start-2p": "^5.1.0",
     "three": "^0.170.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.6.10",
     "vite": "^5.4.11"
   }
 }

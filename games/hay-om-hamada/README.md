@@ -55,7 +55,12 @@ Draw calls are about 350 around the neighbourhood. The render resolution drops a
 | `src/audio.js` | WebAudio sounds (no files) |
 | `src/main.js` | Renderer, input, player on foot/driving, camera, day/night, HUD, chaos meter, save |
 
-## APK later
-`dist/` uses relative paths (`base: './'`), so it can be wrapped with Capacitor:
-`npm i @capacitor/core @capacitor/cli @capacitor/android && npx cap init "حي أم حمادة" com.omhamada.hay --web-dir dist && npx cap add android`,
-then build the APK/AAB in Android Studio (needs a signing key for the Play Store).
+## APK (Android)
+The Android project (Capacitor 7) is in `android/`. App id `com.omhamada.hay`, name «حي أم حمادة». It is full screen (no status or navigation bar), keeps the screen on, and works in both portrait and landscape.
+```bash
+npm run build && npx cap sync android
+cd android && echo "sdk.dir=$HOME/android-sdk" > local.properties
+./gradlew assembleDebug          # → app/build/outputs/apk/debug/app-debug.apk (installable, debug-signed)
+```
+To publish on Google Play you need a release keystore, which only the owner should keep, then `./gradlew bundleRelease` to get an `.aab`.
+Icons and splash screens are made from the series portraits (Ibrahim on yellow).
