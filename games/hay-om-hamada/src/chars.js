@@ -1,7 +1,7 @@
 // The series cast, rebuilt from the episode sources (engine8.js, crew_def.js, alamy.js, fein-eltoktok-src).
 // Every character is playable. Create them only after the fonts are loaded (Hamada's jersey draws text).
 import * as THREE from 'three';
-import { rng, canvasTex, M, P, mesh, box, cyl, makeChar } from './kit.js';
+import { rng, canvasTex, M, P, mesh, box, cyl, makeChar, optimizeRig } from './kit.js';
 
 let TEX = null;
 function textures() {
@@ -161,6 +161,19 @@ const BUILD = {
       build(head, torso, reg) { mesh(new THREE.SphereGeometry(0.28, 8, 4, 0, Math.PI * 2, 0, Math.PI * 0.42), reg(M(0xd8231b)), 0, 0.04, 0, head); mesh(box(0.3, 0.03, 0.2), reg(M(0xd8231b)), 0, 0.1, -0.3, head); mesh(box(0.12, 0.08, 0.02), reg(M(0xffffff)), 0.12, 0.45, 0.25, torso); return {}; } }, parent);
   },
   alamy: makeAlamy,
+  nashwa(parent) {
+    return makeChar({ seed: 101, skin: 0xc8946a, hipY: 0.84, legX: 0.11, legColor: 0xc8946a, shoe: 0x111111, hand: 0xc8946a,
+      torsoGeo: cyl(0.24, 0.27, 0.62, 7), torsoTex: null, torsoColor: 0xc81a1a, torsoY: 0.31,
+      skirt: cyl(0.27, 0.34, 0.45, 7), sleeve: true, sleeveColor: 0xc81a1a, shoulderX: 0.3, shoulderY: 0.55, neckY: 0.62, headR: 0.27,
+      build(head, torso, reg) {
+        const hair = reg(M(0x120c08));
+        const cap = mesh(new THREE.SphereGeometry(0.3, 10, 6, 0, Math.PI * 2, 0, Math.PI * 0.62), hair, 0, 0.02, -0.03, head); cap.rotation.x = -0.25;
+        for (const sx of [-1, 1]) mesh(box(0.08, 0.3, 0.32), hair, sx * 0.27, -0.08, -0.05, head);
+        mesh(box(0.14, 0.5, 0.02), reg(M(0xf4f4f4)), 0, 0.34, 0.245, torso);
+        mesh(box(0.1, 0.12, 0.02), reg(M(0xffffff)), -0.12, 0.45, 0.25, torso); // mic clip
+        return {};
+      } }, parent);
+  },
   asly(parent) {
     const T = textures();
     return makeChar({ seed: 81, skin: 0xa86a40, hipY: 0.86, legX: 0.16, legColor: 0x6a6a6a, shoe: 0x222222, hand: 0xa86a40,
@@ -197,6 +210,8 @@ export const CAST = [
     lines: ['حسب حساباتي... محدش هنا فاهم حاجة.', 'أنا العالمي. هو مخترع عالمي ليه أصلًا؟', 'السيستم شغال... الناس هي اللي واقعة.'] },
   { id: 'asly', ar: 'الأصلي', en: 'EL-ASLY', col: '#6a6a6a', face: { stache: true }, speed: 0.9, mood: 'angry',
     lines: ['مين اللي لمس الفيشة؟! هاتهولي!', 'أنا النهارده هضرب حد... لسه مش عارف مين.', 'الكهربا دي أنا اللي مربّيها.'] },
+  { id: 'nashwa', ar: 'نشوى', en: 'NASHWA', col: '#c81a1a', face: {}, speed: 1.0, mood: 'default',
+    lines: ['معاكم نشوى من قناة عاجل جدًا... والخبر لسه بيحصل.', 'عاجل: توكتوك طاير فوق الحي... تاني.', 'محتاجين مراسل ميدانى... عندك عربية؟'] },
   { id: 'gazzar', ar: 'الجزار', en: 'EL-GAZZAR', col: '#4a4a38', face: { fuzz: true }, speed: 0.8, mood: 'tired',
     lines: ['العربية دي... بتكلمني... ولا أنا اللي بكلمها؟', 'ركّبتلها موتور... من إيه؟ مش فاكر.', 'أنا كويس... أنا بس بفكّر في البستم.'] },
 ];
@@ -205,5 +220,6 @@ export const CAST_BY_ID = Object.fromEntries(CAST.map(c => [c.id, c]));
 export function buildCharacter(id, parent) {
   const c = BUILD[id](parent);
   c.id = id;
+  optimizeRig(c);
   return c;
 }

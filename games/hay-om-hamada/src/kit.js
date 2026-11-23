@@ -140,3 +140,57 @@ function applyPose(c, p) {
   c.legs[0].rotation.x = -p.lL; c.legs[1].rotation.x = -p.lR;
 }
 export { rng, clamp, lerp, easeOut, easeInOut, hash, noise1, V, canvasTex, M, P, mesh, box, cyl, drawFace, faceTexture, makeChar, POSE0, applyPose };
+
+// ---------- performance helpers (game only) ----------
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+const _vcMats = {};
+// one shared vertex-coloured material per side/flat mode: every plain-coloured part merges into a single draw call
+function vcMat(double = false) {
+  const k = double ? 'd' : 's';
+  if (!_vcMats[k]) _vcMats[k] = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: double ? THREE.DoubleSide : THREE.FrontSide });
+  return _vcMats[k];
+}
+function plainGeo(geo, matrix, color) {
+  let g = geo.clone(); if (matrix) g.applyMatrix4(matrix);
+  if (g.index) g = g.toNonIndexed();
+  for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+  if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+  if (color) { const n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) { a[i * 3] = color.r; a[i * 3 + 1] = color.g; a[i * 3 + 2] = color.b; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); }
+  return g;
+}
+const isPlain = (m) => m && !m.map && !m.transparent && (m.isMeshLambertMaterial || m.isMeshPhongMaterial) && !m.vertexColors;
+// Merge the direct plain-coloured mesh children of `group` into one vertex-coloured mesh (relative to group).
+function mergeChildrenVC(group, skip = new Set()) {
+  const plain = group.children.filter(o => o.isMesh && !skip.has(o) && isPlain(o.material));
+  if (plain.length < 2) return null;
+  const geos = { s: [], d: [] };
+  for (const o of plain) { o.updateMatrix(); geos[o.material.side === THREE.DoubleSide ? 'd' : 's'].push(plainGeo(o.geometry, o.matrix, o.material.color)); group.remove(o); }
+  let out = null;
+  for (const k of ['s', 'd']) if (geos[k].length) { const m = new THREE.Mesh(mergeGeometries(geos[k], false), vcMat(k === 'd')); group.add(m); out = m; }
+  return out;
+}
+// Shrink a makeChar rig: merge plain parts inside every group (keeps the bones, so poses still work).
+function optimizeRig(c) {
+  const groups = []; c.root.traverse(o => { if (o.isGroup || o === c.root) groups.push(o); });
+  for (const g of groups) mergeChildrenVC(g);
+  return c;
+}
+// Merge a whole static model (any depth) into: one vertex-coloured mesh + one mesh per remaining material.
+function bakeModel(root, keep = new Set()) {
+  root.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const buckets = new Map(); const vc = { s: [], d: [] }; const kill = [];
+  root.traverse(o => {
+    if (!o.isMesh || o === root) return;
+    for (let p = o; p && p !== root; p = p.parent) if (keep.has(p)) return;
+    const m = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld);
+    if (isPlain(o.material)) vc[o.material.side === THREE.DoubleSide ? 'd' : 's'].push(plainGeo(o.geometry, m, o.material.color));
+    else { const k = o.material.uuid; if (!buckets.has(k)) buckets.set(k, { mat: o.material, geos: [] }); buckets.get(k).geos.push(plainGeo(o.geometry, m)); }
+    kill.push(o);
+  });
+  for (const o of kill) o.parent.remove(o);
+  for (const k of ['s', 'd']) if (vc[k].length) root.add(new THREE.Mesh(mergeGeometries(vc[k], false), vcMat(k === 'd')));
+  for (const { mat, geos } of buckets.values()) root.add(new THREE.Mesh(mergeGeometries(geos, false), mat));
+  return root;
+}
+export { vcMat, plainGeo, isPlain, mergeChildrenVC, optimizeRig, bakeModel, mergeGeometries };
