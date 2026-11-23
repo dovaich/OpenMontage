@@ -47,7 +47,7 @@
     So two consecutive lines by the same character must be merged into one block, with a long pause written between them.
   - Two speakers per recording, so split scenes into runs of two speakers, plus a single-speaker run for the announcer.
 - Voices used for this route (standard Gemini voices; the style prefix asks for an Egyptian Cairene dialect):
-  - Hoda (young tuk-tuk driver): **Fenrir**
+  - Hooda / حودة (young tuk-tuk driver): **Fenrir**
   - Uncle Sayed (old doorman): **Enceladus**
   - Ibrahim: **Orus**
   - Announcer: **Algenib**
@@ -58,7 +58,7 @@
 
 ## Characters so far
 - Main: Om Hamada, Ibrahim (the inventor), Hamada (16, gamer).
-- Recurring: Abu Samir (upstairs neighbour, Wi-Fi owner), Hoda (tuk-tuk driver, owns the flying Tuk-Tuk 3000), Uncle Sayed (doorman), Shehata (market fruit seller).
+- Recurring: Abu Samir (upstairs neighbour, Wi-Fi owner), Hooda / حودة (the tuk-tuk driver, a young man; older notes spell it "Hoda"; owns the flying Tuk-Tuk 3000), Uncle Sayed (doorman), Shehata (market fruit seller).
 - Running gags: the Jet Dishwasher 3000 tuk-tuk engine, the balcony as punishment, game-HUD overlays, and endings with an achievement or unlock screen.
 
 ## Dialogue text must follow the voice (standing rule since "The Market Run")
@@ -142,3 +142,6 @@ Rules for every episode from now on:
 - Keep each one to the vertical format rules above, 30–45 s, family core cast, works on its own.
 - **Abu Samir's car** (recurring, introduced in «عربية أبو سمير»): the mustard 1980 «١٢٨». Model: `docs/briefs/characters/samir-car/samir_car.js`. The car is "sad" and "needs love", so future car episodes can build on that.
 - Teta (Ibrahim's mother, introduced in «حكاية المخترع العالمي»): AI Studio voice **Aoede**. Young/baby versions of the cast: see `life-story-src/ep.js` (`woman()`, `kid()`).
+
+## Game: «حي أم حمادة» (open world, started Nov 2026)
+- Source in `games/hay-om-hamada/` (Three.js + Vite, mobile first, Capacitor/APK later). It reuses the series character models. See its README for the phases.

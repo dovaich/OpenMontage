@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>حي أم حمادة</title>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="hud">
+    <canvas id="minimap" width="132" height="132"></canvas>
+    <button id="switchBtn" class="ui"><img id="switchImg" alt=""><span id="switchName"></span><small>تبديل</small></button>
+    <div id="card"><div id="cardAr"></div><div id="cardEn"></div></div>
+    <div id="dlg" class="ui"><img id="dlgImg" alt=""><div class="body"><div class="tag"><span id="dlgName"></span><small id="dlgEn"></small></div><div id="dlgText"></div></div></div>
+    <div id="actions">
+      <button id="talkBtn" class="ui"><b>كلّم</b><span id="talkName"></span></button>
+      <button id="jumpBtn" class="ui">نُط</button>
+    </div>
+    <div id="joy"><div id="knob"></div></div>
+  </div>
+
+  <div id="picker" class="ui">
+    <div class="box">
+      <div class="head"><b>اختار شخصيتك</b><small>CHOOSE YOUR CHARACTER</small><button id="pickClose" class="ui">✕</button></div>
+      <div id="pickgrid"></div>
+    </div>
+  </div>
+
+  <div id="title" class="ui">
+    <div class="logo">حي أم حمادة</div>
+    <div class="sub">HAY OM HAMADA</div>
+    <div id="loading">بيحمّل الحي...</div>
+    <button id="startBtn" class="ui">ابدأ</button>
+    <div class="hint">شمال الشاشة: امشي &nbsp;•&nbsp; يمين الشاشة: لف الكاميرا<br>كيبورد: WASD / Shift جري / Space نط / E كلّم / Q تبديل</div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
