@@ -166,6 +166,11 @@ export const CAR_TYPES = {
   pickup: { make: (c, o) => pickup({ color: c, ...(o || {}) }), max: 18, acc: 7, mass: 1.4, ar: 'ربع نقل' },
   truck: { make: (c) => truck({ color: c }), max: 15, acc: 4.5, mass: 2.6, ar: 'نقل' },
   bus: { make: (c) => bus({ color: c }), max: 14, acc: 4, mass: 3, ar: 'أتوبيس' },
+  sport: { make: (c) => { const m = car({ L: 4.8, W: 2.15, hood: 1.75, trunk: 1.0, color: c, bodyH: 0.5, cabinH: 0.46, sf: 0.75, sb: 0.55, wheelR: 0.36, doors: [0.0], seatColor: 0x111111, stripe: 0x111111 });
+    // spoiler + side skirts + low front lip
+    const sp = P(0x111111, { shininess: 80 }); mesh(box(0.08, 0.3, 0.1), sp, -m.L / 2 + 0.3, 1.05, -0.7, m.g); mesh(box(0.08, 0.3, 0.1), sp, -m.L / 2 + 0.3, 1.05, 0.7, m.g); mesh(box(0.45, 0.06, m.W), sp, -m.L / 2 + 0.3, 1.22, 0, m.g);
+    mesh(box(m.L * 0.55, 0.1, 0.06), sp, 0, 0.42, m.W / 2 + 0.03, m.g); mesh(box(m.L * 0.55, 0.1, 0.06), sp, 0, 0.42, -m.W / 2 - 0.03, m.g);
+    mesh(box(0.12, 0.08, m.W), sp, m.L / 2 + 0.05, 0.38, 0, m.g); m.H = 1.35; return m; }, max: 36, acc: 17, mass: 0.9, ar: 'عربية سبور ٣٠٠٠' },
 };
 export const CAR_COLORS = [0xf0f0f0, 0x2a2a2a, 0x8a1a1a, 0x1f3f7a, 0xc8c0a0, 0x5a6a5a, 0x3a6a8a, 0xd8a020, 0x6a2a5a, 0xb0b0b8, 0x2f6a3a];
 

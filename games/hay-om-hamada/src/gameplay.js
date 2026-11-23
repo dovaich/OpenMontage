@@ -3,12 +3,14 @@ import * as THREE from 'three';
 import { rng } from './kit.js';
 import { sidewalkLoops, zones, doors, ramps, groundAt, RIVER } from './world.js';
 import { MISSIONS, CARDS, RACES, PASSENGER_LINES, DEST_ZONES } from './missiondata.js';
+import { createEconomy } from './economy.js';
 
 export function createGameplay(G) {
   const S = G.S; const ar = G.ar;
   const listeners = {};
   const emit = (name, data) => { (listeners[name] || []).forEach(f => f(data)); };
   const on = (name, f) => { (listeners[name] ||= []).push(f); };
+  let econ = null; const magnet = () => (G.hasFlag('magnet') ? 3 : 1);
 
   // ---------- 3D markers ----------
   const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 40, 12, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd400, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false, fog: false }));
@@ -43,7 +45,7 @@ export function createGameplay(G) {
       else if ((d > 80 || G.interior) && boltMeshes.has(b.id)) { G.scene.remove(boltMeshes.get(b.id)); boltMeshes.delete(b.id); }
       const m = boltMeshes.get(b.id); if (!m) continue;
       m.rotation.y = G.t * 3; m.position.y = (b.y ?? groundAt(b.x, b.z)) + 0.9 + Math.sin(G.t * 3 + b.x) * 0.15;
-      if (d < (G.vehicleOf() ? 2.6 : 1.4) && Math.abs(p.y - (b.y ?? 0)) < 2.5) {
+      if (d < (G.vehicleOf() ? 2.6 : 1.4) * magnet() && Math.abs(p.y - (b.y ?? 0)) < 2.5) {
         S.bolts.push(b.id); G.sound.pickup(); G.addMoney(10);
         G.big('مسمار دهب!', `${ar(S.bolts.length)}/${ar(BOLTS.length)}`);
         if (S.bolts.length === 15) giveCard('bolt15');
@@ -62,6 +64,7 @@ export function createGameplay(G) {
   }
   function giverPos(m) { const a = G.byId[m.giver]; return a ? a.pos : null; }
   function startMission(m) {
+    if (m.cost) { if (S.money < m.cost) { G.toast(`المهمة دي محتاجة ${ar(m.cost)} ج... اشتغل شوية الأول`); return; } G.addMoney(-m.cost); G.toast(`دفعت ${ar(m.cost)} ج`); }
     if (G.vehicleOf() && m.onFootStart !== false) G.exitVehicle(true);
     if (m.who && G.player.meta.id !== m.who) G.switchTo(m.who);
     active = { m, i: -1, st: null, crashes: 0, hits: 0, t0: G.t, data: {} };
@@ -134,7 +137,7 @@ export function createGameplay(G) {
         for (const it of st.items) {
           if (it.got) continue;
           const d = Math.hypot(p.x - it.x, p.z - it.z);
-          if (d < (G.vehicleOf() ? 2.8 : 1.5) && Math.abs(p.y - it.y) < 2.5 && !G.interior) { it.got = true; G.sound.pickup(); G.scene.remove(it.m); if (it.label) G.toast(`لقيت: ${it.label}`); continue; }
+          if (d < (G.vehicleOf() ? 2.8 : 1.5) * magnet() && Math.abs(p.y - it.y) < 2.5 && !G.interior) { it.got = true; G.sound.pickup(); G.scene.remove(it.m); if (it.label) G.toast(`لقيت: ${it.label}`); continue; }
           left++; if (d < nd) { nd = d; nearest = it; }
         }
         st.target = nearest ? { x: nearest.x, z: nearest.z, y: nearest.y > 3 ? nearest.y : undefined } : null;
@@ -296,23 +299,24 @@ export function createGameplay(G) {
   // ---------- garage upgrades, café, grocery ----------
   let lastVehicle = null;
   on('exitVehicle', (v) => { lastVehicle = v; });
-  on('enterVehicle', (v) => { lastVehicle = v; if (S.upgrades[v.kind === 'car' ? 'car' : v.kind]) v.upgrade = S.upgrades[v.kind === 'car' ? 'car' : v.kind]; });
+  on('enterVehicle', (v) => { lastVehicle = v; if (v.owned !== undefined) v.upgrade = S.owned[v.owned]?.up || 0; else if (S.upgrades[v.kind === 'car' ? 'car' : v.kind]) v.upgrade = S.upgrades[v.kind === 'car' ? 'car' : v.kind]; });
   function garagePage() {
     const div = document.createElement('div'); div.className = 'list';
     const v = lastVehicle; const key = v ? (v.kind === 'car' ? 'car' : v.kind) : null;
     const h = document.createElement('p'); h.className = 'hint2'; h.textContent = v ? `ورشة العالمي — العربية: ${v.ar}` : 'هات عربية الأول وانزل منها جنب الورشة'; div.appendChild(h);
     if (!v) return div;
-    const lvl = S.upgrades[key] || 0; const prices = [150, 300, 500];
+    const ownRec = v.owned !== undefined ? S.owned[v.owned] : null; const lvl = ownRec ? (ownRec.up || 0) : (S.upgrades[key] || 0); const prices = [150, 300, 500].map(x => econ.price(x));
     const item = (label, price, fn, disabled) => { const b = document.createElement('button'); b.className = 'row ui'; b.innerHTML = `<b>${label}</b><span>${price ? ar(price) + ' ج' : ''}</span>`; b.disabled = !!disabled || (price && S.money < price); b.onclick = () => { if (price) G.addMoney(-price); fn(); G.sound.cash(); div.replaceWith(garagePage()); }; div.appendChild(b); };
-    if (lvl < 3) item(`موتور ٣٠٠٠ — المستوى ${ar(lvl + 1)}`, prices[lvl], () => { S.upgrades[key] = lvl + 1; v.upgrade = lvl + 1; G.toast('العربية بقت أسرع!'); });
+    if (lvl < 3) item(`موتور ٣٠٠٠ — المستوى ${ar(lvl + 1)}`, prices[lvl], () => { if (ownRec) ownRec.up = lvl + 1; else S.upgrades[key] = lvl + 1; v.upgrade = lvl + 1; G.toast('العربية بقت أسرع!'); });
     else item('الموتور في آخر مستوى', 0, () => {}, true);
     if (v.kind === 'car') {
       const cols = [[0xd8231b, 'أحمر'], [0x1f5fd8, 'أزرق'], [0x111111, 'أسود'], [0xf0f0f0, 'أبيض'], [0x2f8f3a, 'أخضر'], ...(G.hasFlag('goldPaint') ? [[0xffc020, 'دهب']] : [])];
-      for (const [c, n] of cols) item(`دهان ${n}`, 40, () => { v.body.traverse(o => { if (o.isMesh && o.material.vertexColors && o.geometry.attributes.color) { /* repaint: tint body by recolouring the vc material copy */ } }); repaint(v, c); });
+      for (const [c, n] of cols) item(`دهان ${n}`, econ.price(40), () => { repaint(v, c); if (ownRec) ownRec.color = c; });
     }
-    item('تصليح وتلميع', 20, () => { v.damage = 0; G.toast('زي الفل!'); });
+    item('تصليح وتلميع', econ.price(20), () => { v.damage = 0; G.toast('زي الفل!'); });
     return div;
   }
+  G.repaint = (v, c) => repaint(v, c);
   function repaint(v, color) {
     // the body colour is baked into vertex colours: replace the dominant body colour
     const target = new THREE.Color(color);
@@ -331,12 +335,13 @@ export function createGameplay(G) {
     const out = []; const p = G.pos(); const v = G.vehicleOf();
     if (G.dlgActive()) return out;
     if (!active && !G.interior) {
-      for (const m of available().slice(0, 3)) { const gp = giverPos(m); if (gp && Math.hypot(p.x - gp.x, p.z - gp.z) < 3 && !v) out.push({ p: 9, ar: `مهمة: ${m.ar}`, fn: () => startMission(m) }); }
+      for (const m of available().slice(0, 3)) { const gp = giverPos(m); if (gp && Math.hypot(p.x - gp.x, p.z - gp.z) < 3 && Math.abs(p.y - gp.y) < 2 && !v) out.push({ p: 9, ar: `مهمة: ${m.ar}${m.cost ? ` (${ar(m.cost)} ج)` : ''}`, fn: () => startMission(m) }); }
     }
     if (v && G.hasFlag('taxiJob') && taxiVehicleOk() && !race && !delivery?.on) out.push({ p: 2, ar: taxi.on ? 'وقّف الشغل' : 'شغّل التاكسي', fn: () => (taxi.on ? taxiStop('الشغل وقف') : taxiStart()) });
     if (v && G.hasFlag('deliveryJob') && !delivery?.on && !taxi.on && Math.hypot(p.x + 11, p.z - 9) < 8 && Math.abs(v.speed) < 2) out.push({ p: 6, ar: 'شغل توصيل البطيخ', fn: deliveryStart });
     if (v && !active && !race) for (const R of RACES) { if ((R.need || []).every(f => G.hasFlag(f)) && Math.hypot(p.x - R.start[0], p.z - R.start[1]) < 10 && Math.abs(v.speed) < 2) out.push({ p: 6, ar: `ابدأ ${R.ar}`, fn: () => startRace(R.id, null) }); }
     if (!v && !G.interior && Math.hypot(p.x + 11, p.z + 11.4) < 2.2) out.push({ p: 7, ar: 'ورشة العالمي (تعديل العربية)', fn: () => openSheet('garage') });
+    for (const c of econ.contextActions()) out.push(c);
     if (G.interior === 'cafe') { const c = G.interiors.cafe.counter; if (Math.hypot(p.x - c[0], p.z - c[1]) < 2) out.push({ p: 7, ar: 'اشرب شاي واقعد ساعة (٥ ج)', fn: () => { if (S.money < 5) { G.toast('معاكش فلوس'); return; } G.addMoney(-5); S.time = (S.time + 1) % 24; G.toast('شاي بالنعناع... الساعة عدّت'); } }); }
     if (G.interior === 'grocery') { const c = G.interiors.grocery.shop; if (Math.hypot(p.x - c[0], p.z - c[1]) < 1.8) out.push({ p: 7, ar: 'اشتري حاجة ساقعة (١٠ ج)', fn: () => { if (S.money < 10) { G.toast('معاكش فلوس'); return; } G.addMoney(-10); G.toast(['كانز ساقع... آه يا حلاوة', 'كيس شيبس بالشطة', 'عصير مانجا', 'آيس كريم بالفانيليا'][Math.floor(Math.random() * 4)]); } }); }
     return out;
@@ -354,6 +359,8 @@ export function createGameplay(G) {
     if (!active) for (const m of available().slice(0, 3)) { const gp = giverPos(m); if (gp) out.push({ x: gp.x, z: gp.z, col: '#ffd400', icon: '!' }); }
     if (!active && !race) for (const R of RACES) if ((R.need || []).every(f => G.hasFlag(f))) out.push({ x: R.start[0], z: R.start[1], col: '#ff5050', icon: 'س' });
     if (all || !active) out.push({ x: -11, z: -11, col: '#2f5fb0', icon: 'و' });
+    for (const m of econ.mapMarkers(all)) out.push(m);
+    if (G.hasFlag('radar')) for (const b of BOLTS) if (!S.bolts.includes(b.id)) out.push({ x: b.x, z: b.z, col: '#ffd400', icon: '•' });
     if (waypoint) out.push({ x: waypoint.x, z: waypoint.z, col: '#ff40ff', icon: '✕' });
     return out;
   }
@@ -376,6 +383,7 @@ export function createGameplay(G) {
       row('توصيل بطيخ شحاتة', G.hasFlag('deliveryJob') ? `${ar(S.deliveries)} توصيلة — اركن جنب الفرشة` : '🔒 بعد مهمة «البطيخ المستورد»');
       for (const R of RACES) row(R.ar, (R.need || []).every(f => G.hasFlag(f)) ? (S.races.includes(R.id) ? '✔ كسبت' : `${ar(R.pay)} ج`) : '🔒');
       row('كورة في المدرسة', `${ar(S.goals)} جون`);
+    } else if (tab === 'owned') { return econ.ownedPage();
     } else if (tab === 'cards') {
       const grid = document.createElement('div'); grid.className = 'cards';
       for (const c of CARDS) { const has = S.cards.includes(c.id); const el = document.createElement('div'); el.className = 'card2 ' + (has ? c.rar : 'lock'); el.innerHTML = has ? `<b>${c.ar}</b><small>${c.rarAr}</small><p>${c.desc}</p>` : `<b>؟؟؟</b><small>${c.hint}</small>`; grid.appendChild(el); }
@@ -397,7 +405,7 @@ export function createGameplay(G) {
   // ---------- per frame ----------
   const arrowEl = document.getElementById('arrow');
   function update(dt) {
-    updateMission(dt); updateTaxi(dt); updateDelivery(dt); updateRace(dt); updateBolts();
+    econ.update(dt); updateMission(dt); updateTaxi(dt); updateDelivery(dt); updateRace(dt); updateBolts();
     for (const pk of pickups) { pk.m.rotation.y = G.t * 3; pk.m.position.y = pk.y + 0.8 + Math.sin(G.t * 3 + pk.x) * 0.15; pk.m.visible = !pk.got && !G.interior; }
     // target beam + direction arrow
     const tg = currentTarget(); const p = G.pos();
@@ -414,6 +422,7 @@ export function createGameplay(G) {
     const av = active ? [] : available().slice(0, 3);
     bangs.forEach((b, i) => { const m = av[i]; const a = m && G.byId[m.giver]; if (a && a.c.root.visible && !G.interior) { b.visible = true; b.position.set(a.pos.x, a.pos.y + 2.9 + Math.sin(G.t * 3) * 0.12, a.pos.z); } else b.visible = false; });
   }
+  econ = createEconomy(G, { craftActive: () => active?.st?.s.t === 'craft' });
   const api = { startMission, setObjective, addPickup, giveCard, emit, on, failMission, nextStep, get active() { return active; } };
   return {
     _debug: { missions: MISSIONS, get active() { return active; }, nextStep, startMission, taxi, get race() { return race; } },

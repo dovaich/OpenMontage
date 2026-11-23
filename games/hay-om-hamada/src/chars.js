@@ -217,8 +217,20 @@ export const CAST = [
 ];
 export const CAST_BY_ID = Object.fromEntries(CAST.map(c => [c.id, c]));
 
-export function buildCharacter(id, parent) {
-  const c = BUILD[id](parent);
+// Outfits from the tailor (El-Alamy keeps the look the user chose for him)
+export const OUTFITS = [
+  { id: 'orig', ar: 'اللبس الأصلي', price: 0 },
+  { id: 'white', ar: 'طقم أبيض', price: 60, shirt: 0xf2f0e6, pants: 0xe8e4d8, shoe: 0x8a5a2b },
+  { id: 'red', ar: 'تيشيرت أحمر وشورت', price: 80, shirt: 0xd4141c, pants: 0x1b1b1b, shoe: 0xf0f0f0 },
+  { id: 'green', ar: 'قميص أخضر', price: 90, shirt: 0x2f8f3a, pants: 0x3a4a6a, shoe: 0x5a3a22 },
+  { id: 'track', ar: 'ترينج أزرق', price: 120, shirt: 0x1f5fd8, pants: 0x1f5fd8, shoe: 0xf0f0f0 },
+  { id: 'suit', ar: 'بدلة سودا شيك', price: 220, shirt: 0x1a1a1e, pants: 0x1a1a1e, shoe: 0x0c0c0c },
+  { id: 'eid', ar: 'لبس العيد الدهب', price: 400, shirt: 0xd8a020, pants: 0x6a2a5a, shoe: 0xffd400 },
+];
+export function buildCharacter(id, parent, outfitId) {
+  const o = OUTFITS.find(x => x.id === outfitId);
+  if (o && o.shirt !== undefined && id !== 'alamy') makeChar.override = { torsoTex: null, torsoColor: o.shirt, sleeve: true, sleeveTex: null, sleeveColor: o.shirt, legTex: null, legColor: o.pants, shoe: o.shoe, skirtColor: o.shirt, shortsColor: o.pants };
+  let c; try { c = BUILD[id](parent); } finally { makeChar.override = null; }
   c.id = id;
   optimizeRig(c);
   return c;

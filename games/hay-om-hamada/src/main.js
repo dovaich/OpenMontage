@@ -71,6 +71,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyE' || e.code === 'KeyF') doContext();
   if (e.code === 'KeyQ') togglePicker();
   if (e.code === 'KeyH') honk();
+  if (e.code === 'KeyN') nitro();
   if (e.code === 'KeyR') input.red = !input.red;
   if (e.code === 'KeyM' || e.code === 'Tab') { e.preventDefault(); togglePhone(); }
 });
@@ -202,9 +203,16 @@ function poseActor(a, t, dt) {
   if (a.faceKey !== key) { a.faceKey = key; a.c.faceMat.map = faceTexture(eyes, mouth, a.meta.face); a.c.faceMat.needsUpdate = true; }
 }
 
+function rebuildActor(a, outfitId) {
+  const old = a.c; const parent = old.root.parent || scene;
+  const c = buildCharacter(a.meta.id, parent, outfitId);
+  c.root.position.copy(old.root.position); c.root.rotation.copy(old.root.rotation); c.root.scale.copy(old.root.scale);
+  parent.remove(old.root); a.c = c; a.faceKey = '';
+}
 // ---------- vehicles: entering / leaving ----------
 const vehicleOf = () => player && player.inVehicle;
 function enterVehicle(v) {
+  if (v.display) { toast('دي عربية عرض... اشتريها من المعرض جنبها'); return; }
   if (v.kind === 'samir' && !hasFlag('samirCar') && !game.allow('samir')) { bark(byId.samir, 'إوعى تقرب من العربية!'); toast('أبو سمير مش موافق لسه... المهمات هتفتحها'); return; }
   if (v.kind === 'tuk' && !hasFlag('tuk') && !game.allow('tuk')) { bark(byId.hooda, 'التوكتوك ده رزقي يا باشا!'); toast('حودة مش موافق لسه... المهمات هتفتحها'); return; }
   if (v.ai) {
@@ -225,14 +233,17 @@ function exitVehicle(force) {
   game.emit('exitVehicle', v); updateDriveUI();
 }
 function honk() { const v = vehicleOf(); if (!v) return; sound.horn(v.kind === 'tuk' ? 'tuk' : v.type); peds.startle(v.pos.x, v.pos.z, 12); }
-let airT = 0, airStart = null, flyFuel = 1;
+let airT = 0, airStart = null, flyFuel = 1, nitroT = 0, nitroCD = 0;
+function nitro() { if (!vehicleOf() || !hasFlag('nitro') || nitroCD > 0) return; nitroT = 3; nitroCD = 12; sound.whoosh(); toast('نيترو!'); }
 function updateDriving(v, dt) {
   const inp = readInput();
   const red = input.red && v.kind === 'samir' && hasFlag('redButton');
-  if (red && flyFuel > 0) { v.flying = true; v.flyLift = inp.y > 0.2 ? 5 : inp.y < -0.2 ? -6 : 0.6; flyFuel -= dt / 16; if (flyFuel <= 0) { input.red = false; toast('البنزين النووي خلص!'); } }
+  if (red && flyFuel > 0) { v.flying = true; v.flyLift = inp.y > 0.2 ? 5 : inp.y < -0.2 ? -6 : 0.6; flyFuel -= dt / (hasFlag('fuel') ? 32 : 16); if (flyFuel <= 0) { input.red = false; toast('البنزين النووي خلص!'); } }
   else { v.flying = false; flyFuel = Math.min(1, flyFuel + dt / 30); }
-  const throttle = v.flying ? 0.9 : inp.y;
-  vehicles.drive(v, throttle, -inp.x, inp.brake, dt, red ? 1 : 0);
+  nitroCD -= dt; if (nitroT > 0) { nitroT -= dt; if (Math.random() < 0.5) emitPuff(v.pos.x - Math.cos(v.yaw) * v.L / 2, v.pos.y + 0.4, v.pos.z + Math.sin(v.yaw) * v.L / 2, 1, fireT, 1, 0.3, 0.3, 0.3); }
+  $('nitroBtn').classList.toggle('lit', nitroT > 0); $('nitroBtn').classList.toggle('cool', nitroCD > 0 && nitroT <= 0);
+  const throttle = v.flying ? 0.9 : (nitroT > 0 ? 1 : inp.y);
+  vehicles.drive(v, throttle, -inp.x, inp.brake, dt, red || nitroT > 0 ? 1 : 0);
   player.pos.copy(v.pos);
   if (!v.onGround && !v.flying) { if (airStart === null) { airStart = { x: v.pos.x, z: v.pos.z }; airT = 0; } airT += dt; }
   else if (airStart) { if (airT > 0.7) jumpLanded(v, airT, airStart); airStart = null; airT = 0; }
@@ -285,7 +296,7 @@ function respawnAt(x, z) { if (interior) { interiors[interior].g.visible = false
 // ---------- money, chaos (slipper meter), barks, toasts ----------
 function addMoney(n, why) { S.money = Math.max(0, Math.round(S.money + n)); $('money').textContent = ar(S.money) + ' ج'; if (n > 0) { sound.cash(); if (why) toast(`+${ar(n)} ج — ${why}`); } }
 let chaos = 0, chaosCool = 0, slipperHits = 0; const slippers = [];
-function addChaos(n) { if (game && game.noChaos()) return; chaos = clamp(chaos + n, 0, 5); chaosCool = 0; }
+function addChaos(n) { if (game && game.noChaos()) return; chaos = clamp(chaos + n * (hasFlag('antiSlipper') ? 0.6 : 1), 0, 5); chaosCool = 0; }
 function updateChaos(dt) {
   chaosCool += dt; if (chaosCool > 18) chaos = Math.max(0, chaos - dt * 0.12);
   const lvl = Math.floor(chaos + 0.001);
@@ -301,7 +312,7 @@ function updateChaos(dt) {
     s.m.position.set(x, y, z); s.m.rotation.y += dt * 14; s.m.rotation.x += dt * 9;
     if (k >= 1) {
       scene.remove(s.m); s.dead = true; sound.bonk(); peds.starOwner = player; slipperHits++; toast('طاخ! شبشب!'); shakeT = 0.3; shakeAmp = 0.15; game.emit('slipperHit');
-      if (slipperHits >= 3 && !game.inMission()) { slipperHits = 0; chaos = 0; big('اتمسكت!', 'أم حمادة رجّعتك البيت... ودفعت غرامة'); addMoney(-Math.min(S.money, 30)); if (vehicleOf()) exitVehicle(true); respawnAt(11, -4.5); for (const c of [byId.mom, byId.dad]) { if (c === player) continue; c.chasing = false; c.ai = null; c.pos.copy(c.home); } }
+      if (slipperHits >= (hasFlag('antiSlipper') ? 5 : 3) && !game.inMission()) { slipperHits = 0; chaos = 0; big('اتمسكت!', 'أم حمادة رجّعتك البيت... ودفعت غرامة'); addMoney(-Math.min(S.money, 30)); if (vehicleOf()) exitVehicle(true); respawnAt(11, -4.5); for (const c of [byId.mom, byId.dad]) { if (c === player) continue; c.chasing = false; c.ai = null; c.pos.copy(c.home); } }
     }
   }
   for (let i = slippers.length - 1; i >= 0; i--) if (slippers[i].dead) slippers.splice(i, 1);
@@ -514,8 +525,9 @@ $('exitBtn').addEventListener('click', () => exitVehicle());
 $('hornBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); honk(); });
 $('brakeBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); input.brake = true; });
 for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) $('brakeBtn').addEventListener(ev, () => { input.brake = false; });
+$('nitroBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); nitro(); });
 $('redBtn').addEventListener('click', () => { input.red = !input.red; if (input.red) toast('الزرار الأحمر!! الجويستيك لفوق = اطلع'); });
-function updateDriveUI() { const v = vehicleOf(); document.body.classList.toggle('driving', !!v); $('redWrap').classList.toggle('off', !(v && v.kind === 'samir' && hasFlag('redButton'))); }
+function updateDriveUI() { const v = vehicleOf(); document.body.classList.toggle('driving', !!v); $('nitroBtn').classList.toggle('off', !hasFlag('nitro')); $('redWrap').classList.toggle('off', !(v && v.kind === 'samir' && hasFlag('redButton'))); }
 
 // ---------- dialogue sequences ----------
 let dlgQueue = [], dlgCur = null, dlgTimer = 0, dlgShown = 0, dlgDone = null;
@@ -559,7 +571,7 @@ const G = {
   get vehicles() { return vehicles; }, get peds() { return peds; }, get interiors() { return interiors; }, get world() { return world; },
   get player() { return player; }, get interior() { return interior; }, get started() { return started; },
   vehicleOf, hasFlag, setFlag, addMoney, addChaos, say, toast, big, bark, showCard, explosion, emitPuff, chaseAI,
-  switchTo, enterVehicle, exitVehicle, enterInterior, leaveInterior, respawnAt, saveState, knockPerson, throwSlipper, fade, portraits, dlgActive,
+  rebuildActor, updateDriveUI, switchTo, enterVehicle, exitVehicle, enterInterior, leaveInterior, respawnAt, saveState, knockPerson, throwSlipper, fade, portraits, dlgActive,
   get t() { return clock.elapsedTime; }, get chaos() { return chaos; }, set chaos(v) { chaos = v; }, resetSlipperHits() { slipperHits = 0; },
   pos() { return vehicleOf() ? vehicleOf().pos : player.pos; },
   teleport(x, z, ry = 0, y) { if (interior) { interiors[interior].g.visible = false; interior = null; } const v = vehicleOf(); if (v) vehicles.place(v, x, z, ry); else { player.pos.set(x, y ?? groundAt(x, z), z); player.vy = 0; player.ry = ry; } camYaw = v ? ry - Math.PI / 2 : ry + Math.PI; },
@@ -585,6 +597,7 @@ async function boot() {
   peds = new Peds(scene, { bark: (p, text) => bark(p, text) });
   football = new Football(scene, peds);
   for (const meta of CAST) makeActor(meta);
+  for (const [id, o] of Object.entries(S.outfits || {})) if (byId[id] && o !== 'orig') rebuildActor(byId[id], o);
   makePortraits(); buildPicker(); drawMapBase();
   game = createGameplay(G);
   player = null; switchTo(byId[S.who] ? S.who : 'dad', true);

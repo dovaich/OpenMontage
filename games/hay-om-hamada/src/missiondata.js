@@ -45,7 +45,7 @@ export const MISSIONS = [
     ],
   },
   {
-    id: 'm5', ar: 'مقوّي الواي فاي النووي', giver: 'son', who: 'dad', after: ['m4'], reward: 150, card: 'wifi', teaser: 'يا بابا النت فاصل!!',
+    id: 'm5', cost: 100, ar: 'مقوّي الواي فاي النووي', giver: 'son', who: 'dad', after: ['m4'], reward: 150, card: 'wifi', teaser: 'يا بابا النت فاصل!!',
     steps: [
       { t: 'say', lines: [['son', 'يا بابا! أبو سمير غيّر باسورد الواي فاي... والماتش رانكد!'], ['dad', 'متقلقش. هنعمل مقوّي واي فاي... نووي.'], ['son', 'بلاش نووي المرة دي.'], ['dad', 'محتاج ٤ حاجات: طبق دش، سلك نحاس، مروحة، وبطارية عربية.']] },
       { t: 'collect', text: 'لمّ قطع الاختراع من البلد', items: [[60, 58, undefined, 'طبق دش من الجنينة'], [-96, -22, undefined, 'سلك نحاس من المقلب'], [11, -99, undefined, 'بطارية من البنزينة'], [14, 5.0, undefined, 'مروحة من القهوة']] },
@@ -163,7 +163,7 @@ export const MISSIONS = [
     ],
   },
   {
-    id: 'm16', ar: 'الفانوس النووي', giver: 'son', who: 'dad', after: ['m15'], reward: 220, card: 'lantern', teaser: 'رمضان جاي ومعندناش فانوس!',
+    id: 'm16', cost: 150, ar: 'الفانوس النووي', giver: 'son', who: 'dad', after: ['m15'], reward: 220, card: 'lantern', teaser: 'رمضان جاي ومعندناش فانوس!',
     steps: [
       { t: 'say', lines: [['son', 'بابا، كل الحي عنده فانوس رمضان إلا إحنا.'], ['dad', 'هنعمل أكبر فانوس في مصر. نووي.'], ['son', '...طبعًا.'], ['dad', 'محتاج ٦ قطع من وسط البلد: إزاز ملوّن، وصاج، ولمبات.']] },
       { t: 'collect', text: 'لمّ قطع الفانوس من وسط البلد', items: [[-40, -130, undefined, 'إزاز ملوّن'], [0, -150, undefined, 'صاج'], [40, -100, undefined, 'لمبة'], [-80, -140, undefined, 'سلك'], [80, -120, undefined, 'لمبة تانية'], [-120, -120, undefined, 'شمعة احتياطي']] },
@@ -195,7 +195,7 @@ export const MISSIONS = [
     ],
   },
   {
-    id: 'm19', ar: 'الأسانسير النووي', giver: 'samir', who: 'dad', after: ['m18'], reward: 260, card: 'elevator', teaser: 'ركبي مش مستحملة السلم...',
+    id: 'm19', cost: 200, ar: 'الأسانسير النووي', giver: 'samir', who: 'dad', after: ['m18'], reward: 260, card: 'elevator', teaser: 'ركبي مش مستحملة السلم...',
     steps: [
       { t: 'say', lines: [['samir', 'إبراهيم... ركبي مش مستحملة خمس أدوار سلم.'], ['dad', 'أسانسير؟ سهلة. نووي؟ أسهل.'], ['samir', 'من غير نووي لو سمحت.'], ['dad', 'محتاج حبل الونش من المقلب، وموتور، وكابينة.']] },
       { t: 'collect', text: 'لمّ قطع الأسانسير', items: [[-108, -28, undefined, 'حبل الونش'], [-20, -91, undefined, 'موتور من جراج السنتر'], [236, -24, undefined, 'كابينة قديمة جنب البرج']] },
@@ -265,7 +265,7 @@ export const MISSIONS = [
     ],
   },
   {
-    id: 'm26', ar: 'عيد ميلاد أم حمادة', giver: 'dad', who: 'mom', after: ['m25'], reward: 400, card: 'cake', teaser: 'عيد ميلادي... وكله ناسي.',
+    id: 'm26', cost: 300, ar: 'عيد ميلاد أم حمادة', giver: 'dad', who: 'mom', after: ['m25'], reward: 400, card: 'cake', teaser: 'عيد ميلادي... وكله ناسي.',
     steps: [
       { t: 'say', lines: [['dad', 'يا أم حمادة... محدش في البيت. روحي هاتي حاجة من السنتر.'], ['mom', '(لنفسها) عيد ميلادي... وكله ناسي.']] },
       { t: 'enter', vehicle: 'any', text: 'اركبي أي عربية' },

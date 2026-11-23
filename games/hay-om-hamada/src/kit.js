@@ -89,6 +89,7 @@ function faceTexture(eyes, mouth, opts) {
 }
 
 function makeChar(cfg, parent) {
+  if (makeChar.override) { const o = { ...makeChar.override }; if (cfg.skirt) delete o.legColor; cfg = { ...cfg, ...o }; } // outfits
   const root = new THREE.Group(); parent.add(root);
   const mats = [];
   const reg = m => { mats.push(m); m.userData.orig = m.color.clone(); return m; };
@@ -103,8 +104,8 @@ function makeChar(cfg, parent) {
   }
   const torso = new THREE.Group(); hips.add(torso);
   const torsoMesh = mesh(cfg.torsoGeo, reg(M(0xffffff, { map: cfg.torsoTex || null, color: cfg.torsoColor })), 0, cfg.torsoY, 0, torso);
-  if (cfg.skirt) mesh(cfg.skirt, reg(M(0xffffff, { map: cfg.torsoTex })), 0, -0.25, 0, hips);
-  if (cfg.shorts) mesh(cfg.shorts, reg(M(0xffffff, { map: cfg.shortsTex })), 0, -0.08, 0, hips);
+  if (cfg.skirt) mesh(cfg.skirt, reg(M(cfg.skirtColor ?? 0xffffff, { map: cfg.torsoTex })), 0, -0.25, 0, hips);
+  if (cfg.shorts) mesh(cfg.shorts, reg(M(cfg.shortsColor ?? 0xffffff, { map: cfg.shortsColor !== undefined ? null : cfg.shortsTex })), 0, -0.08, 0, hips);
   const arms = [];
   for (const s of [1, -1]) {
     const sh = new THREE.Group(); sh.position.set(s * cfg.shoulderX, cfg.shoulderY, 0); torso.add(sh);

@@ -124,3 +124,7 @@ body.portrait #card { top: 34%; }
 body.portrait #speed { left: max(16px, env(safe-area-inset-left)); transform: none; bottom: max(16px, env(safe-area-inset-bottom)); }
 
 body #redWrap.off, body.driving #redWrap.off { display: none !important; }
+
+#nitroBtn { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #fff; outline: 2px solid #000; background: rgba(255, 110, 0, 0.92); font-size: 17px; text-shadow: 2px 2px 0 #000; }
+#nitroBtn.lit { box-shadow: 0 0 16px 6px #ff8a20; } #nitroBtn.cool { opacity: .45; }
+body.driving #nitroBtn.off { display: none !important; }

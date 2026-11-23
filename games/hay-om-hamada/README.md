@@ -38,6 +38,14 @@ npm run build      # static build in dist/ (relative paths, ready for Capacitor)
 - **Slipper meter:** knocking people over or crashing fills it. At 3 slippers Om Hamada comes after you and throws slippers. 3 hits and she takes you home with a fine.
 - **Phone menu:** missions, a big map where you tap to set a waypoint, the card album, progress (%), settings. The game saves on its own in the browser.
 
+## What the money is for
+- **«معرض عربيات ٣٠٠٠»** (west of the neighbourhood, on the ring road): buy 10 cars, from a small hatch (400 ج) to the «عربية سبور ٣٠٠٠» (6000 ج). Your cars park in front of Om Hamada's building, never despawn, keep their engine level and paint, and the phone (tab «أملاكي») calls one to you for 20 ج.
+- **Ibrahim's workshop** (roof bench): the nuclear magnet (3× pickup range), the bolt radar (golden bolts on the map), the anti-slipper shield (meter rises slower, 5 hits instead of 3), «نيترو ٣٠٠٠» (a 3-second boost button in any car, 12 s cooldown), double nuclear fuel for the red button.
+- **«ترزي الأناقة»** (stand east of the grocery): 6 outfits per character (El-Alamy keeps his fixed look).
+- **Businesses with daily income** (paid at 8 AM game time): the tuk-tuk stand, a share in Shehata's stall, the grocery, the café, the service center (also halves upgrade prices), the gas station, the TV station, the mall.
+- **Missions with an entry cost:** «مقوّي الواي فاي النووي» (100), «الفانوس النووي» (150), «الأسانسير النووي» (200), «عيد ميلاد أم حمادة» (300).
+- Garage upgrades at El-Alamy's desk, tea at the café, snacks at the grocery. Fines: slipper capture, drowning.
+
 ## Tests
 `/tmp`-style Playwright scripts drove every mission from start to finish (auto-teleport per step), a real race with an autopilot, the taxi job, chaos and the slipper chase. No page errors.
 Draw calls are about 350 around the neighbourhood. The render resolution drops automatically if a phone runs below 26 fps.
