@@ -5,8 +5,8 @@ const cv = document.createElement('canvas'); cv.width = CW * COLS; cv.height = C
 const g = cv.getContext('2d');
 export const atlasTex = new THREE.CanvasTexture(cv);
 atlasTex.magFilter = THREE.NearestFilter; atlasTex.minFilter = THREE.LinearFilter; atlasTex.generateMipmaps = false; atlasTex.colorSpace = THREE.SRGBColorSpace;
-export const signMat = new THREE.MeshLambertMaterial({ map: atlasTex });
-export const signMatDouble = new THREE.MeshLambertMaterial({ map: atlasTex, side: THREE.DoubleSide });
+export const signMat = new THREE.MeshLambertMaterial({ map: atlasTex, emissiveMap: atlasTex, emissive: 0xffffff, emissiveIntensity: 0 });
+export const signMatDouble = new THREE.MeshLambertMaterial({ map: atlasTex, emissiveMap: atlasTex, emissive: 0xffffff, emissiveIntensity: 0, side: THREE.DoubleSide });
 export const signMatGlow = new THREE.MeshBasicMaterial({ map: atlasTex });
 const cache = new Map(); let n = 0;
 export function signUV(text, bg = '#1f6fd8', fg = '#ffffff', size = 40) {

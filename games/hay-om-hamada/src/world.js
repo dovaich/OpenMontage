@@ -21,6 +21,8 @@ export const sidewalkLoops = []; // pedestrian loops (rect centre lines)
 export const ramps = [];       // stunt jumps {x,z,ar,id}
 export const lampBulbMat = new THREE.MeshBasicMaterial({ color: 0xd8d8c8 });
 export const facadeMats = [];
+export const lampSpots = [];   // bulb positions, for the night lighting
+export const glowMats = [];    // materials that glow at night (shop fronts)
 
 // ---------- spatial hash for colliders and raised ground ----------
 const CELL = 16, hashC = new Map(), hashR = new Map();
@@ -94,7 +96,7 @@ let facadeData, shopMat, roofMat, tileMat, plazaMat, grassMat, sandMat, concrete
 const clothCols = [0xd8231b, 0x1f5fd8, 0xffd400, 0xf0f0f0, 0x2f8f3a, 0xec86ad];
 function initMaterials() {
   facadeData = PALETTES.map((p, i) => { const { day, night } = facadePair(p, 11 + i * 7); const m = new THREE.MeshLambertMaterial({ map: day, emissiveMap: night, emissive: 0xffffff, emissiveIntensity: 0, flatShading: true }); facadeMats.push(m); return m; });
-  shopMat = mat(0xffffff, { map: shopAtlas() });
+  { const sa = shopAtlas(); shopMat = new THREE.MeshLambertMaterial({ map: sa, emissiveMap: sa, emissive: 0xffd8a0, emissiveIntensity: 0, flatShading: true }); glowMats.push(shopMat); }
   roofMat = mat(0xffffff, { map: canvasTex(16, 16, (g) => { g.fillStyle = '#8a8478'; g.fillRect(0, 0, 16, 16); g.fillStyle = '#7a7468'; g.fillRect(0, 8, 16, 1); g.fillStyle = '#9a9488'; g.fillRect(3, 3, 4, 2); }, [1, 1]) });
   tileMat = mat(0xffffff, { map: canvasTex(16, 16, (g) => { g.fillStyle = '#b8ac98'; g.fillRect(0, 0, 16, 16); g.fillStyle = '#9a8e7a'; g.fillRect(0, 7, 16, 1); g.fillRect(7, 0, 1, 16); g.fillStyle = '#c8bca8'; g.fillRect(2, 2, 3, 2); }, [1, 1]) });
   plazaMat = mat(0xffffff, { map: canvasTex(32, 32, (g) => { g.fillStyle = '#c8b48a'; g.fillRect(0, 0, 32, 32); g.fillStyle = '#a8946a'; for (let i = 0; i < 32; i += 8) { g.fillRect(i, 0, 1, 32); g.fillRect(0, i, 32, 1); } g.fillStyle = '#d8c49a'; g.fillRect(3, 3, 3, 3); g.fillRect(19, 19, 3, 3); }, [1, 1]) });
@@ -180,6 +182,7 @@ function lamp(x, z, ry) {
   const arm = new THREE.Group(); arm.position.set(x, 5.1, z); arm.rotation.y = ry; S.add(arm);
   mesh(box(1.2, 0.08, 0.08), mat(0x3a3a3e), 0.6, 0, 0, arm); mesh(box(0.45, 0.14, 0.25), mat(0x3a3a3e), 1.2, -0.05, 0, arm);
   mesh(box(0.38, 0.03, 0.2), lampBulbMat, 1.2, -0.13, 0, arm);
+  lampSpots.push({ x: x + Math.cos(ry) * 1.2, z: z - Math.sin(ry) * 1.2, y: 4.95 });
   addCircle(x, z, 0.18);
 }
 function tree(x, z, s = 1) {

@@ -5,7 +5,9 @@ import './style.css';
 import * as THREE from 'three';
 import { clamp, lerp, V, POSE0, applyPose, faceTexture, mesh, box, M } from './kit.js';
 import { CAST, CAST_BY_ID, buildCharacter } from './chars.js';
-import { buildWorld, cullChunks, queryColliders, zones, mapRects, spawns, groundAt, doors, ramps, facadeMats, lampBulbMat, RIVER, inRiver } from './world.js';
+import { buildWorld, cullChunks, queryColliders, zones, mapRects, spawns, groundAt, doors, ramps, facadeMats, lampBulbMat, RIVER, inRiver, lampSpots, glowMats } from './world.js';
+import { createNightLights } from './nightlights.js';
+import { signMat, signMatDouble } from './atlas.js';
 import { Vehicles } from './vehicles.js';
 import { Peds, Football } from './peds.js';
 import { buildInteriors } from './interiors.js';
@@ -83,7 +85,7 @@ function readInput() {
 
 // ---------- world ----------
 const sound = new Sound();
-let world, interiors, vehicles, peds, football, game;
+let world, interiors, vehicles, peds, football, game, nightFx, nightNow = 0;
 const actors = []; const byId = {};
 let player = null, interior = null;
 const people = [];
@@ -382,13 +384,15 @@ function updateDayNight(dt) {
   const day = clamp(elev * 2.2 + 0.25, 0, 1), dusk = clamp(1 - Math.abs(elev) * 4, 0, 1) * (h > 4 && h < 21 ? 1 : 0);
   sun.intensity = interior ? 0.6 : 0.22 + day * 1.3; sun.color.copy(tmpC.set(0x6070c0).lerp(tmpC2.set(0xfff0d0), day)).lerp(tmpC2.set(0xff9a50), dusk);
   sun.position.set(Math.cos((h - 6) / 12 * Math.PI) * 60, 20 + Math.max(0, elev) * 60, 25);
-  hemi.intensity = interior ? 1.1 : 0.2 + day * 0.95; hemi.color.copy(tmpC.set(0x5060a0).lerp(tmpC2.set(0xdcecff), day));
+  hemi.intensity = interior ? 1.1 : 0.27 + day * 0.88; hemi.color.copy(tmpC.set(0x5060a0).lerp(tmpC2.set(0xdcecff), day));
   world.dyn.sky.material.color.copy(tmpC.copy(skyNight).lerp(skyDay, day)).lerp(skyDusk, dusk * 0.6);
   scene.fog.color.copy(tmpC.copy(fogNight).lerp(fogDay, day)).lerp(fogDusk, dusk * 0.5);
   world.dyn.skyline.material.color.copy(tmpC.set(0x404060).lerp(skyDay, day));
   world.dyn.pyramids.children[0].material.color.copy(tmpC.set(0x3a3048).lerp(tmpC2.set(0xd8b070), day));
-  const night = clamp(1 - day * 1.6, 0, 1);
-  for (const m of facadeMats) m.emissiveIntensity = night * 0.9;
+  const night = clamp(1 - day * 1.6, 0, 1); nightNow = night;
+  for (const m of facadeMats) m.emissiveIntensity = night * 1.0;
+  for (const m of glowMats) m.emissiveIntensity = night * 0.55;
+  signMat.emissiveIntensity = signMatDouble.emissiveIntensity = night * 0.65;
   lampBulbMat.color.copy(tmpC.set(0xd8d8c8).lerp(tmpC2.set(0xfff0a0), night));
   world.dyn.water.material.color.copy(tmpC.set(0x101a30).lerp(tmpC2.set(0x3a7aa8), day));
   const hh = Math.floor(h), mm = Math.floor((h - hh) * 6) * 10;
@@ -567,6 +571,7 @@ async function boot() {
   await Promise.all([document.fonts.load('22px Lalezar'), document.fonts.load('14px "Press Start 2P"')]).catch(() => {});
   world = buildWorld(scene);
   interiors = buildInteriors(scene);
+  nightFx = createNightLights(scene, lampSpots);
   vehicles = new Vehicles(scene, {
     crash: (v, o, imp) => { if (v === vehicleOf() || o === vehicleOf()) { sound.crash(imp); shakeT = 0.25; shakeAmp = Math.min(0.3, imp * 0.02); addChaos(o && o.ai ? 0.35 : 0.1); game.emit('crash', { v, o, imp }); if (o && o.ai) bark({ pos: o.pos, isPed: true }, ['يا عم بص قدامك!', 'العربية!!', 'هتدفع التصليح!'][Math.floor(Math.random() * 3)]); } },
     knock: (p, v, dx, dz, spd) => { knockPerson(p, dx, dz, spd); if (v === vehicleOf()) { addChaos(p.isActor ? 0.6 : 0.5); S.knocked++; game.emit('knock', p); } },
@@ -587,7 +592,7 @@ async function boot() {
   camTarget.set(player.pos.x, player.pos.y + 1.55, player.pos.z);
   addMoney(0); updateDriveUI(); updateDayNight(0);
   const ctx0 = frameCtx(0, true); for (let i = 0; i < 12; i++) { vehicles.update(0.016, ctx0); peds.update(0.016, ctx0); }
-  window.__game = { scene, renderer, camera, actors, vehicles, peds, world, G, game, player: () => player, switchTo, setInput: (x, y, run) => { joy.x = x; joy.y = y; input.keys.clear(); if (run) input.keys.add('ShiftLeft'); }, setCam: (yaw, pitch) => { camYaw = yaw; if (pitch !== undefined) camPitch = pitch; }, teleport: (x, z, ry) => G.teleport(x, z, ry), enter: (v) => enterVehicle(v), exit: () => exitVehicle(true), ctx: () => ctxAction, doContext, setTime: (h) => { S.time = h; }, S, red: (on) => { input.red = on; } };
+  window.__game = { nightFx, scene, renderer, camera, actors, vehicles, peds, world, G, game, player: () => player, switchTo, setInput: (x, y, run) => { joy.x = x; joy.y = y; input.keys.clear(); if (run) input.keys.add('ShiftLeft'); }, setCam: (yaw, pitch) => { camYaw = yaw; if (pitch !== undefined) camPitch = pitch; }, teleport: (x, z, ry) => G.teleport(x, z, ry), enter: (v) => enterVehicle(v), exit: () => exitVehicle(true), ctx: () => ctxAction, doContext, setTime: (h) => { S.time = h; }, S, red: (on) => { input.red = on; } };
   $('loading').classList.add('hide'); $('startBtn').classList.add('on');
   if (store.get()) { $('startBtn').textContent = 'كمّل'; $('newBtn').classList.add('on'); }
   renderer.setAnimationLoop(loop);
@@ -632,6 +637,7 @@ function loop() {
   updatePuffs(dt); updateBarks(dt);
   updateCamera(dt);
   cullChunks(camera.position.x, camera.position.z, FOG_FAR);
+  nightFx.update(dt, nightNow, camera.position, vehicles.list, vehicleOf(), !!interior);
   world.dyn.skyline.position.x = camera.position.x; world.dyn.skyline.position.z = camera.position.z;
   world.dyn.sky.position.copy(camera.position);
   for (const f of world.dyn.feluccas) { f.z += f.v * dt; if (f.z > 200) f.z = -200; f.g.position.set(f.x, -1.0 + Math.sin(t + f.x) * 0.08, f.z); f.g.rotation.set(Math.sin(t * 0.8 + f.x) * 0.04, -Math.PI / 2, 0); }
