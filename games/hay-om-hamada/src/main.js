@@ -357,7 +357,9 @@ function updateCamera(dt) {
   if (v && look.id === null) { look.t -= dt; if (look.t <= 0) { camYaw += angDiff(camYaw, v.yaw - Math.PI / 2 + (v.speed < -1 ? Math.PI : 0)) * Math.min(1, dt * 3); camPitch = lerp(camPitch, 0.22, dt * 2); } }
   const cx = Math.sin(camYaw) * Math.cos(camPitch) * dist, cz = Math.cos(camYaw) * Math.cos(camPitch) * dist, cy = Math.sin(camPitch) * dist;
   let t = 1;
-  for (const b of queryColliders(camTarget.x + cx / 2, camTarget.z + cz / 2, dist / 2 + 1, camQ)) { if (b.circle || b.h < 1.5) continue; const bt = rayBoxT(camTarget.x, camTarget.z, cx, cz, { x0: b.x0 - 0.25, x1: b.x1 + 0.25, z0: b.z0 - 0.25, z1: b.z1 + 0.25 }); if (bt < t && camTarget.y + cy * bt < b.h) t = bt; }
+  for (const b of queryColliders(camTarget.x + cx / 2, camTarget.z + cz / 2, dist / 2 + 2, camQ)) {
+    if (b.circle) { if (!b.canopy) continue; const bt = rayBoxT(camTarget.x, camTarget.z, cx, cz, { x0: b.x - b.canopy, x1: b.x + b.canopy, z0: b.z - b.canopy, z1: b.z + b.canopy }); const y = camTarget.y + cy * bt; if (bt < t && bt > 0.05 && y < b.top && y > b.bottom) t = bt; continue; }
+    if (b.h < 1.5) continue; const bt = rayBoxT(camTarget.x, camTarget.z, cx, cz, { x0: b.x0 - 0.25, x1: b.x1 + 0.25, z0: b.z0 - 0.25, z1: b.z1 + 0.25 }); if (bt < t && camTarget.y + cy * bt < b.h) t = bt; }
   t = Math.max(0.15, t - 0.02);
   let shx = 0, shy = 0; if (shakeT > 0) { shakeT -= dt; shx = (Math.random() - 0.5) * shakeAmp; shy = (Math.random() - 0.5) * shakeAmp; }
   camera.position.set(camTarget.x + cx * t + shx, Math.max(base.y + 0.4, camTarget.y + cy * t) + shy, camTarget.z + cz * t);

@@ -186,13 +186,13 @@ function tree(x, z, s = 1) {
   mesh(cyl(0.12 * s, 0.18 * s, 2.2 * s, 6), mat(0x6a4a2a), x, 1.1 * s, z, S);
   const r = rng(Math.floor(Math.abs(x * 31 + z * 17) + 999));
   for (let i = 0; i < 4; i++) mesh(new THREE.IcosahedronGeometry((0.8 + r() * 0.4) * s, 0), mat(i % 2 ? 0x3f7a2e : 0x4f8a3a), x + (r() - 0.5) * 1.2 * s, (2.6 + r() * 0.8) * s, z + (r() - 0.5) * 1.2 * s, S);
-  addCircle(x, z, 0.25 * s);
+  const c = addCircle(x, z, 0.25 * s); c.canopy = 1.3 * s; c.top = 3.8 * s; c.bottom = 1.8 * s;
 }
 function palm(x, z, h = 6) {
   for (let i = 0; i < 6; i++) { const seg = mesh(cyl(0.16, 0.2, h / 6 + 0.05, 6), mat(i % 2 ? 0x7a5a32 : 0x6a4a2a), x + Math.sin(i * 0.3) * 0.08 * i, h / 12 + i * h / 6, z, S); seg.rotation.z = 0.03 * i; }
   const top = new THREE.Group(); top.position.set(x + 0.4, h, z); S.add(top);
   for (let i = 0; i < 8; i++) { const fr = mesh(new THREE.ConeGeometry(0.28, 2.6, 4), mat(i % 2 ? 0x2f7a2a : 0x3f8a32), 0, 0, 0, top); fr.rotation.set(0, i * Math.PI / 4, 0); fr.rotateZ(Math.PI / 2 + 0.5); fr.translateY(1.2); }
-  addCircle(x, z, 0.25);
+  const c = addCircle(x, z, 0.25); c.canopy = 1.8; c.top = h + 1; c.bottom = h - 1;
 }
 const triGeo = (() => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute([-0.18, 0, 0, 0.18, 0, 0, 0, -0.4, 0], 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute([0, 0, 1, 0, 0, 1, 0, 0, 1], 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 1, 1, 1, 0.5, 0], 2)); return g; })();
 let flagMats;

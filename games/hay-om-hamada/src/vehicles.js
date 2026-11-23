@@ -19,7 +19,7 @@ export class Vehicles {
     const m = buildCarModel(type, color ?? rnd(CAR_COLORS), opts.load ? { load: opts.load } : undefined);
     const root = new THREE.Group(); root.add(m.g); this.scene.add(root);
     const T = CAR_TYPES[type];
-    const v = { kind: 'car', type, ar: T.ar, root, body: m.g, wheels: m.wheels, L: m.L, W: m.W, H: m.H, seat: m.seat, max: T.max, acc: T.acc, mass: T.mass,
+    const v = { kind: 'car', type, ar: T.ar, root, body: m.g, dummy: m.dummy, wheels: m.wheels, L: m.L, W: m.W, H: m.H, seat: m.seat, max: T.max, acc: T.acc, mass: T.mass,
       pos: new THREE.Vector3(), yaw: 0, speed: 0, steer: 0, vy: 0, onGround: true, pitch: 0, roll: 0, ai: null, driver: null, wheelSign: 1, damage: 0, honkT: 0, stuckT: 0, crashCool: 0, lastHitT: 0 };
     this.list.push(v); return v;
   }
@@ -233,6 +233,7 @@ export class Vehicles {
     for (const v of this.list) {
       const far = Math.hypot(v.pos.x - px, v.pos.z - pz);
       v.root.visible = far < ctx.viewDist * 0.8;
+      if (v.dummy) v.dummy.visible = !!v.ai || (!!v.race && v !== this.player);
       if (v.ai) { if (far < 140) this.updateAI(v, dt, ctx); }
       else if (v !== this.player) { if (Math.abs(v.speed) > 0.05 || !v.onGround) this.drive(v, 0, 0, true, dt); }
       if (Math.abs(v.speed) > 1) this.hitPeople(v, ctx.people);

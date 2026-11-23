@@ -6,6 +6,7 @@ import { signMesh } from './atlas.js';
 
 const glassMat = new THREE.MeshPhongMaterial({ color: 0x9fc8e0, transparent: true, opacity: 0.55, shininess: 120 });
 const darkGlass = M(0x2a3a4a);
+const cabGlass = new THREE.MeshPhongMaterial({ color: 0x1a2c40, transparent: true, opacity: 0.55, shininess: 120, specular: 0x888888, flatShading: true });
 const chrome = () => P(0xd8d8e0, { shininess: 140, specular: 0xffffff });
 const tyre = M(0x151515), hub = P(0xc8c8d0, { shininess: 90 });
 const headMat = M(0xfff2c0);
@@ -22,8 +23,9 @@ function wedge(L, H, W, sf, sb, sw = 0.08) {
 function wheel(parent, x, z, r, w) {
   const steer = new THREE.Group(); steer.position.set(x, r, z); parent.add(steer);
   const spin = new THREE.Group(); steer.add(spin);
-  const t = mesh(cyl(r, r, w, 10), tyre, 0, 0, 0, spin); t.rotation.x = Math.PI / 2;
-  const h = mesh(cyl(r * 0.55, r * 0.55, w + 0.02, 8), hub, 0, 0, 0, spin); h.rotation.x = Math.PI / 2;
+  const t = mesh(cyl(r, r, w, 14), tyre, 0, 0, 0, spin); t.rotation.x = Math.PI / 2;
+  const h = mesh(cyl(r * 0.55, r * 0.55, w + 0.02, 12), hub, 0, 0, 0, spin); h.rotation.x = Math.PI / 2;
+  const c = mesh(cyl(r * 0.2, r * 0.2, w + 0.05, 8), M(0x444444), 0, 0, 0, spin); c.rotation.x = Math.PI / 2;
   mesh(box(r * 0.9, 0.06, w + 0.04), M(0x555555), 0, 0, 0, spin);
   return { steer, spin, r, front: x > 0 };
 }
@@ -45,14 +47,20 @@ function car(o) {
   // hood/trunk slight bevel
   mesh(box(L - 0.2, 0.08, W - 0.08), body, 0, by + bh / 2 + 0.02, 0, g);
   const c0 = -L / 2 + o.trunk, c1 = L / 2 - o.hood, cl = c1 - c0, ch = o.cabinH ?? 0.62;
-  const cab = mesh(wedge(cl, ch, W - 0.1, o.sf ?? 0.42, o.sb ?? 0.3), darkGlass, (c0 + c1) / 2, by + bh / 2 + ch / 2 + 0.03, 0, g);
+  const cab = mesh(wedge(cl, ch, W - 0.1, o.sf ?? 0.42, o.sb ?? 0.3), cabGlass, (c0 + c1) / 2, by + bh / 2 + ch / 2 + 0.03, 0, g);
+  // interior: front seats, back bench, dashboard, steering wheel
+  const seatM = M(o.seatColor ?? 0x6a2a24);
+  for (const z of [-W * 0.22, W * 0.22]) { mesh(box(0.5, 0.12, 0.5), seatM, (c0 + c1) / 2 + 0.15, by + bh / 2 - 0.05, z, g); mesh(box(0.12, 0.6, 0.5), seatM, (c0 + c1) / 2 - 0.12, by + bh / 2 + 0.25, z, g); }
+  mesh(box(0.5, 0.12, W - 0.4), seatM, (c0 + c1) / 2 - 0.75, by + bh / 2 - 0.05, 0, g);
+  mesh(box(0.3, 0.25, W - 0.3), M(0x222222), c1 - 0.35, by + bh / 2 + 0.12, 0, g);
+  { const sw = mesh(new THREE.TorusGeometry(0.15, 0.025, 4, 10), M(0x111111), c1 - 0.55, by + bh / 2 + 0.3, -W * 0.22, g); sw.rotation.y = Math.PI / 2; sw.rotation.x = 0.4; }
   void cab;
   const rl = cl - (o.sf ?? 0.42) - (o.sb ?? 0.3);
   mesh(box(rl + 0.06, 0.07, W - 0.22), roof, (c0 + c1) / 2 + ((o.sb ?? 0.3) - (o.sf ?? 0.42)) / 2, by + bh / 2 + ch + 0.05, 0, g);
   // pillars
   for (const s of [-1, 1]) {
     mesh(box(0.08, ch, 0.06), roof, (c0 + c1) / 2 + 0.02, by + bh / 2 + ch / 2 + 0.03, s * (W / 2 - 0.1), g);
-    mesh(box(0.06, 0.06, cl - 0.2), roof, (c0 + c1) / 2, by + bh / 2 + 0.05, s * (W / 2 - 0.04), g);
+    mesh(box(cl - 0.2, 0.06, 0.06), roof, (c0 + c1) / 2, by + bh / 2 + 0.05, s * (W / 2 - 0.04), g); // window sill
   }
   // bumpers, grille, lights, plates
   const ch2 = chrome();
@@ -165,8 +173,16 @@ export const CAR_COLORS = [0xf0f0f0, 0x2a2a2a, 0x8a1a1a, 0x1f3f7a, 0xc8c0a0, 0x5
 export function buildCarModel(type, color, opts) {
   const T = CAR_TYPES[type];
   const m = T.make(color, opts);
-  const keep = new Set(m.wheels.map(w => w.steer));
-  bakeModel(m.g, keep);
+  // a simple seated driver for traffic (hidden when the car is parked or you drive it)
+  const dummy = new THREE.Group(); dummy.position.set(m.seat.x, m.seat.y, m.seat.z); m.g.add(dummy);
+  const skin = [0x8a5a3a, 0xa87048, 0xb98058, 0xc98d5f][Math.floor(Math.random() * 4)], shirt = [0xf0f0f0, 0x1f5fd8, 0x3a3a3a, 0xd8231b, 0x8ab0d8][Math.floor(Math.random() * 5)];
+  mesh(box(0.42, 0.58, 0.5), M(shirt), 0, 0.52, 0, dummy);
+  mesh(new THREE.SphereGeometry(0.22, 8, 6), M(skin), 0.02, 1.04, 0, dummy);
+  mesh(new THREE.SphereGeometry(0.23, 8, 4, 0, Math.PI * 2, 0, Math.PI * 0.45), M(Math.random() < 0.3 ? 0xf2f2f2 : 0x17110c), 0, 1.08, 0, dummy);
+  for (const z of [-0.26, 0.26]) { const a = mesh(box(0.42, 0.12, 0.12), M(shirt), 0.25, 0.66, z, dummy); a.rotation.z = -0.3; }
+  m.dummy = dummy;
+  const keep = new Set([...m.wheels.map(w => w.steer), dummy]);
+  bakeModel(m.g, keep); bakeModel(dummy);
   for (const w of m.wheels) bakeModel(w.spin);
   return m;
 }
