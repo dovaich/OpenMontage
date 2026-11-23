@@ -138,7 +138,7 @@ export function createGameplay(G) {
           left++; if (d < nd) { nd = d; nearest = it; }
         }
         st.target = nearest ? { x: nearest.x, z: nearest.z, y: nearest.y > 3 ? nearest.y : undefined } : null;
-        setObjective(`${st.s.text} (${ar(st.items.length - left)}/${ar(st.items.length)})`);
+        setObjective(`${st.s.text} (${ar(st.items.length - left)}/${ar(st.items.length)})${st.s.time ? ' — ' + ar(Math.max(0, Math.ceil(st.s.time - st.t))) + ' ث' : ''}`);
         return left === 0;
       },
     },
