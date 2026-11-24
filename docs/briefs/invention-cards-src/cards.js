@@ -262,6 +262,37 @@ function nuclearBlanket(s) {
   g.rotation.y = -0.35; return { g, cam: [V(0.9, 1.5, 2.2), V(0.0, 0.2, 0.0)] };
 }
 
+function nuclearUmbrella(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(cyl(0.025, 0.025, 1.6, 6), P(0x666a70), 0, 0.8, 0, g);
+  mesh(new THREE.ConeGeometry(0.8, 0.28, 10, 1, true), P(0xe8ecf2, { side: THREE.DoubleSide }), 0, 1.62, 0, g);
+  mesh(cyl(0.04, 0.04, 0.12, 6), P(0xc9ccd1), 0, 1.8, 0, g);
+  const d = mesh(cyl(0.12, 0.09, 0.3, 10), P(0xff5fa8, { shininess: 80 }), 0.18, 1.3, 0, g); d.rotation.z = Math.PI / 2;
+  mesh(cyl(0.05, 0.05, 0.22, 8), P(0xff5fa8), 0.22, 1.12, 0, g);
+  mesh(box(0.14, 0.14, 0.01), new THREE.MeshBasicMaterial({ color: 0xffdd33 }), 0, 1.0, 0.03, g);
+  mesh(box(0.05, 0.05, 0.012), M(0x111111), 0, 1.0, 0.04, g);
+  for (let i = 0; i < 14; i++) mesh(box(0.012, 0.12, 0.012), new THREE.MeshBasicMaterial({ color: 0x8fd0ff }), -0.9 + (i % 7) * 0.3, 2.0 + Math.floor(i / 7) * 0.35 + (i % 2) * 0.1, -0.2 + (i % 3) * 0.2, g);
+  mesh(cyl(0.025, 0.025, 0.25, 6), P(0x333333), 0, 0.12, 0, g).rotation.z = 0.3;
+  return { g, cam: [V(1.3, 1.6, 2.4), V(0.0, 1.15, 0.0)] };
+}
+function chickenMachine(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(0.9, 0.7, 0.6), P(0xc9ccd1), 0, 0.35, 0, g); mesh(box(0.92, 0.05, 0.62), P(0x2f6fd8), 0, 0.72, 0, g);
+  const f = mesh(new THREE.ConeGeometry(0.3, 0.4, 8, 1, true), P(0xb0b4ba, { side: THREE.DoubleSide }), -0.15, 0.95, 0, g); f.rotation.x = Math.PI;
+  mesh(box(0.3, 0.06, 0.3), P(0x888c92), 0.3, 0.2, 0.42, g).rotation.x = -0.4;
+  mesh(cyl(0.03, 0.03, 0.3, 6), P(0x444444), 0.5, 0.45, 0, g).rotation.z = Math.PI / 2; mesh(box(0.04, 0.25, 0.04), P(0xd8231b), 0.65, 0.55, 0, g);
+  mesh(new THREE.SphereGeometry(0.07, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff3020 }), 0.25, 0.82, 0.1, g);
+  mesh(box(0.2, 0.2, 0.01), new THREE.MeshBasicMaterial({ color: 0xffdd33 }), 0.2, 0.45, 0.305, g); mesh(box(0.07, 0.07, 0.012), M(0x111111), 0.2, 0.45, 0.31, g);
+  mesh(new THREE.SphereGeometry(0.1, 7, 5), P(0xc8a060), -0.15, 1.2, 0, g).scale.set(1.3, 0.9, 1);
+  const c = new THREE.Group(); c.position.set(0.45, 0.06, 0.75); g.add(c);
+  mesh(new THREE.SphereGeometry(0.16, 7, 5), P(0xc8a060), 0, 0.18, 0, c).scale.set(1.2, 1, 1);
+  mesh(new THREE.ConeGeometry(0.04, 0.09, 4), P(0xff9a1a), 0.2, 0.22, 0, c).rotation.z = -Math.PI / 2;
+  mesh(box(0.05, 0.08, 0.03), P(0xd8231b), 0.1, 0.36, 0, c);
+  mesh(box(0.03, 0.03, 0.03), M(0x111111), 0.15, 0.27, 0.07, c);
+  for (const z of [-0.06, 0.06]) mesh(box(0.02, 0.1, 0.02), P(0xff9a1a), 0, 0.02, z, c);
+  g.rotation.y = -0.35; return { g, cam: [V(0.9, 1.3, 2.2), V(0.1, 0.55, 0.1)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -303,6 +334,12 @@ const CARDS = [
   { file: 'card_nuclear_blanket', build: nuclearBlanket, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'البطانية النووية ٣٠٠٠', en: 'NUCLEAR BLANKET 3000',
     stats: [['HEAT', 'الدفا', 6], ['SAFETY', 'الأمان', 0], ['FIRE', 'الولعة', 5], ['MOM STEAL', 'خطف أم حمادة', 5]],
     parts: 'بطانية + مكوة + سشوار + كاتل الشاي', quote: '«ده موديل الشتا... ادخل تحتها»', result: 'النتيجة: أم حمادة خدتها', ep: 'البطانية النووية' },
+  { file: 'card_nuclear_umbrella', build: nuclearUmbrella, rarity: ['EPIC', 'ملحمي', '#b04fff', '#22003a'], ar: 'المظلة النووية ٣٠٠٠', en: 'NUCLEAR UMBRELLA 3000',
+    stats: [['DRY', 'التنشيف', 1], ['LIFT', 'الطيران', 6], ['SAFETY', 'الأمان', 0], ['LANDING', 'الهبوط', 0]],
+    parts: 'دش + سشوار + عصاية مقشة', quote: '«بينشّف المطرة قبل ما توصلك!»', result: 'النتيجة: حمادة طار ووقع في الطشت', ep: 'المظلة النووية' },
+  { file: 'card_chicken_machine', build: chickenMachine, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'ماكينة الفراخ النووية ٣٠٠٠', en: 'NUCLEAR CHICKEN MACHINE 3000',
+    stats: [['CHICKENS', 'الفراخ', 6], ['TASTE', 'الطعم', 1], ['SAFETY', 'الأمان', 1], ['SAVINGS', 'التوفير', 5]],
+    parts: 'غسالة قديمة + قمع + منفلة + لمبة حمرا', quote: '«تحط بطاطساية... تطلع فرخة!»', result: 'النتيجة: ٣٠ فرخة بطاطس في الصالة', ep: 'ماكينة الفراخ النووية' },
 ];
 
 // ---------- 2D card ----------

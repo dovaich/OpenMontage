@@ -1,0 +1,1 @@
+# umbrella: vertical episode «المظلة النووية» (rain-salary batch, Nov 2026). Linear, with comment-CTA + balcony-nights counter 41→42. Voices: incoming/rain-salary-batch r1-r3. Build: see NEW_CHAT_START.md
