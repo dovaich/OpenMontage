@@ -1,0 +1,4 @@
+﻿r1.wav 33.0 Recording 1 «المظلة النووية» + ending: Hamada (Puck) + Ibrahim (Orus), blocks 1-6, Gemini 3.8 Flash TTS
+r2.wav 25.1 Recording 2 «ماكينة الفراخ النووية»: Om Hamada (Kore) + Ibrahim (Orus), blocks 1-6
+r3.wav 16.5 Recording 3: Om Hamada (Kore) + English announcer (Algenib), blocks 1-2
+Note: 24 kHz mono 16-bit PCM. WAV header byte-rate fixed to 48000 (was 96000) and block-align to 2 on 2026-11-24.
