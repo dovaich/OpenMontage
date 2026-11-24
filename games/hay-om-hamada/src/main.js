@@ -616,6 +616,13 @@ $('startBtn').addEventListener('click', async () => {
   game.onStart();
 });
 $('newBtn').addEventListener('click', () => { store.clear(); location.reload(); });
+// app in the background (home button, screen off, another app): stop sound and the game loop, save; resume when back
+function onHidden() { sound.suspend(); renderer.setAnimationLoop(null); if (started) saveState(); }
+function onShown() { clock.getDelta(); if (started) sound.resume(); renderer.setAnimationLoop(loop); }
+document.addEventListener('visibilitychange', () => (document.hidden ? onHidden() : onShown()));
+window.__appPause = onHidden; window.__appResume = onShown; // called by the Android app (MainActivity)
+window.addEventListener('pagehide', onHidden);
+window.addEventListener('blur', () => { if (document.hidden) onHidden(); });
 
 function frameCtx(t, initial = false) {
   const focus = G.pos(); const inside = !!interior;

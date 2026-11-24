@@ -13,6 +13,8 @@ export class Sound {
     // street ambience: filtered noise
     const n = this.noiseBuf(2); const src = c.createBufferSource(); src.buffer = n; src.loop = true; const nf = c.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = 500; nf.Q.value = 0.4; const ng = c.createGain(); ng.gain.value = 0.025; src.connect(nf); nf.connect(ng); ng.connect(this.master); src.start(); this.amb = ng;
   }
+  suspend() { try { this.ctx?.suspend(); } catch { /* */ } }
+  resume() { try { this.ctx?.resume(); } catch { /* */ } }
   noiseBuf(sec) { const c = this.ctx, b = c.createBuffer(1, c.sampleRate * sec, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; return b; }
   setEngine(active, speed, kind) {
     if (!this.ctx || !this.engine) return; const t = this.ctx.currentTime, e = this.engine;

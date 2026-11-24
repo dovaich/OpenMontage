@@ -17,6 +17,19 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if (getBridge() != null) getBridge().getWebView().evaluateJavascript("window.__appPause && window.__appPause()", null);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getBridge() != null) getBridge().getWebView().evaluateJavascript("window.__appResume && window.__appResume()", null);
+        hideBars();
+    }
+
+    @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) hideBars();
