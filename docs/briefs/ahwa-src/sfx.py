@@ -5,7 +5,7 @@ import sys, wave, json
 import numpy as np
 
 SR = 44100
-ANC = [[0, 0], [44.8, 44.8]]
+ANC = [[0, 0], [44.4, 44.4]]
 def W(o):  # scene (old) time -> output time
     for (n0, o0), (n1, o1) in zip(ANC, ANC[1:]):
         if o <= o1: return n0 + (o - o0) * (n1 - n0) / max(1e-6, o1 - o0)
@@ -48,10 +48,10 @@ r = np.random.RandomState(41)
 def jingle(t0, notes, step=0.07, g=0.08):
     for j, m in enumerate(notes): put(sfx, sq(note(m), 0.1, 0.25) * env_adsr(int(0.1 * SR)), t0 + j * step, g)
 def clack(t0, g=0.3): d = 0.03; put(sfx, lp(noise(d), 0.8) * np.exp(-tt(d) * 150), t0, g)
-L = {2: (3.99, 7.65), 3: (8.25, 11.71), 4: (12.01, 14.03), 5: (14.28, 17.39), 6: (17.74, 20.0), 7: (20.35, 23.1), 8: (24.0, 27.16), 9: (27.76, 29.35), 10: (30.15, 32.85)}
-T_CAFE = 3.84; T_BTN = 7.09; T_OFF = 12.31; T_REVEAL = 26.26; T_BALC = 29.9; T_ANNO = 33.2
-LIES = [5.37, 17.19, 22.9]; T_RESET = 21.54
-home = [(0, T_CAFE), (11.91, 14.18), (17.64, 20.25)]
+L = {2: (3.99, 7.65), 3: (8.25, 11.52), 4: (11.82, 13.84), 5: (14.09, 17.2), 6: (17.55, 19.81), 7: (20.16, 22.91), 8: (23.81, 26.9), 9: (27.5, 29.09), 10: (29.89, 32.59)}
+T_CAFE = 3.84; T_BTN = 7.09; T_OFF = 12.12; T_REVEAL = 26.0; T_BALC = 29.64; T_ANNO = 32.94
+LIES = [5.37, 17.0, 22.71]; T_RESET = 21.35
+home = [(0, T_CAFE), (11.72, 13.99), (17.45, 20.06)]
 def in_home(x): return any(a <= x < b for a, b in home)
 # café ambience: crowd murmur + random cup/dice clinks, outside home shots
 mur = lp(noise(DUR), 0.03) * 0.9 + lp(noise(DUR), 0.12) * 0.3
@@ -83,7 +83,7 @@ put(sfx, lp(noise(0.12), 0.5) * np.exp(-tt(0.12) * 25) + np.sin(2 * np.pi * 120 
 for x in LIES: put(sfx, lp(sq(110, 0.35, 0.5), 0.3) * env_adsr(int(0.35 * SR)), x, 0.12)
 put(sfx, sq(note(84), 0.08, 0.25) * env_adsr(int(0.08 * SR)), T_RESET, 0.07); put(sfx, sq(note(79), 0.08, 0.25) * env_adsr(int(0.08 * SR)), T_RESET + 0.1, 0.07)
 # footsteps of Om Hamada walking in (slippers)
-for j in range(12): put(sfx, lp(noise(0.04), 0.4) * np.exp(-tt(0.04) * 60), 20.55 + j * 0.24, 0.18)
+for j in range(12): put(sfx, lp(noise(0.04), 0.4) * np.exp(-tt(0.04) * 60), 20.36 + j * 0.24, 0.18)
 # reveal sting: dun-dun-DUN
 for j, (m, dd) in enumerate([(45, 0.25), (44, 0.25), (40, 1.2)]): put(sfx, lp(sq(note(m), dd, 0.5), 0.15) * env_adsr(int(dd * SR), 0.005, 0.3), T_REVEAL + j * 0.3, 0.12)
 for j, m in enumerate([58, 57, 56, 53]): put(sfx, lp(sq(note(m), 0.3 if j < 3 else 0.7, 0.5), 0.2) * env_adsr(int((0.3 if j < 3 else 0.7) * SR)), L[9][1] + 0.05 + j * 0.25, 0.05)
