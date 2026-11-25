@@ -133,7 +133,7 @@ Rules for every episode from now on:
    - The AC in a heat wave, and the electricity bill.
    - The results website crashes on results day.
    - The phone falls in the toilet.
-- Abu Samir's AI Studio voice (from «مقوّي الواي فاي النووي ٢»): **Gacrux**.
+- Abu Samir's AI Studio voice: **Algieba** (male). Gacrux came out female in «مولّد أصوات الشغل النووي»; don't use it for him.
 - The vertical template is `docs/briefs/wifi-booster-2-src/`: engine8 at W = 540, H = 960, `drawDialogueV`, and the 1080×1920 ffmpeg chain.
 
 ## Posting schedule (user decision)
