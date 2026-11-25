@@ -1,0 +1,2 @@
+r1.wav 44.4 Charon full VO
+r2.wav 49.4 Algieba full VO
