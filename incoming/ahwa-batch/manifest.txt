@@ -1,0 +1,5 @@
+ahwa-batch — «مولّد أصوات الشغل النووي»
+Recorded 2026-11-25 in Google AI Studio, Gemini 3.8 Flash TTS, multi-speaker (2 speakers), styles and texts exactly as in recording_message.md.
+
+r1.wav  (~31.5 s)  Speaker 1 = Kore (Om Hamada), Speaker 2 = Orus (Ibrahim) — blocks 1-6
+r2.wav  (~22.0 s)  Speaker 1 = Gacrux (Abu Samir), Speaker 2 = Algenib (announcer) — blocks 1-3
