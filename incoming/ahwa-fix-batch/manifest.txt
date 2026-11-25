@@ -1,0 +1,7 @@
+﻿ahwa-fix-batch — «مولّد أصوات الشغل النووي» (re-record of Abu Samir with a male voice)
+Recorded 2026-11-25 in Google AI Studio, Gemini 3.8 Flash TTS, multi-speaker (2 speakers), styles and texts exactly as in recording_message.md.
+
+r1.wav  (~17.8 s, 24 kHz)  Speaker 1 = Algieba (Abu Samir), Speaker 2 = Algenib (announcer) — blocks 1-4
+  approx. timing: block1 0.1-3.3 s | block2 3.9-8.8 s | block3 (whisper) 9.1-12.8 s | block4 13.6-17.4 s
+  pitch check: Abu Samir ~157 Hz shouting / ~110 Hz whisper (male), announcer ~75-80 Hz. No female-range segments.
+  Replaces incoming/ahwa-batch/r2.wav (Gacrux, came out female).
