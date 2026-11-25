@@ -293,6 +293,21 @@ function chickenMachine(s) {
   g.rotation.y = -0.35; return { g, cam: [V(0.9, 1.3, 2.2), V(0.1, 0.55, 0.1)] };
 }
 
+function noiseGen(s) {
+  const g = new THREE.Group(); s.add(g);
+  mesh(box(1.1, 0.55, 0.36), P(0x8a8f96), 0, 0.3, 0, g);
+  for (const x of [-0.3, 0.3]) { mesh(cyl(0.17, 0.17, 0.04, 12), M(0x222222), x, 0.3, 0.18, g).rotation.x = Math.PI / 2; mesh(cyl(0.06, 0.06, 0.05, 8), P(0x555555), x, 0.3, 0.2, g).rotation.x = Math.PI / 2; }
+  mesh(box(0.26, 0.12, 0.03), M(0x223322), 0, 0.46, 0.18, g);
+  mesh(cyl(0.01, 0.01, 0.8, 4), P(0xcccccc), 0.45, 1.0, -0.05, g).rotation.z = -0.3;
+  const h = mesh(new THREE.ConeGeometry(0.17, 0.38, 8, 1, true), P(0xffd400, { side: THREE.DoubleSide }), -0.72, 0.4, 0, g); h.rotation.z = Math.PI / 2;
+  mesh(cyl(0.08, 0.08, 0.06, 10), new THREE.MeshBasicMaterial({ color: 0xd8231b }), 0, 0.6, 0.05, g);
+  const arm = new THREE.Group(); arm.position.set(0.55, 0.5, 0); g.add(arm); arm.rotation.z = -0.5;
+  mesh(box(0.45, 0.035, 0.035), P(0x6a4220), 0.22, 0, 0, arm); mesh(box(0.1, 0.14, 0.08), P(0x555555), 0.44, -0.04, 0, arm);
+  mesh(cyl(0.14, 0.14, 0.03, 10), P(0x9a9aa2, { shininess: 80 }), 0.95, 0.05, 0, g);
+  mesh(box(0.2, 0.2, 0.01), new THREE.MeshBasicMaterial({ color: 0xffd400 }), 0, 0.15, 0.185, g); mesh(box(0.07, 0.07, 0.012), M(0x111111), 0, 0.15, 0.19, g);
+  g.rotation.y = -0.3; return { g, cam: [V(0.9, 1.3, 2.3), V(0.1, 0.4, 0.0)] };
+}
+
 // ---------- card data ----------
 const CARDS = [
   { file: 'card_jet_dishwasher', build: jetDishwasher, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'غسالة المواعين النفاثة', en: 'JET DISHWASHER 3000',
@@ -340,6 +355,9 @@ const CARDS = [
   { file: 'card_chicken_machine', build: chickenMachine, rarity: ['LEGENDARY', 'أسطوري', '#ffb000', '#3a1f00'], ar: 'ماكينة الفراخ النووية ٣٠٠٠', en: 'NUCLEAR CHICKEN MACHINE 3000',
     stats: [['CHICKENS', 'الفراخ', 6], ['TASTE', 'الطعم', 1], ['SAFETY', 'الأمان', 1], ['SAVINGS', 'التوفير', 5]],
     parts: 'غسالة قديمة + قمع + منفلة + لمبة حمرا', quote: '«تحط بطاطساية... تطلع فرخة!»', result: 'النتيجة: ٣٠ فرخة بطاطس في الصالة', ep: 'ماكينة الفراخ النووية' },
+  { file: 'card_noise_generator', build: noiseGen, rarity: ['RARE', 'نادر', '#2f9bff', '#001a3a'], ar: 'مولّد أصوات الشغل ٣٠٠٠', en: 'NUCLEAR WORK-NOISE GENERATOR 3000',
+    stats: [['NOISE', 'الدوشة', 6], ['BELIEVABLE', 'التصديق', 1], ['SAFETY', 'الأمان', 2], ['WIFE RADAR', 'رادار أم حمادة', 6]],
+    parts: 'كاسيت قديم + كلاكس توكتوك + شاكوش + طاسة', quote: '«اسمعي... ده صوت الشغل»', result: 'النتيجة: أم حمادة وصلت القهوة', ep: 'مولّد أصوات الشغل النووي' },
 ];
 
 // ---------- 2D card ----------

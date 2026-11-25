@@ -1,0 +1,1 @@
+# ahwa: vertical episode «مولّد أصوات الشغل النووي» (ahwa batch, Nov 2026). Ibrahim lies to Om Hamada from the café (inspired by the first «خمس دقايق» video). New café set «قهوة الحاج» at x=180 in ep.js; Abu Samir reparented from the engine. Voices: incoming/ahwa-batch r1-r2. Build: see NEW_CHAT_START.md
