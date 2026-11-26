@@ -1,4 +1,5 @@
-﻿r1.wav 20.4 Algieba water pump VO (BMW 320i F30, B48 engine; codes prompted in English) - take 1, longest gap 0.9 s
-r2.wav 19.6 Algieba gearbox rebuild VO (F30; code prompted in English) - take 1, longest gap 0.9 s
-r3.wav 19.3 Algieba full service VO (316i F30, N13: filter housing gasket + turbo pipes; codes prompted in English) - take 1, longest gap 0.7 s
-NOTE: gaps were measured automatically. English pronunciation of F30/B48/N13 was NOT checked by ear or by transcription (the AI Studio media upload asked to accept terms, which this unattended run did not do). Check the codes when building; if any are said in Arabic, queue a re-record.
+﻿r1.wav 34.0 Algieba water pump VO, LONGER script (BMW 320i F30, B48 engine) - take 1, longest gap 0.96 s
+r2.wav 32.5 Algieba gearbox rebuild VO, LONGER script (F30) - take 1 of 2, longest gap 1.04 s (take 2 was 29.0 s with less speech, possible skip)
+r3.wav 30.7 Algieba full service VO, LONGER script (316i F30, N13: filter housing gasket + turbo pipes) - take 1, longest gap 0.90 s
+NOTE: recorded from the updated brief (commit f2bdf72, longer texts); this replaces the earlier short-text push 2d29c0d. Style asks for F30/B48/N13 in English.
+Gaps were measured automatically. The English pronunciation of the codes was NOT checked by ear or by transcription (the AI Studio media upload asked to accept terms, which this unattended run did not do). Check the codes when building; if any are said in Arabic, queue a re-record.
