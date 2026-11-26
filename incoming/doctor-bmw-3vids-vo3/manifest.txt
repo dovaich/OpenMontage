@@ -1,0 +1,5 @@
+﻿r1.wav 32.1 Algieba water pump VO, longer script (BMW 320i F30, B48 engine) - take 1, longest gap 0.94 s
+r2.wav 28.8 Algieba gearbox rebuild VO, longer script (F30, clutches = الكلاتشات) - take 3 of 3, longest gap 1.08 s (take 1 was 26.1 s, possibly skipped words; take 2 28.2 s with a 1.14 s gap)
+r3.wav 31.6 Algieba full service VO, longer script (316i F30, N13: filter housing gasket + turbo pipes) - take 1, longest gap 0.54 s
+NOTE: Gemini 3.8 Flash TTS, single speaker, style from the vo3 brief (codes F30/B48/N13 in English). Gaps were measured automatically.
+The English pronunciation of the codes could not be checked by ear or transcription in this unattended run (no local Python/whisper on the laptop). Check the codes when building.
