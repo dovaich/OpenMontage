@@ -1,0 +1,6 @@
+m1_intro.mp4 8 Start start_green.png; mascot talks warmly with a small hand gesture, intro line (BMW 335i E90, gearbox slipping). 720x1280 (9:16), with audio. First take kept.
+m2_outro.mp4 8 Start start_green.png; mascot proud, thumbs up, outro line (car is out, shifts smooth), keeps smiling. 720x1280 (9:16), with audio. First take kept.
+# Google Flow project "doctor-bmw-mascot", Frames to Video with Omni 1.2 Flash, 9:16, 8 s, x1, downloaded at 720p (original size).
+# Background stayed flat green and the face/hair stayed the same in both takes, so no regeneration was needed.
+# Cost: 24 credits per clip. Flow credits left after the batch: 862 (resets Dec 10).
+# Note: ffmpeg/python are not installed on the laptop, so durations are Flow's reported 8 s (not ffprobed).
