@@ -1,0 +1,4 @@
+﻿r1.wav 20.4 Algieba water pump VO (BMW 320i F30, B48 engine; codes prompted in English) - take 1, longest gap 0.9 s
+r2.wav 19.6 Algieba gearbox rebuild VO (F30; code prompted in English) - take 1, longest gap 0.9 s
+r3.wav 19.3 Algieba full service VO (316i F30, N13: filter housing gasket + turbo pipes; codes prompted in English) - take 1, longest gap 0.7 s
+NOTE: gaps were measured automatically. English pronunciation of F30/B48/N13 was NOT checked by ear or by transcription (the AI Studio media upload asked to accept terms, which this unattended run did not do). Check the codes when building; if any are said in Arabic, queue a re-record.
