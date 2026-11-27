@@ -1,0 +1,4 @@
+﻿r1.wav 28.2 Recording 1: Puck (Hamada) + Orus (Ibrahim), 4 blocks, multi-speaker - take 1, longest gap 1.60 s (after the first ... of block 2); the [long pause] in block 4 is around 23.2-24.9 s
+r2.wav 16.7 Recording 2: Kore (Om Hamada) + Orus (Ibrahim), 3 blocks, multi-speaker - take 1, longest gap 1.15 s
+NOTE: Gemini 3.8 Flash TTS, styles from the brief (serious, calm, sad). Texts and voices were checked in Get code (the styles show on each block but are not part of the code export).
+Gaps were measured automatically. Not checked by ear or transcription in this unattended run.
