@@ -1,0 +1,1 @@
+# army: «الجيش اللي طلع من البير» (Terracotta Army, 1974). Documentary, narrator Schedar; Ibrahim + Om Hamada pop in on a frozen frame (overlay pass). ep.js = doc_common.js + episode code. Narration silences squeezed to 0.42 s. Voices: incoming/stories2-batch r1-r2.

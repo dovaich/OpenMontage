@@ -1,0 +1,1 @@
+# otzi: «الراجل اللي طلع من التلج» (Ötzi the Iceman, 1991). Documentary, narrator Schedar; Ibrahim + Uncle Sayed pop in (overlay pass). ep.js = doc_common.js (see army-src) + episode code. Voices: incoming/stories2-batch r3-r4.
