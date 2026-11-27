@@ -149,3 +149,5 @@ Rules for every episode from now on:
 - Lighting must be FIXED per scene (hemisphere + directional). No light that follows the camera (the engine's `fill` light, moved by `cam()`, made the asphalt flicker in «حادث الطريق الدائري»). Set `fill.intensity = 0` outside the home sets.
 - Documentary episodes open like the Ring Road video (title over an establishing shot, narrator Schedar starts at once). Ibrahim pops in mid-story, either inside the action or on a frozen PAUSE frame, and closes with the CTA.
 - Abu Samir's voice is Algieba (male). The narrator for serious/documentary episodes is Schedar.
+- Ibrahim's frozen PAUSE pop-in is drawn as a separate overlay pass (`renderOverlay`: own scene + lights, depth cleared), so he can never cut into the set. For in-scene pop-ins (standing inside the action), hide any extra that stands between him and the camera.
+- Before every render, check stills at the start, middle and end of EVERY Ibrahim pop-in and every new camera move: nothing may cut through a character or block a face.
