@@ -116,6 +116,27 @@ const ropeGeo = new THREE.BufferGeometry(); ropeGeo.setAttribute('position', new
 function setRope(a, b2, sag) { const p = ropeGeo.attributes.position.array; for (let i = 0; i < 24; i++) { const k = i / 23; const v = VL(a, b2, k); v.y -= Math.sin(k * Math.PI) * sag; p[i * 3] = v.x; p[i * 3 + 1] = v.y; p[i * 3 + 2] = v.z; } ropeGeo.attributes.position.needsUpdate = true; }
 // rowboat
 const row = new THREE.Group(); scene.add(row); { mesh(hullGeo(5, 1.6, 0.8), P(0xf0ece0), 0, 0.2, 0, row); mesh(box(1.4, 0.06, 0.3), P(0x8a6a44), 0, 0.5, -0.8, row); mesh(box(1.4, 0.06, 0.3), P(0x8a6a44), 0, 0.5, 0.8, row); for (const s of [-1, 1]) for (const z of [-0.8, 0.8]) { const o = mesh(box(0.06, 0.06, 3.2), P(0xc8a878), s * 1.2, 0.55, z, row); o.rotation.y = s * 1.2; } }
+
+// ---------- sailors (low-poly, 1877 look) ----------
+function makeSailor(parent, coat = 0x1f2a44, cap = 0x1f2a44, captain = false, seed = 1) {
+  // same construction as the series cast (makeChar): big head, painted face texture, mitten hands
+  const skin = [0xc8946a, 0xb98058, 0xd8a878, 0xa87048][seed % 4];
+  const c = makeChar({ seed: 100 + seed, skin, hipY: 0.84, legX: 0.11, legColor: 0x2a2a30, shoe: 0x111111, hand: skin,
+    torsoGeo: cyl(0.25, 0.27, 0.64, 6), torsoTex: canvasTex(16, 16, (g) => { g.fillStyle = '#' + coat.toString(16).padStart(6, '0'); g.fillRect(0, 0, 16, 16); g.fillStyle = '#d8c890'; for (let i = 0; i < 3; i++) g.fillRect(7, 3 + i * 4, 2, 2); }), torsoColor: 0xffffff, torsoY: 0.32,
+    sleeve: true, sleeveColor: coat, shoulderX: 0.31, shoulderY: 0.57, neckY: 0.64, headR: 0.27,
+    build(head, torso, reg) {
+      if (captain) { mesh(cyl(0.29, 0.29, 0.14, 12), reg(M(0x1a1a2a)), 0, 0.2, 0, head); mesh(box(0.42, 0.03, 0.22), reg(M(0x111111)), 0, 0.14, 0.2, head); mesh(box(0.14, 0.06, 0.02), reg(M(0xd8b030)), 0, 0.22, 0.29, head); }
+      else { mesh(cyl(0.26, 0.25, 0.16, 10), reg(M(cap)), 0, 0.2, 0, head); mesh(box(0.06, 0.18, 0.02), reg(M(0x111111)), 0.2, 0.12, -0.2, head); }
+      const beard = mesh(box(0.42, 0.14, 0.1), reg(M([0x2a1a10, 0x4a3a2a, 0x1a1410][seed % 3])), 0, -0.2, 0.2, head);
+      return {};
+    } }, parent);
+  return c;
+}
+const rowers = []; for (let i = 0; i < 6; i++) { const sl = makeSailor(row, [0x2a3a5a, 0x3a3a3a, 0x5a3a2a][i % 3], 0x1a1a2a, false, i); sl.root.position.set(i % 2 ? 0.38 : -0.38, 0.05, -1.6 + Math.floor(i / 2) * 1.4); sl.root.rotation.y = Math.PI; rowers.push(sl); }
+const cylCrew = []; for (let i = 0; i < 2; i++) { const sl = makeSailor(cyl1.b, 0x3a3a3a, 0x1a1a2a, i === 0, i + 7); sl.root.position.set(i ? 0.6 : -0.5, 3.08, -4 + i * 1.2); sl.root.rotation.y = i ? 2.6 : 0.4; cylCrew.push(sl); }
+const captain = makeSailor(olga.b, 0x1a1a2a, 0x1a1a2a, true, 2); captain.root.position.set(0.9, 2.45, 19.3);
+const axe = new THREE.Group(); captain.arms[1].hand.add(axe); axe.position.set(0, 0, 0.05); mesh(box(0.04, 0.6, 0.04), P(0x6a4e30), 0, -0.2, 0, axe); mesh(box(0.06, 0.18, 0.22), P(0x9a9ea2, { shininess: 100 }), 0, -0.48, 0.08, axe);
+const rescued = []; for (let i = 0; i < 5; i++) { const sl = makeSailor(olga.b, [0x3a3a3a, 0x2a3a5a][i % 2], 0x1a1a2a, i === 0, i + 3); sl.root.position.set(-2.4 + i * 1.0, 2.45, 15.8 - (i % 2) * 0.5); rescued.push(sl); }
 // rain
 const RN = 900; const rainGeo = new THREE.BufferGeometry(); rainGeo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(RN * 6), 3)); const rain = new THREE.LineSegments(rainGeo, new THREE.LineBasicMaterial({ color: 0x9fb4d0, transparent: true, opacity: 0.45 })); scene.add(rain);
 function updateRain(t, c) { const p = rainGeo.attributes.position.array; for (let i = 0; i < RN; i++) { const x = c.x + (hash(i) - 0.5) * 70, z = c.z + (hash(i + 900) - 0.5) * 70; const y = 40 - ((t * 30 + hash(i + 77) * 40) % 40); p[i * 6] = x; p[i * 6 + 1] = y; p[i * 6 + 2] = z; p[i * 6 + 3] = x + 0.6; p[i * 6 + 4] = y - 1.6; p[i * 6 + 5] = z; } rainGeo.attributes.position.needsUpdate = true; }
@@ -143,6 +164,7 @@ const LX = 1700; const london = new THREE.Group(); london.position.x = LX; scene
   mesh(box(150, 2.5, 8), P(0x6a7a6a), 60, 7, 90, london); for (let i = 0; i < 6; i++) mesh(box(3, 8, 6), P(0x5a6a5a), 0 + i * 25, 3, 90, london);
 }
 // ---------- kinematics ----------
+const Lx_after = () => NX(6).t0 - 0.2;
 const T_STORM = NX(3).t0 - 0.2, T_BOAT = NX(4).t0, T_FLIP = NX(4).t0 + NX(4).vox.length && NX(4).vox.length > 1 ? NX(4).vox[NX(4).vox.length - 1][0] : NX(4).t1 - 1.5, T_CUT = NX(5).t0 + 2.5;
 function stateAt(t) {
   const S = sceneAt(t); WT = t;
@@ -165,7 +187,18 @@ function stateAt(t) {
     if (olga.g.visible) { let ox = 0, ozz = oz, oyaw = Math.PI; if (S === 'storm' && t > T_CUT) { ozz = oz - (t - T_CUT) * 4; ox = -(t - T_CUT) * 1.0; } floatPose(olga.g, ox, ozz, oyaw, t, 42, 7.5, S === 'storm' ? Math.sin(t * 1.1) * 0.12 * STORM : 0); olga.g.position.y -= 0.6; }
     if (rescuer.g.visible) { const k = easeOut(seg(t, NX(6).t0 - 0.2, NX(6).t1)); floatPose(rescuer.g, -60 + 40 * k, -30 + 10 * k, Math.PI / 2 + 0.3, t, 42, 7.5, 0); rescuer.g.position.y -= 0.6; }
     if (rope.visible) { const a = olga.b.localToWorld(V(0, 2.5, 21)); const b2 = cyl1.b.localToWorld(V(0, 1.5, -16)); setRope(a, b2, S === 'storm' ? 0.5 + Math.sin(t * 3) * 0.4 : 1.2); }
-    if (row.visible) { const k = seg(t, T_BOAT, T_FLIP); const ox = VL(V(-6, 0, oz + 26), V(-3, 0, cz - 6), k); const flip = easeIn(seg(t, T_FLIP, T_FLIP + 1.0)); floatPose(row, ox.x, ox.z, Math.PI * 0.8, t, 5, 1.6, flip * Math.PI * 0.95); row.position.y -= flip * 0.8; }
+    if (row.visible) { const k = seg(t, T_BOAT, T_FLIP); const ox = VL(V(-9, 0, oz + 26), V(-8.5, 0, cz - 4), k); const flip = easeIn(seg(t, T_FLIP, T_FLIP + 1.0)); floatPose(row, ox.x, ox.z, Math.PI * 0.8, t, 5, 1.6, flip * Math.PI * 0.95); row.position.y -= flip * 0.8; }
+
+    { const flip = seg(t, T_FLIP, T_FLIP + 1.0); rowers.forEach((sl, i) => { sl.root.visible = row.visible && flip < 0.35; const st = Math.sin(t * 4 + (i % 2) * 0.3);
+        applyPose(sl, { ...POSE0, y: -0.38, lL: 1.45, lR: 1.45, aLx: 1.2 + st * 0.5, aRx: 1.2 + st * 0.5, eL: 0.6, eR: 0.6, bend: st * 0.15 }); setFace(sl, 'wide', t > T_FLIP - 0.8 ? 'scream' : 'clench', {}); }); }
+    cylCrew.forEach((sl, i) => { sl.root.visible = (S === 'calm' || S === 'storm') && t < NX(5).t0; applyPose(sl, { ...POSE0, aLz: S === 'storm' ? 1.2 + Math.sin(t * 3 + i) * 0.3 : 0.2, aRx: S === 'storm' ? 1.4 : 0.2, eR: 0.4 }); setFace(sl, S === 'storm' ? 'wide' : 'flat', S === 'storm' ? 'o' : 'flat', {}); });
+    { const on = S === 'storm' && t >= NX(5).t0 - 0.2 && t < Lx_after(); captain.root.visible = on; rescued.forEach(r => r.root.visible = on);
+      const sw = seg(t, T_CUT - 0.6, T_CUT); axe.visible = t >= T_CUT - 1.6;
+      applyPose(captain, { ...POSE0, aRx: t < T_CUT - 1.6 ? 0.3 : t < T_CUT - 0.6 ? 2.6 : 2.6 - 2.2 * easeIn(sw), eR: 0.3, aLx: 0.6, eL: 0.8 }); setFace(captain, 'angry', 'clench', { stache: true });
+      rescued.forEach((r, i) => { applyPose(r, { ...POSE0, aLx: 0.9, aRx: 0.9, eL: 1.6, eR: 1.6, bend: 0.2, hx: 0.25 }); setFace(r, 'tired', 'frown', {}); }); }
+
+    if (row.visible) { const k = seg(t, T_BOAT, T_FLIP); const ox = VL(V(-9, 0, oz + 26), V(-8.5, 0, cz - 4), k); const flip = easeIn(seg(t, T_FLIP, T_FLIP + 1.0)); floatPose(row, ox.x, ox.z, Math.PI * 0.8, t, 5, 1.6, flip * Math.PI * 0.95); row.position.y -= flip * 0.8; }
+
     updateWater(t, S === 'found' ? 0 : 0, S === 'found' ? 0 : cz - 20);
     if (S === 'storm') updateRain(t, cyl1.g.position);
   }
@@ -189,7 +222,8 @@ function shotAt(t) {
   if (S === 'calm') { const k = easeInOut(seg(t, NX(2).t0, NX(3).t0)); cam(V(c.x + 30 - 10 * k, 12 + 4 * k, c.z + 30 - 50 * k), VL(c, o, 0.45).add(V(0, 2, 0)), 55); return; }
   if (S === 'storm') {
     if (t < T_BOAT - 0.2) { cam(V(c.x + 15, 5.5 + Math.sin(t) * 0.6, c.z + 12), c.clone().add(V(0, 1.5, -3)), 58); return; }
-    if (t < NX(5).t0 - 0.2) { const r = row.position; cam(V(r.x + 8, 4, r.z + 8), r.clone().add(V(0, 0.6, 0)), 56); return; }
+    if (t < NX(5).t0 - 0.2) { const r = row.position; const hi = seg(t, T_FLIP - 0.5, T_FLIP + 0.5); cam(V(r.x - 9 - 2 * hi, 4 + 4 * hi, r.z + 7 + 2 * hi), r.clone().add(V(1.5, 0.6, 0)), 56); return; }
+    if (t < T_CUT - 0.8) { const a = olga.b.localToWorld(V(0, 3.4, 17)); cam(olga.b.localToWorld(V(7, 5.2, 24)), a, 56); return; }
     if (t < T_CUT + 0.5) { const a = olga.b.localToWorld(V(0, 3, 21)); const m = VL(a, cyl1.g.position, 0.5); cam(m.clone().add(V(26, 9, 4)), m.clone().add(V(0, 1, 0)), 58); return; }
     const k = easeInOut(seg(t, T_CUT, NX(6).t0)); cam(V(c.x + 20 + 15 * k, 10 + 12 * k, c.z + 25 + 20 * k), c.clone().add(V(0, 1, 0)), 55); return;
   }

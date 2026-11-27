@@ -5,7 +5,7 @@ import sys, wave, json
 import numpy as np
 
 SR = 44100
-ANC = [[0, 0], [65.1, 65.1]]
+ANC = [[0, 0], [67.5, 67.5]]
 def W(o):  # scene (old) time -> output time
     for (n0, o0), (n1, o1) in zip(ANC, ANC[1:]):
         if o <= o1: return n0 + (o - o0) * (n1 - n0) / max(1e-6, o1 - o0)
@@ -45,7 +45,7 @@ def pluck(f, d, damp=0.996):
 
 music = np.zeros(N); sfx = np.zeros(N); amb = np.zeros(N)
 r = np.random.RandomState(6)
-T_CALM = 5.12; T_POP1 = 14.12; T_STORM = 19.38; T_BOAT = 26.91; T_FLIP = 32.4; T_CUT = 36.25; T_FOUND = 39.5; T_POP2 = 43.49; T_POP2E = 47.57; T_LON = 47.42; T_HOME = 55.74
+T_CALM = 5.12; T_POP1 = 14.12; T_STORM = 19.38; T_BOAT = 26.91; T_FLIP = 32.4; T_CUT = 36.25; T_FOUND = 39.5; T_POP2 = 43.49; T_POP2E = 47.57; T_LON = 47.42; T_HOME = 58.08
 def pad(t0, t1, notes, g):
     d = t1 - t0; tb = tt(d); x = np.zeros(len(tb))
     for m in notes: x += np.sin(2 * np.pi * note(m) * tb) + 0.3 * np.sin(2 * np.pi * note(m) * 2.003 * tb)
