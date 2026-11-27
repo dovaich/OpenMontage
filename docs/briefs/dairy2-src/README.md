@@ -1,0 +1,1 @@
+# dairy2: respectful reconstruction of the Ring Road (Warraq) tanker fire, based on the Interior Ministry statement (labelled as an illustrative reconstruction). Narrator Schedar. No people shown. Ring road at x=300, traffic both carriageways, fire spreading over cars and road. Voices: incoming/dairy2-batch r1.
