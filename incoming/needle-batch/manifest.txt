@@ -1,0 +1,5 @@
+r1.wav 69.5 Recording 1: Orus (Ibrahim, Speaker 1) + Schedar (narrator, Speaker 2), 3 blocks (1, 2, 1), multi-speaker - take 1
+  silent gaps >=0.5 s: 1.90-2.45, 3.70-4.35, 9.05-9.60, 15.80-16.30, 19.30-20.65, 23.65-24.25, 26.00-26.50, 27.95-28.65, 32.70-33.45, 35.80-36.55, 38.35-38.95, 39.90-40.40, 42.25-43.35, 46.65-47.40, 47.85-48.80, 52.10-52.75, 56.20-56.75, 61.15-61.65, 62.60-66.65
+  (block 1 likely ends around 1.9-2.5 s; block 3 likely starts around 56-62 s, its [long pause] at 62.60-66.65 s)
+NOTE: Gemini 3.8 Flash TTS. Voices checked in Get code (Orus, Schedar), styles confirmed on each block's Style button, texts set exactly from the brief.
+Gaps were measured automatically. Not checked by ear or transcription in this unattended run (no whisper/python on the laptop).

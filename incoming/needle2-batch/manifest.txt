@@ -1,0 +1,4 @@
+r1.wav 14.7 Recording 1: Orus (Ibrahim), single speaker, 1 block - take 1
+  part 1 = 0.00-4.40 s, [long pause] silence 4.40-10.95 s, part 2 = 10.95-14.7 s
+NOTE: Gemini 3.8 Flash TTS. Style confirmed on the block's Style button, text set exactly from the brief.
+Not checked by ear or transcription in this unattended run.
