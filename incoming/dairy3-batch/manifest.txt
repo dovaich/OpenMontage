@@ -1,0 +1,6 @@
+r1.wav 7.2 Recording 1: Orus (Ibrahim) + Puck (Hamada), 2 blocks, multi-speaker - take 1, gaps 1.38-2.30 s and 3.64-4.66 s (speaker change likely around 3.6-4.7 s)
+r2.wav 8.1 Recording 2: Fenrir (Hoda) + Rasalgethi (El-Alamy), 2 blocks, multi-speaker - take 1, gaps 2.24-2.72, 3.38-4.12, 6.06-7.12 s
+r3.wav 6.5 Recording 3: Charon (Shehata) + Kore (Om Hamada), 2 blocks, multi-speaker - take 1, gap 2.62-3.50 s
+r4.wav 8.4 Recording 4: Enceladus (Uncle Sayed) + Algieba (Abu Samir), 2 blocks, multi-speaker - take 1, gaps 4.20-5.10, 5.88-6.34 s
+NOTE: Gemini 3.8 Flash TTS. Voices checked in Speaker settings, styles confirmed on each block button, texts set exactly from the brief.
+Gaps were measured automatically. Not checked by ear or transcription in this unattended run.
