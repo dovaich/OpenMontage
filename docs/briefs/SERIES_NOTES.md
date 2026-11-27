@@ -142,3 +142,10 @@ Rules for every episode from now on:
 - Keep each one to the vertical format rules above, 30–45 s, family core cast, works on its own.
 - **Abu Samir's car** (recurring, introduced in «عربية أبو سمير»): the mustard 1980 «١٢٨». Model: `docs/briefs/characters/samir-car/samir_car.js`. The car is "sad" and "needs love", so future car episodes can build on that.
 - Teta (Ibrahim's mother, introduced in «حكاية المخترع العالمي»): AI Studio voice **Aoede**. Young/baby versions of the cast: see `life-story-src/ep.js` (`woman()`, `kid()`).
+
+## Standing rules from the «حصلت إزاي؟» documentary episodes (Nov 2026)
+- Any NEW character (sailors, captains, crowds, extras) must be built with `makeChar` like the cast: big head, painted face texture via `setFace`, mitten hands, poses via `applyPose`. No plain box people.
+- Vehicles (cars, ships, trucks) must be detailed: glass, lights with glow sprites, wheels with rims, trim; ships with hull shape, deck, rails, masts, rigging, funnels with smoke.
+- Lighting must be FIXED per scene (hemisphere + directional). No light that follows the camera (the engine's `fill` light, moved by `cam()`, made the asphalt flicker in «حادث الطريق الدائري»). Set `fill.intensity = 0` outside the home sets.
+- Documentary episodes open like the Ring Road video (title over an establishing shot, narrator Schedar starts at once). Ibrahim pops in mid-story, either inside the action or on a frozen PAUSE frame, and closes with the CTA.
+- Abu Samir's voice is Algieba (male). The narrator for serious/documentary episodes is Schedar.
