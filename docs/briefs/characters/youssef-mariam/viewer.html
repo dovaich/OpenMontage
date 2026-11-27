@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#000}</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script></head>
+<body><canvas id="c"></canvas><script type="module">
+import * as THREE from 'three'; import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+const W = 600, H = 1000; const R = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
+R.setSize(W, H); R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.shadowMap.enabled = true;
+const S = new THREE.Scene(); S.background = new THREE.Color(0xb8c6d4);
+const pm = new THREE.PMREMGenerator(R); S.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; S.environmentIntensity = 0.5;
+S.add(new THREE.HemisphereLight(0xdfeeff, 0x667755, 1.2)); const sun = new THREE.DirectionalLight(0xfff0dd, 2.4); sun.position.set(3, 6, 5); sun.castShadow = true; S.add(sun);
+const gr = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x8a9a70 })); gr.rotation.x = -Math.PI / 2; gr.receiveShadow = true; S.add(gr);
+const url = new URLSearchParams(location.search).get('m');
+const g = await new GLTFLoader().loadAsync(url); const root = g.scene;
+const bb = new THREE.Box3().setFromObject(root); window.INFO = { h: bb.max.y - bb.min.y, min: bb.min.y };
+const target = Number(new URLSearchParams(location.search).get('h') || 1.8); const s = target / (bb.max.y - bb.min.y); root.scale.setScalar(s); root.position.y = -bb.min.y * s;
+root.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; o.frustumCulled = false; const m = o.material; if (m.transparent) { m.alphaTest = 0.35; m.transparent = false; m.depthWrite = true; m.side = THREE.DoubleSide; } } }); S.add(root);
+const cam = new THREE.PerspectiveCamera(30, W / H, 0.05, 100);
+window.view = (yaw, dist, y, ly, fov) => { cam.fov = fov; cam.updateProjectionMatrix(); cam.position.set(Math.sin(yaw) * dist, y, Math.cos(yaw) * dist); cam.lookAt(0, ly, 0); R.render(S, cam); return R.domElement.toDataURL('image/jpeg', 0.9); };
+window.READY = true;
+</script></body></html>
