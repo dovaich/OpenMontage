@@ -256,8 +256,11 @@ function drawCTA(g, t) {
   arText(g, 'نحكي إيه المرة الجاية؟ 👇', 0, -56, 32, '#111', 'center'); arText(g, 'اكتبوا حدث محدش يعرفه!', 0, -14, 30, '#d8231b', 'center'); g.restore();
 }
 const popLight = new THREE.PointLight(0xfff0d8, 0, 6, 1.2); scene.add(popLight);
+const overlay = new THREE.Scene(); overlay.add(new THREE.HemisphereLight(0xfff4e8, 0x504030, 1.0)); { const d = new THREE.DirectionalLight(0xffffff, 0.8); d.position.set(2, 4, 3); overlay.add(d); overlay.add(d.target); }
+function renderOverlay(c) { const parent = c.root.parent; overlay.add(c.root); c.root.visible = true; renderer.autoClear = false; renderer.clearDepth(); renderer.render(overlay, camera); renderer.autoClear = true; parent.add(c.root); }
 // pop 1: Ibrahim INSIDE the action, standing on the cylinder's deck while it is towed (no freeze)
 function onDeck(t, pop) {
+  cylCrew.forEach(c => c.root.visible = false); // keep the frame clear for Ibrahim
   const [a, b] = pop; const k = easeBack(seg(t, a, a + 0.5));
   const base = cyl1.b.localToWorld(V(0.3, 3.08, -1.5 + (1 - k) * 0)); dad.root.visible = true; dad.root.position.copy(base); dad.root.position.y += (1 - k) * 3;
   const q = new THREE.Quaternion(); cyl1.b.getWorldQuaternion(q); dad.root.quaternion.copy(q); dad.root.rotateY(Math.PI * 0.85);
@@ -280,8 +283,8 @@ function popIn(t, pop) {
 window.renderFrame = function (t) {
   const pop = popAt(t); const freeze = pop && pop === POPS[1]; const ts = freeze ? pop[0] : t;
   popLight.intensity = 0; stateAt(ts); shotAt(ts); particles(ts);
-  if (freeze) popIn(t, pop); else if (pop) onDeck(t, pop);
-  renderer.render(scene, camera);
+  if (freeze) { dad.root.visible = false; renderer.render(scene, camera); popIn(t, pop); renderOverlay(dad); }
+  else { if (pop) onDeck(t, pop); renderer.render(scene, camera); }
   ctx.clearRect(0, 0, W, H); ctx.drawImage(glCanvas, 0, 0);
   h.clearRect(0, 0, W, H);
   if (freeze) { h.save(); h.fillStyle = 'rgba(10,10,30,0.85)'; h.fillRect(W / 2 - 90, 40, 180, 50); h.strokeStyle = '#ffe14a'; h.lineWidth = 2; h.strokeRect(W / 2 - 90, 40, 180, 50); h.fillStyle = '#ffe14a'; h.fillRect(W / 2 - 70, 52, 8, 26); h.fillRect(W / 2 - 56, 52, 8, 26); pxText(h, 'PAUSE', W / 2 + 16, 54, 16, '#ffe14a', 'center'); h.restore(); }

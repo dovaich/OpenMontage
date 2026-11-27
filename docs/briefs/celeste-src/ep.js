@@ -230,10 +230,14 @@ function drawCTA(g, t) {
   arText(g, 'إيه اللي حصل في رأيك؟ 👇', 0, -56, 32, '#111', 'center'); arText(g, 'اكتب نظريتك في الكومنتات', 0, -14, 30, '#d8231b', 'center'); g.restore();
 }
 const popLight = new THREE.PointLight(0xfff0d8, 0, 6, 1.2); scene.add(popLight);
+// Ibrahim's pop-in is drawn as its OWN layer over the frozen frame, so he can never cut into the set (rails, cabins, masts)
+const overlay = new THREE.Scene(); overlay.add(new THREE.HemisphereLight(0xfff4e8, 0x504030, 1.0)); { const d = new THREE.DirectionalLight(0xffffff, 0.8); d.position.set(2, 4, 3); overlay.add(d); overlay.add(d.target); }
+function renderOverlay(c) { const parent = c.root.parent; overlay.add(c.root); c.root.visible = true; renderer.autoClear = false; renderer.clearDepth(); renderer.render(overlay, camera); renderer.autoClear = true; parent.add(c.root); }
 window.renderFrame = function (t) {
   const pop = popAt(t); const ts = pop ? pop[0] : t;
-  popLight.intensity = 0; stateAt(ts); shotAt(ts); particles(ts); if (pop) popIn(t, pop);
-  renderer.render(scene, camera);
+  popLight.intensity = 0; stateAt(ts); shotAt(ts); particles(ts);
+  if (pop) { dad.root.visible = false; renderer.render(scene, camera); popIn(t, pop); renderOverlay(dad); }
+  else renderer.render(scene, camera);
   ctx.clearRect(0, 0, W, H); ctx.drawImage(glCanvas, 0, 0);
   h.clearRect(0, 0, W, H);
   if (pop) { h.save(); h.fillStyle = 'rgba(10,10,30,0.85)'; h.fillRect(W / 2 - 90, 40, 180, 50); h.strokeStyle = '#ffe14a'; h.lineWidth = 2; h.strokeRect(W / 2 - 90, 40, 180, 50); h.fillStyle = '#ffe14a'; h.fillRect(W / 2 - 70, 52, 8, 26); h.fillRect(W / 2 - 56, 52, 8, 26); pxText(h, 'PAUSE', W / 2 + 16, 54, 16, '#ffe14a', 'center'); h.restore(); }
