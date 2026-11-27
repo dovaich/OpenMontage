@@ -1,0 +1,8 @@
+r1 68.97s (24000 Hz) - Recording 1: multi-speaker, 4 blocks (Speaker 1 Schedar narrator / Speaker 2 Orus Ibrahim / Schedar / Orus) - «الجيش اللي طلع من البير» (Terracotta Army) - take 1
+r2 2.52s (24000 Hz) - Recording 2: single-speaker, Kore (Om Hamada) - «الجيش اللي طلع من البير» - take 1
+r3 68.79s (24000 Hz) - Recording 3: multi-speaker, 4 blocks (Speaker 1 Schedar narrator / Speaker 2 Orus Ibrahim / Schedar / Orus) - «الراجل اللي طلع من التلج» (Ötzi) - take 1
+r4 3.03s (24000 Hz) - Recording 4: single-speaker, Enceladus (Uncle Sayed) - «الراجل اللي طلع من التلج» - take 1
+Model: Gemini 3.8 Flash TTS. Voices checked in Speaker settings; every block Style and Text set exactly from the brief, [long pause] tags left as written (texts confirmed in Get code / page text).
+Silence check (RMS, 50 ms windows): r1 has 12 pauses >= 0.8 s, r3 has 7, so the [long pause] tags were rendered as pauses.
+NOTE: not checked by ear in this unattended run (no working python/whisper/ffmpeg on the laptop), so it was not checked for "long pause" being read aloud, missing sentences or wrong years. Please listen before building.
+Durations computed as mono 16-bit 24 kHz.
