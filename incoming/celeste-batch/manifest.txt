@@ -1,0 +1,5 @@
+﻿r1 101.96s (24000 Hz) - Recording 1: multi-speaker, 4 blocks (Speaker 1 Schedar narrator / Speaker 2 Orus Ibrahim / Schedar / Orus) - take 1
+Model: Gemini 3.8 Flash TTS. Voices checked in Speaker settings; all 4 block Styles and Texts set exactly from the brief, [long pause] tags left as written.
+AI Studio player showed total length 1:41.
+NOTE: not checked by ear in this unattended run (no working python/whisper/ffmpeg on the laptop), so it was not checked for "long pause" being read aloud, missing sentences or a comedic tone. Please listen before building.
+Durations computed as mono 16-bit 24 kHz.
