@@ -1,5 +1,6 @@
-﻿r1 5.36s (24000 Hz) - Recording 1: Schedar (narrator), single-speaker, 1 block - take 1
-r2 5.45s (24000 Hz) - Recording 1: same settings - take 2 (spare take, in case take 1 mispronounces التايمز)
+﻿r1 10.71s (24000 Hz) - Recording 1: Schedar (narrator), single-speaker, 1 block - take 1
+r2 10.89s (24000 Hz) - Recording 1: same settings - take 2 (spare take, in case take 1 mispronounces التايمز)
 Text: ووصلت لندن في يناير ألف تمنمية تمانية وسبعين... ولحد النهارده، واقفة على نهر التايمز، واسمها: إبرة كليوباترا.
 NOTE: Gemini 3.8 Flash TTS. Voice Schedar and style checked in the page (Speaker settings + Style button), text set exactly from the brief.
 The pronunciation of "التايمز" was NOT checked by ear in this unattended run (no python/whisper/ffmpeg on the laptop). Please check both takes and use whichever says "et-Taymz".
+Durations computed as mono 16-bit 24 kHz (the WAV header's byte-rate field says 96000, which is inconsistent).
