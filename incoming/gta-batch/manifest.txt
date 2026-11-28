@@ -1,0 +1,5 @@
+r1 78.64s (24000 Hz) - Recording 1: multi-speaker, 4 blocks (Speaker 1 Schedar narrator / Speaker 2 Puck Hamada / Schedar / Puck) - «لعبة اتعملت بالغلط» (Rockstar Games + GTA) - take 1
+r2 4.03s (24000 Hz) - Recording 2: single-speaker, Orus (Ibrahim) - «لعبة اتعملت بالغلط» - take 1
+Model: Gemini 3.8 Flash TTS. Voices set in Speaker settings; every block Style and Text set exactly from the brief (text lengths verified), [long pause] tags left as written.
+Silence check (RMS, 50 ms windows): r1 has 12 gaps >= 0.5 s (5 of them >= 0.8 s), matching 9 [long pause] tags + 3 speaker changes, so the tags were rendered as pauses.
+NOTE: not checked by ear in this unattended run (no python/whisper/ffmpeg on the laptop), so "long pause" read aloud, missing sentences or wrong years could not be ruled out. Please listen before building.
