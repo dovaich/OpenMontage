@@ -1,0 +1,5 @@
+r1 64.75s (24000 Hz) - Recording 1: multi-speaker, 4 blocks (Speaker 1 Schedar narrator / Speaker 2 Orus Ibrahim / Schedar / Orus) - «الحنفية اتعملت عشان إيد اتحرقت» (history of the tap/faucet) - take 1
+r2 2.55s (24000 Hz) - Recording 2: single-speaker, Kore (Om Hamada) - «وولّعت الحمام يا إبراهيم.» - take 1
+Model: Gemini 3.8 Flash TTS. Voices set in Speaker settings; every block Style and Text set exactly from the brief (text lengths verified: 455/54/346/68), [long pause] tags left as written.
+Silence check (RMS, 50 ms windows): r1 has 15 gaps >= 0.5 s (longest 0.85 s), against 7 [long pause] tags + 3 speaker changes, so the tags seem rendered as pauses (but fairly short ones).
+NOTE: not checked by ear in this unattended run (no ffmpeg/whisper on the laptop; an AI Studio transcription attempt was cancelled because it required accepting a media-upload terms dialog). "long pause" read aloud, missing sentences or wrong years could not be ruled out. Please listen before building.
