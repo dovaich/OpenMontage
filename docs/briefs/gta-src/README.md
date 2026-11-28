@@ -1,0 +1,1 @@
+# gta: «لعبة اتعملت بالغلط» (history of Rockstar Games and GTA). Generic/original visuals only (no logos or game characters). Hamada + Ibrahim pop in. Voices: incoming/gta-batch r1-r2 (silences squeezed).

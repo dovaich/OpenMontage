@@ -151,3 +151,4 @@ Rules for every episode from now on:
 - Abu Samir's voice is Algieba (male). The narrator for serious/documentary episodes is Schedar.
 - Ibrahim's frozen PAUSE pop-in is drawn as a separate overlay pass (`renderOverlay`: own scene + lights, depth cleared), so he can never cut into the set. For in-scene pop-ins (standing inside the action), hide any extra that stands between him and the camera.
 - Before every render, check stills at the start, middle and end of EVERY Ibrahim pop-in and every new camera move: nothing may cut through a character or block a face.
+- Look upgrade (Nov 2026, same style): real sun shadows, gradient skies and the v2 detailed cars live in `docs/briefs/doc-toolkit/`. Every new vehicle is checked from six angles (front 3/4, side, rear, top, close front, distance) before it goes into an episode.
